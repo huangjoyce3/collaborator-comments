@@ -8,6 +8,8 @@ var request = require("request");
 
 // base request url
 var baseUrl = "https://capstoneihme.wufoo.com/api/v3/";
+// postman:
+// Authorization : Basic RE5OQS03SktDLVNONDEtSzZNVTogZm9vdGFzdGlj
 
 // returns details on all the forms you have permission to access
 request(
@@ -29,7 +31,7 @@ request(
 
 request(
     {
-        uri: baseUrl + "zmi7o29077l3ga.json",
+        uri: baseUrl + "forms/zmi7o29077l3ga.json",
         method: "GET",
         auth: {
             username: "DNNA-7JKC-SN41-K6MU",
@@ -48,7 +50,7 @@ request(
     {
         uri:
             baseUrl +
-            "zmi7o29077l3ga/entries.json?sort=EntryId&sortDirection=DESC",
+            "forms/zmi7o29077l3ga/entries.json?sort=EntryId&sortDirection=DESC",
         method: "GET",
         auth: {
             username: "DNNA-7JKC-SN41-K6MU",
@@ -65,7 +67,7 @@ request(
 
 request(
     {
-        uri: baseUrl + "zmi7o29077l3ga/entries/count.json",
+        uri: baseUrl + "forms/zmi7o29077l3ga/entries/count.json",
         method: "GET",
         auth: {
             username: "DNNA-7JKC-SN41-K6MU",
