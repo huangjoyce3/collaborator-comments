@@ -26,14 +26,16 @@ input[type=text] {
     outline: none;
     text-align: center;
     font-size: 110%;
-    /* background: url(https://png.icons8.com/windows/100/000000/guest-male.png) no-repeat scroll -60%; */
 }
 #username{
     padding-bottom: 10px;
+    background: url('../assets/user.png') no-repeat scroll 10%;
 }
 #password{
     border: none;
     margin-top: 10px;
+    background: url('../assets/locked.png') no-repeat scroll 10%;
+
 }
 .button {
     margin-top: 30px;
