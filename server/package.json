@@ -12,8 +12,9 @@
     "dependencies": {
         "amqplib": "^0.5.2",
         "express": "^4.16.2",
+        "hashmap": "^2.3.0",
         "mongodb": "^2.2.33",
         "morgan": "^1.9.0",
-        "hashmap": "^2.3.0"
+        "request": "^2.83.0"
     }
 }

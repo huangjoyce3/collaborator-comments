@@ -12,8 +12,9 @@ class MongoStore {
 
     insertForm(form) {}
 
-    insertComment(form, comment) {}
-    getComment(id) {}
+    insertComment(formID, comment) {}
+    getFormInfo(formID) {}
+    getAllComment(formID) {}
 
     getAllForm() {
         return this.collection;
