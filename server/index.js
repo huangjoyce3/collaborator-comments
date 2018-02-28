@@ -25,7 +25,8 @@ const mongodb = require("mongodb");
 
 app.use(express.json());
 
-app.post("/form", (req, res) => {
+app.post("/form/formName", (req, res) => {
+    var formName = req.params.formName;
     request(
         {
             uri:
@@ -45,7 +46,7 @@ app.post("/form", (req, res) => {
             for (var index in obj) {
                 //console.log(obj[index].Field47);
                 let entry = {
-                    fullName: obj[index].Field47 + obj[index].Field48,
+                    fullName: obj[index].Field47 + " " + obj[index].Field48,
                     email: obj[index].Field7,
                     numericalResult: obj[index].Field52,
                     descrOfMethod: obj[index].Field62,
@@ -67,11 +68,12 @@ app.post("/form", (req, res) => {
 
 // clean each category
 function processData(e) {
-    console.log(e);
+    //console.log(e);
 
     // check if email is duplicated
     if (!emailSet.has(e.email)) {
-        clean(e.numericalResult);
+        emailSet.add(e.email);
+        clean(e.numericalResult, e, "numericalResult");
     }
 }
 
@@ -81,11 +83,28 @@ split comment by •
 call to save into db
 */
 
-function clean(str) {
-    if (str != null || str != "" || length(str) > 3 || !commentSet.has(str)) {
+function clean(str, e, cat) {
+    if (
+        str != null ||
+        str != "" ||
+        str.split(" ").length > 3 ||
+        !commentSet.has(str)
+    ) {
         var strArr = str.split("•");
         for (var index in strArr) {
-            console.log(index);
+            var current = strArr[index];
+            if (!commentSet.has(current) && current.split(" ").length > 3) {
+                commentSet.add(current);
+                //console.log(current);
+                let aLine = {
+                    formName: "temp", // replace it with request parameter
+                    collaborator: e.fullName,
+                    email: e.email,
+                    category: cat,
+                    comment: current
+                };
+                console.log(aLine);
+            }
         }
     }
 }
