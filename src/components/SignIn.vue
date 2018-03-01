@@ -4,10 +4,13 @@
         <form>
             <!-- <img src="https://png.icons8.com/windows/100/000000/guest-male.png">             -->
             <input type="text" name="username" placeholder="username" id="username"><br>
-            <input type="text" name="password" placeholder="password" id="password"><br>
-            <button class="button">Login in</button>
+            <input type="password" name="password" placeholder="password" id="password"><br>
+            <router-link :to="{name: 'FormItem'}">
+                <button class="button">Login in</button>
+            </router-link>
+            
         </form>
-        <div class="other">  
+        <div class="other">
             <p id="create">Create and account</p>
             <p id="recover">Recover account</p>
         </div>
@@ -15,12 +18,12 @@
 </template>
 <script>
 export default {
-    name: 'SignIn'
+  name: 'SignIn'
 }
 </script>
 
 <style scoped>
-input[type=text] {
+input {
     border: none;
     border-bottom: 1px solid #dddddd;
     outline: none;
@@ -73,4 +76,3 @@ img {
     padding-left: 50px;
 }
 </style>
-
