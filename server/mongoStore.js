@@ -10,14 +10,15 @@ class MongoStore {
         this.collection = db.collection(colName);
     }
 
-    insertForm(form) {}
+    insertComment(index, comment) {
+        return this.collection.insertOne(comment).then(() => comment);
+    }
+    getAllComment(formName) {
+        return this.collection.find({ formName: formName }).toArray();
+    }
 
-    insertComment(formID, comment) {}
-    getFormInfo(formID) {}
-    getAllComment(formID) {}
-
-    getAllForm() {
-        return this.collection;
+    getAll() {
+        return this.collection.find().toArray();
     }
 }
 

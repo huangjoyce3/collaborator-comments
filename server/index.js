@@ -23,10 +23,18 @@ const express = require("express");
 const app = express();
 const mongodb = require("mongodb");
 
+const MemStore = require("./memstore");
+
+// map
+var HashMap = require("hashmap");
+var map1 = new HashMap();
+let memStore = new MemStore(map1);
+
 app.use(express.json());
 
-app.post("/form/formName", (req, res) => {
+app.post("/form/:formName", (req, res) => {
     var formName = req.params.formName;
+    var o = null;
     request(
         {
             uri:
@@ -39,13 +47,10 @@ app.post("/form/formName", (req, res) => {
             }
         },
         function(error, response, body) {
-            //console.log(body);
             var obj = JSON.parse(body).Entries;
-
-            //console.log(obj.Entries[0]);
             for (var index in obj) {
-                //console.log(obj[index].Field47);
                 let entry = {
+                    formName: formName,
                     fullName: obj[index].Field47 + " " + obj[index].Field48,
                     email: obj[index].Field7,
                     numericalResult: obj[index].Field52,
@@ -60,10 +65,14 @@ app.post("/form/formName", (req, res) => {
                 //console.log(entry);
                 processData(entry);
             }
+            res.json(obj);
         }
     );
+});
 
-    res.send("hi");
+app.get("/form/:formName", (req, res) => {
+    var formName = req.params.formName;
+    res.json(memStore.getAllComment(formName));
 });
 
 // clean each category
@@ -74,6 +83,13 @@ function processData(e) {
     if (!emailSet.has(e.email)) {
         emailSet.add(e.email);
         clean(e.numericalResult, e, "numericalResult");
+        clean(e.descrOfMethod, e, "descrOfMethod");
+        clean(e.methodological, e, "methodological");
+        clean(e.dataSource, e, "dataSource");
+        clean(e.narrativeStructure, e, "narrativeStructure");
+        clean(e.futureDirection, e, "futureDirection");
+        clean(e.tableAndFigure, e, "tableAndFigure");
+        clean(e.appendix, e, "appendix");
     }
 }
 
@@ -97,13 +113,16 @@ function clean(str, e, cat) {
                 commentSet.add(current);
                 //console.log(current);
                 let aLine = {
-                    formName: "temp", // replace it with request parameter
+                    formName: e.formName, // replace it with request parameter
                     collaborator: e.fullName,
                     email: e.email,
                     category: cat,
                     comment: current
                 };
-                console.log(aLine);
+                memStore.insertComment(aLine);
+
+                //console.log(aLine);
+                console.log(memStore.getAllComment(e.formName));
             }
         }
     }
