@@ -30,7 +30,16 @@ var HashMap = require("hashmap");
 var map1 = new HashMap();
 let memStore = new MemStore(map1);
 
-app.use(express.json());
+//app.use(express.json());
+app.use(function(req, res, next) {
+    express.json();
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader(
+        "Access-Control-Allow-Methods",
+        "GET, POST, OPTIONS, PUT, PATCH, DELETE"
+    );
+    next();
+});
 
 app.post("/form/:formName", (req, res) => {
     var formName = req.params.formName;
