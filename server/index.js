@@ -30,15 +30,28 @@ var HashMap = require("hashmap");
 var map1 = new HashMap();
 let memStore = new MemStore(map1);
 
-app.use(express.json());
+//app.use(express.json());
+app.use(function(req, res, next) {
+    express.json();
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader(
+        "Access-Control-Allow-Methods",
+        "GET, POST, OPTIONS, PUT, PATCH, DELETE"
+    );
+    next();
+});
 
 app.post("/form/:formName", (req, res) => {
     var formName = req.params.formName;
+    console.log(formName);
     var o = null;
+    var url =
+        "https://ihmeuw.wufoo.com/api/v3/forms/" +
+        formName +
+        "/entries.json?sort=EntryId&sortDirection=DESC";
     request(
         {
-            uri:
-                "https://ihmeuw.wufoo.com/api/v3/forms/comment-form-gbd-2016-cancer-paper/entries.json?sort=EntryId&sortDirection=DESC",
+            uri: url,
             method: "GET",
             auth: {
                 username: userName,
