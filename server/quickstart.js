@@ -2,10 +2,10 @@ var fs = require("fs");
 var readline = require("readline");
 var google = require("googleapis");
 var googleAuth = require("google-auth-library");
-
+var c;
 // If modifying these scopes, delete your previously saved credentials
 // at ~/.credentials/sheets.googleapis.com-nodejs-quickstart.json
-var SCOPES = ["https://www.googleapis.com/auth/spreadsheets.readonly"];
+var SCOPES = ["https://www.googleapis.com/auth/spreadsheets"];
 var TOKEN_DIR =
   (process.env.HOME || process.env.HOMEPATH || process.env.USERPROFILE) +
   "/.credentials/";
@@ -19,7 +19,10 @@ fs.readFile("client_secret.json", function processClientSecrets(err, content) {
   }
   // Authorize a client with the loaded credentials, then call the
   // Google Sheets API.
-  authorize(JSON.parse(content), listMajors);
+  c = content;
+  console.log(c);
+  //authorize(JSON.parse(content), listMajors);
+  //authorize(JSON.parse(content), write);
 });
 
 /**
@@ -41,7 +44,7 @@ function authorize(credentials, callback) {
     if (err) {
       getNewToken(oauth2Client, callback);
     } else {
-      console.log(token);
+      //console.log(token);
       oauth2Client.credentials = JSON.parse(token);
       callback(oauth2Client);
     }
@@ -106,8 +109,8 @@ function listMajors(auth) {
   sheets.spreadsheets.values.get(
     {
       auth: auth,
-      spreadsheetId: "1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms",
-      range: "Class Data!A2:E"
+      spreadsheetId: "1ijZDW8KwqOkW-o06rDybz5mprAsLSA8kyjaImJDCY1w",
+      range: "C2:3"
     },
     function(err, response) {
       if (err) {
@@ -123,8 +126,39 @@ function listMajors(auth) {
           var row = rows[i];
           // Print columns A and E, which correspond to indices 0 and 4.
           console.log("%s, %s", row[0], row[4]);
+          console.log(rows);
         }
       }
     }
   );
 }
+
+function write(auth) {
+  var id = "1mKw1_QfofAOhJt-gud-5Trphct9hYtZHleit7l1eITU";
+  var values = [["1-1", "1-2", "1-3"], ["2-1", "2-2", "2-3"]];
+  var body = {
+    values: values
+  };
+  var sheets = google.sheets("v4");
+  sheets.spreadsheets.values.update(
+    {
+      auth: auth,
+      spreadsheetId: id,
+      range: "A1:C2",
+      valueInputOption: "USER_ENTERED",
+      resource: body
+    },
+    function(err, result) {
+      if (err) {
+        // Handle error
+        console.log(err);
+      } else {
+        console.log("%d cells updated.", result.updatedCells);
+      }
+    }
+  );
+}
+
+module.exports = {
+  authenticate: authorize
+};
