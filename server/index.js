@@ -141,23 +141,27 @@ function clean(str, e, cat) {
     }
 }
 
+app.get("/allForms", (req, res) => {
+    request(
+        {
+            uri: baseUrl + "forms.json",
+            method: "GET",
+            auth: {
+                username: userName,
+                password: pass,
+                sendImmediately: false
+            }
+        },
+        function(error, response, body) {
+            var obj = JSON.parse(body).Forms;
+            res.json(obj);
+        }
+    );
+});
 app.listen(3000, () => console.log("Example app listening on port 3000!"));
 // returns details on all the forms you have permission to access
-/*request(
-    {
-        uri: baseUrl + "froms.json",
-        method: "GET",
-        auth: {
-            username: userName,
-            password: pass,
-            sendImmediately: false
-        }
-    },
-    function(error, response, body) {
-        console.log(body);
-    }
-);
 
+/*
 // returns a specific form
 
 request(
