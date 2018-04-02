@@ -1,9 +1,11 @@
 /*eslint-disable*/
 <template>
 <div>
-    <div class="form-item">
+    <!-- <div class="form-item">
         <p class="title">{{form.Name}}</p>
-        <p class="date-created"> {{form.DateCreated.split(" ")[0]}}</p>
+        <div class="date-wrapper">
+            <p class="date-created"> {{form.DateCreated.split(" ")[0]}}</p>
+        </div>
         <p class="entries"> 
             <span class="bold"> 
                 {{form.entries}}
@@ -16,10 +18,10 @@
             Today
         </p>
         <div class="buttons">
-            <!-- <div id="metrics" class="button">View Metrics</div> -->
+            <div id="metrics" class="button">View Metrics</div>
             <div v-on:click="onClick" id="export" class="button">Export</div>
         </div>
-    </div>
+    </div> -->
     
 </div>
 </template>
@@ -49,13 +51,19 @@ export default {
 .form-item{
     display: flex;
     margin-left: 20px;
-    justify-content: space-between;
+    justify-content:space-between;
     border-top: 1px solid #DDDDDD;
+}
+
+.date-wrapper{
+    display: flex;
+    justify-content: center;
 }
 
 .buttons{
     display: flex;
     justify-content: flex-end;
+    cursor: pointer;
 }
 .bold{
     font-weight: bold;

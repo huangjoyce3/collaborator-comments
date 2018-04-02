@@ -1,10 +1,41 @@
 <template>
     <div class="form-list">
-        <div class="header">
+        <!-- <div class="header">
             <p>Form Name</p>
             <p v-bind:click="reverse">Date Created</p>
         </div>
-        <item v-for="form in forms" v-bind:key="form.id" :form.sync="form"></item>
+        <item v-for="form in forms" v-bind:key="form.id" :form.sync="form"></item> -->
+        <table>
+            <thead>
+            <tr>
+                <!-- <th v-for="key in columns"
+                @click="sortBy(key)"
+                :class="{ active: sortKey == key }">
+                {{ key | capitalize }}
+                <span class="arrow" :class="sortOrders[key] > 0 ? 'asc' : 'dsc'">
+                </span>
+                </th> -->
+                <th class="column1">Form Name</th>
+                <th>Date Created</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="form in forms" v-bind:key="form.id">
+                <td class="column1">
+                    {{form.Name}}
+                </td>
+                <td>
+                    {{form.DateCreated.split(" ")[0]}}
+                </td>
+                <!-- <td>
+                {{getEntries(form.Url)}}
+                </td> -->
+                <td>
+                    <div v-on:click="onClick" id="export" class="button">Export</div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
     </div>
 </template>
 
@@ -20,29 +51,33 @@ export default {
         getForms(){
             let url = "http://localhost:3000/allForms";
             axios.get(url).then((response) => {
-                console.log(response.data);
                 this.forms = response.data
+            })
+        },
+        getEntries(formName){
+            let url = "http://localhost:3000/count/" + formName;
+            axios.get(url).then((response) => {
+                // return response.data.EntryCount
+                this.entries = response.data.EntryCount
+                // return this.entries;
+            })
+        },
+        onClick(){
+            // alert(this.form.Name);
+            let sheetID = '15vAkt-aI_m18rZOzz7qRfIl1fAXhsX0BGVcYUGBIjAo'
+            let url = "http://localhost:3000/form/" + this.form.Url + '/' + sheetID;
+            //let url = 'http://localhost:3000/form/comment-form-gbd-2016-cancer-paper/1mKw1_QfofAOhJt-gud-5Trphct9hYtZHleit7l1eITU';
+            console.log(url);
+            axios.get(url).then((response) => {
+                console.log('Success');
+            }).catch((error) => {
+                console.log(error);
             })
         }
     },
     data(){
         return {
-            forms: [{
-                title: "GBD Paper 1",
-                dateCreated: "12/13/18",
-                entries: 200,
-                entriesToday: 1,
-            }, {
-                title: "GBD Paper 2",
-                dateCreated: "10/10/18",
-                entries: 120,
-                entriesToday: 13,
-            }, {
-                title: "Really long long long name here 2018",
-                dateCreated: "4/13/18",
-                entries: 18,
-                entriesToday: 0,
-            }],
+            forms: [],
         };
     },
     mounted(){
@@ -53,14 +88,24 @@ export default {
 </script>
 
 <style scoped>
-.form-list{
-    margin-left: 50px;
-    margin-right: 50px;
-    border-bottom: 1px solid #DDDDDD;
+table{
     width: 80%;
     margin: auto;
 }
-
+th, td{
+     border-bottom: 1px solid #DDDDDD;
+     padding: 10px;
+}
+.form-list{
+    /* margin-left: 50px;
+    margin-right: 50px; */
+    border-bottom: 1px solid #DDDDDD;
+    /* width: 80%;
+    margin: auto; */
+}
+.column1{
+    text-align: left;
+}
 .filter{
     text-align: left;
 }
@@ -74,5 +119,41 @@ export default {
 
 .header p{
     margin-right: 20px;
+}
+
+.buttons{
+    display: flex;
+    justify-content: flex-end;
+    cursor: pointer;
+}
+
+.button{
+    padding-top: 3px;
+    box-sizing: border-box;
+    border-radius: 24px;
+    height: 30px;
+    right: 10px;
+}
+
+#export{
+    background: linear-gradient(to right,rgba(205, 250, 164, 0.753), #AEE7DD);
+    width: 90px;
+}
+
+#export{
+  display: inline-block;
+  vertical-align: middle;
+  -webkit-transform: perspective(1px) translateZ(0);
+  transform: perspective(1px) translateZ(0);
+  box-shadow: 0 0 1px rgba(0, 0, 0, 0);
+  -webkit-transition-duration: 0.3s;
+  transition-duration: 0.3s;
+  -webkit-transition-property: box-shadow, transform;
+  transition-property: box-shadow, transform;
+}
+#export:hover, #exportfocus, #export:active {
+  box-shadow: 0 10px 10px -10px rgba(0, 0, 0, 0.5);
+  -webkit-transform: scale(1.1);
+  transform: scale(1.1);
 }
 </style>
