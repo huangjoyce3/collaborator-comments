@@ -5,6 +5,9 @@
             <p v-bind:click="reverse">Date Created</p>
         </div>
         <item v-for="form in forms" v-bind:key="form.id" :form.sync="form"></item> -->
+        <!-- <form id="search">
+            Search <input name="query" v-model="searchQuery">
+        </form> -->
         <table>
             <thead>
             <tr>
@@ -31,7 +34,7 @@
                 {{getEntries(form.Url)}}
                 </td> -->
                 <td>
-                    <div v-on:click="onClick" id="export" class="button">Export</div>
+                    <div v-on:click="onClick(form.Url)" id="export" class="button">Export</div>
                 </td>
             </tr>
             </tbody>
@@ -62,10 +65,10 @@ export default {
                 // return this.entries;
             })
         },
-        onClick(){
+        onClick(formURL){
             // alert(this.form.Name);
             let sheetID = '15vAkt-aI_m18rZOzz7qRfIl1fAXhsX0BGVcYUGBIjAo'
-            let url = "http://localhost:3000/form/" + this.form.Url + '/' + sheetID;
+            let url = "http://localhost:3000/form/" + formURL + '/' + sheetID;
             //let url = 'http://localhost:3000/form/comment-form-gbd-2016-cancer-paper/1mKw1_QfofAOhJt-gud-5Trphct9hYtZHleit7l1eITU';
             console.log(url);
             axios.get(url).then((response) => {
@@ -78,12 +81,36 @@ export default {
     data(){
         return {
             forms: [],
+            searchQuery: '',
         };
     },
     mounted(){
         // call method
         this.getForms();
     },
+    computed: {
+        filteredData() {
+            var sortKey = this.sortKey
+            var filterKey = this.filterKey && this.filterKey.toLowerCase()
+            var order = this.sortOrders[sortKey] || 1
+            var data = this.data
+            if (filterKey) {
+                data = data.filter(function (row) {
+                    return Object.keys(row).some(function (key) {
+                        return String(row[key]).toLowerCase().indexOf(filterKey) > -1
+                    })
+                })
+            }
+            if (sortKey) {
+                data = data.slice().sort(function (a, b) {
+                    a = a[sortKey]
+                    b = b[sortKey]
+                    return (a === b ? 0 : a > b ? 1 : -1) * order
+                })
+            }
+            return data
+        }
+    }
 };
 </script>
 
@@ -124,7 +151,7 @@ th, td{
 .buttons{
     display: flex;
     justify-content: flex-end;
-    cursor: pointer;
+    
 }
 
 .button{
@@ -133,6 +160,7 @@ th, td{
     border-radius: 24px;
     height: 30px;
     right: 10px;
+    cursor: pointer;
 }
 
 #export{
