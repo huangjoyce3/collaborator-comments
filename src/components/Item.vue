@@ -97,11 +97,29 @@ export default {
     /* display: inline-block; */
     right: 10px;
     /* position: absolute; */
+    color: 
 }
 
 #export{
-    background: linear-gradient(to right,#DBF68E, #D3E49F);
+    background: linear-gradient(to right,rgba(205, 250, 164, 0.753), #AEE7DD);
     width: 90px;
+}
+
+#export{
+  display: inline-block;
+  vertical-align: middle;
+  -webkit-transform: perspective(1px) translateZ(0);
+  transform: perspective(1px) translateZ(0);
+  box-shadow: 0 0 1px rgba(0, 0, 0, 0);
+  -webkit-transition-duration: 0.3s;
+  transition-duration: 0.3s;
+  -webkit-transition-property: box-shadow, transform;
+  transition-property: box-shadow, transform;
+}
+#export:hover, #exportfocus, #export:active {
+  box-shadow: 0 10px 10px -10px rgba(0, 0, 0, 0.5);
+  -webkit-transform: scale(1.1);
+  transform: scale(1.1);
 }
 </style>
 
