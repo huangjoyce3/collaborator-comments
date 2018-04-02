@@ -33,7 +33,11 @@ const MemStore = require("./memstore");
 // map
 var HashMap = require("hashmap");
 var map1 = new HashMap();
+var sheetIDMap = new HashMap();
 let memStore = new MemStore(map1);
+
+var startLength = 0;
+var currentForm = "";
 
 //app.use(express.json());
 app.use(function(req, res, next) {
@@ -46,9 +50,13 @@ app.use(function(req, res, next) {
   next();
 });
 
-app.post("/form/:formName", (req, res) => {
-  var formName = req.params.formName;
-  console.log(formName);
+app.post("/form/:formName/:sheetID", (req, res) => {
+  let formName = req.params.formName;
+  let sheetID = req.params.sheetID;
+  currentForm = formName;
+  if (!sheetIDMap.get(formName)) {
+    sheetIDMap.set(formName, sheetID);
+  }
   var o = null;
   var url =
     "https://ihmeuw.wufoo.com/api/v3/forms/" +
@@ -69,7 +77,8 @@ app.post("/form/:formName", (req, res) => {
       for (var index in obj) {
         let entry = {
           formName: formName,
-          fullName: obj[index].Field47 + " " + obj[index].Field48,
+          firstName: obj[index].Field47,
+          lastName: obj[index].Field48,
           email: obj[index].Field7,
           numericalResult: obj[index].Field52,
           descrOfMethod: obj[index].Field62,
@@ -83,6 +92,19 @@ app.post("/form/:formName", (req, res) => {
         //console.log(entry);
         processData(entry);
       }
+
+      // start writing
+      fs.readFile("client_secret.json", function processClientSecrets(
+        err,
+        content
+      ) {
+        if (err) {
+          console.log("Error loading client secret file: " + err);
+          return;
+        }
+        auth.authenticate(JSON.parse(content), write);
+      });
+
       res.json(obj);
     }
   );
@@ -125,27 +147,40 @@ function clean(str, e, cat) {
     !commentSet.has(str)
   ) {
     var strArr = str.split("•");
+    var today = new Date();
+    var mm = today.getMonth() + 1;
+    var dd = today.getDate();
+    var date = mm + "/" + dd;
     for (var index in strArr) {
       var current = strArr[index];
+
       if (!commentSet.has(current) && current.split(" ").length > 3) {
         commentSet.add(current);
         //console.log(current);
+        startLength++;
         let aLine = {
           formName: e.formName, // replace it with request parameter
-          collaborator: e.fullName,
+          firstName: e.firstName,
+          lastName: e.lastName,
           email: e.email,
           category: cat,
-          comment: current
+          comment: current,
+          dateAdded: date
         };
-        memStore.insertComment(aLine);
+
+        let onlyVal = [e.firstName, e.lastName, e.email, cat, current, date];
+        //memStore.insertComment(aLine);
+        memStore.insertCommentValue(onlyVal, currentForm);
 
         //console.log(aLine);
-        console.log(memStore.getAllComment(e.formName));
+        //console.log(memStore.getAllComment(e.formName));
+        console.log(memStore.getAllComment(currentForm));
       }
     }
   }
 }
 
+// get all forms
 app.get("/allForms", (req, res) => {
   request(
     {
@@ -164,6 +199,27 @@ app.get("/allForms", (req, res) => {
   );
 });
 
+// get form entry count
+app.get("/count/:formName", (req, res) => {
+  let formName = req.params.formName;
+  let url = baseUrl + "forms/" + formName + "/entries/count.json";
+  request(
+    {
+      uri: url,
+      method: "GET",
+      auth: {
+        username: userName,
+        password: pass,
+        sendImmediately: false
+      }
+    },
+    function(error, response, body) {
+      res.json(JSON.parse(body));
+    }
+  );
+});
+
+// this is a test api
 app.get("/func", (req, res) => {
   fs.readFile("client_secret.json", function processClientSecrets(
     err,
@@ -178,11 +234,20 @@ app.get("/func", (req, res) => {
   res.send(typeof auth.authenticate);
 });
 
+// write to google sheet
+app.post("/importForm/:sheetID", (req, res) => {
+  var sheetID = req.params.sheetID;
+});
+
 app.listen(3000, () => console.log("Example app listening on port 3000!"));
 
 function write(auth) {
-  var id = "1mKw1_QfofAOhJt-gud-5Trphct9hYtZHleit7l1eITU";
-  var values = [["1-1", "1-2", "1-3"], ["2-1", "2-2", "2-3"]];
+  //var id = "1mKw1_QfofAOhJt-gud-5Trphct9hYtZHleit7l1eITU";
+  var formName = "comment-form-gbd-2016-cancer-paper";
+  let values = memStore.getAllComment(currentForm);
+  let count = startLength + 2;
+  let range = "B2:G" + count;
+  //var values = [["1-1", "1-2", "1-3"], ["2-1", "2-2", "2-3"]];
   var body = {
     values: values
   };
@@ -190,8 +255,8 @@ function write(auth) {
   sheets.spreadsheets.values.update(
     {
       auth: auth,
-      spreadsheetId: id,
-      range: "A1:C2",
+      spreadsheetId: sheetIDMap.get(currentForm),
+      range: range,
       valueInputOption: "USER_ENTERED",
       resource: body
     },
@@ -243,20 +308,4 @@ request(
         console.log(body);
     }
 );
-
-// get form entry count
-
-request(
-    {
-        uri: baseUrl + "forms/zmi7o29077l3ga/entries/count.json",
-        method: "GET",
-        auth: {
-            username: userName,
-            password: pass,
-            sendImmediately: false
-        }
-    },
-    function(error, response, body) {
-        console.log(body);
-    }
-);*/
+*/

@@ -133,7 +133,7 @@ function listMajors(auth) {
   );
 }
 
-function write(auth) {
+/*function write(auth) {
   var id = "1mKw1_QfofAOhJt-gud-5Trphct9hYtZHleit7l1eITU";
   var values = [["1-1", "1-2", "1-3"], ["2-1", "2-2", "2-3"]];
   var body = {
@@ -157,7 +157,7 @@ function write(auth) {
       }
     }
   );
-}
+}*/
 
 module.exports = {
   authenticate: authorize
