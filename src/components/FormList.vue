@@ -11,6 +11,8 @@
 <script type="text/javascript">
 
 import Item from './Item';
+import axios from 'axios';
+
 export default {
     name: 'form-list',
     components: {Item,},
@@ -18,7 +20,8 @@ export default {
         getForms(){
             let url = "http://localhost:3000/allForms";
             axios.get(url).then((response) => {
-                console.log(response);
+                console.log(response.data);
+                this.forms = response.data
             })
         }
     },

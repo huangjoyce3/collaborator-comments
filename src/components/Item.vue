@@ -2,8 +2,8 @@
 <template>
 <div>
     <div class="form-item">
-        <p class="title">{{form.title}}</p>
-        <p class="date-created"> {{form.dateCreated}}</p>
+        <p class="title">{{form.Name}}</p>
+        <p class="date-created"> {{form.DateCreated.split(" ")[0]}}</p>
         <p class="entries"> 
             <span class="bold"> 
                 {{form.entries}}
