@@ -50,7 +50,7 @@ app.use(function(req, res, next) {
   next();
 });
 
-app.post("/form/:formName/:sheetID", (req, res) => {
+app.get("/form/:formName/:sheetID", (req, res) => {
   let formName = req.params.formName;
   let sheetID = req.params.sheetID;
   currentForm = formName;
