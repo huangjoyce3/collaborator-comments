@@ -20,11 +20,30 @@ export default {
     components: {
         FormItem,
     },
-    methods: {
+    methods: { 
         reverse () {
             this.forms.reverse();
         }
     },
+    forms: [{
+        title: "GBD Paper 1",
+        dateCreated: "12/13/18",
+        entries: 200,
+        entriesToday: 1,
+        dateEdited: "12/15/18"
+    }, {
+        title: "GBD Paper 2",
+        dateCreated: "10/10/18",
+        entries: 120,
+        entriesToday: 13,
+        dateEdited: "10/30/18"
+    }, {
+        title: "GBD Paper 1",
+        dateCreated: "4/13/18",
+        entries: 18,
+        entriesToday: 0,
+        dateEdited: "4/13/18"
+    }]
 };
 </script>
 
