@@ -5,7 +5,7 @@
             <!-- <img src="https://png.icons8.com/windows/100/000000/guest-male.png">             -->
             <input type="text" name="username" placeholder="username" id="username"><br>
             <input type="password" name="password" placeholder="password" id="password"><br>
-            <router-link :to="{name: 'FormItem'}">
+            <router-link :to="{name: 'home'}">
                 <button class="button">Login in</button>
             </router-link>
             
