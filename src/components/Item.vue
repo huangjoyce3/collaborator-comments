@@ -17,7 +17,7 @@
         </p>
         <div class="buttons">
             <!-- <div id="metrics" class="button">View Metrics</div> -->
-            <div id="export" class="button">Export</div>
+            <div v-on:click="onClick" id="export" class="button">Export</div>
         </div>
     </div>
     
@@ -25,8 +25,23 @@
 </template>
  
 <script type="text/javascript">
+import axios from 'axios';
 export default {
     props: ['form'],
+    methods: {
+        onClick(){
+            // alert(this.form.Name);
+            let sheetID = '15vAkt-aI_m18rZOzz7qRfIl1fAXhsX0BGVcYUGBIjAo'
+            let url = "http://localhost:3000/form/" + this.form.Url + '/' + sheetID;
+            // let url = 'http://localhost:3000/form/comment-form-gbd-2016-cancer-paper/1mKw1_QfofAOhJt-gud-5Trphct9hYtZHleit7l1eITU';
+            console.log(url);
+            axios.post(url,null).then((response) => {
+                console.log('Success');
+            }).catch((error) => {
+                console.log(error);
+            })
+        }
+    }
 };
 </script>
 
