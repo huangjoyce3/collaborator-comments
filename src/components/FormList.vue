@@ -15,8 +15,11 @@ export default {
     name: 'form-list',
     components: {Item,},
     methods: { 
-        reverse () {
-            this.forms.reverse();
+        getForms(){
+            let url = "http://localhost:3000/allForms";
+            axios.get(url).then((response) => {
+                console.log(response);
+            })
         }
     },
     data(){
@@ -38,6 +41,10 @@ export default {
                 entriesToday: 0,
             }],
         };
+    },
+    mounted(){
+        // call method
+        this.getForms();
     },
 };
 </script>
