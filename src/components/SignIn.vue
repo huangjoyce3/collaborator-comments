@@ -3,7 +3,7 @@
         <h2>Sign in to your account</h2>
         <form>
             <!-- <img src="https://png.icons8.com/windows/100/000000/guest-male.png">             -->
-            <input type="text" name="username" placeholder="username" id="username"><br>
+            <input type="text" name="username" placeholder="email" id="username"><br>
             <input type="password" name="password" placeholder="password" id="password"><br>
             <router-link :to="{name: 'home'}">
                 <button class="button">Sign in</button>
@@ -54,13 +54,13 @@ input {
     font-size: 100%;
     outline: none;
     color: #8DBE6C;
-    border-color: rgb(143, 201, 145);
+    border-color: #8DC26F;
 }
 .button:hover {
-    background-color: rgb(143, 201, 145); /* Green */
+    /* background-color: rgb(143, 201, 145); Green */
     color: white;
-    border-color: rgb(143, 201, 145);
-    font-weight: 700;
+    border-color: #8DC26F;
+    background: linear-gradient(to right,#8DC26F, #76b852);
 }
 img {
     height: 30px;
