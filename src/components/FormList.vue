@@ -72,8 +72,10 @@ export default {
             //let url = 'http://localhost:3000/form/comment-form-gbd-2016-cancer-paper/1mKw1_QfofAOhJt-gud-5Trphct9hYtZHleit7l1eITU';
             console.log(url);
             axios.get(url).then((response) => {
+                window.open('https://docs.google.com/spreadsheets/d/'+sheetID, '_blank');
                 console.log('Success');
             }).catch((error) => {
+                alert('Failed to export to Google Sheets');
                 console.log(error);
             })
         }
@@ -81,6 +83,12 @@ export default {
     data(){
         return {
             forms: [],
+             testForms: [
+                { name: 'Collaborator Comments: GBD 2015 Updated', dateCreated: '1/2/2018' , url: 'form-name', totalEntries: 122},
+                { name: 'Comment Form: Cause of death preliminary estimates', dateCreated: '1/22/2017' , url: 'form-name', totalEntries: 122},
+                { name: 'Comment Form: EMR Obesity Paper', dateCreated: '10/8/2016' , url: 'form-name', totalEntries: 122},
+                { name: 'Comment Form: EMR HIV', dateCreated: '12/14/2018' , url: 'form-name', totalEntries: 122},
+            ],
             searchQuery: '',
         };
     },
@@ -124,11 +132,7 @@ th, td{
      padding: 10px;
 }
 .form-list{
-    /* margin-left: 50px;
-    margin-right: 50px; */
     border-bottom: 1px solid #DDDDDD;
-    /* width: 80%;
-    margin: auto; */
 }
 .column1{
     text-align: left;
