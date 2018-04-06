@@ -37,6 +37,7 @@ var sheetIDMap = new HashMap();
 let memStore = new MemStore(map1);
 
 var startLength = 0;
+var headIndex = 0;
 var currentForm = "";
 
 //app.use(express.json());
@@ -242,7 +243,6 @@ app.post("/importForm/:sheetID", (req, res) => {
 app.listen(3000, () => console.log("Example app listening on port 3000!"));
 
 function write(auth) {
-  //var id = "1mKw1_QfofAOhJt-gud-5Trphct9hYtZHleit7l1eITU";
   var formName = "comment-form-gbd-2016-cancer-paper";
   let values = memStore.getAllComment(currentForm);
   let count = startLength + 2;
@@ -251,7 +251,28 @@ function write(auth) {
   var body = {
     values: values
   };
+  var headers = [["First name", "Last name", "Email", "Category", "Comment"]];
+  var headerBody = { values: headers };
   var sheets = google.sheets("v4");
+  if (headIndex == 0) {
+    sheets.spreadsheets.values.update(
+      {
+        auth: auth,
+        spreadsheetId: sheetIDMap.get(currentForm),
+        range: "B1:G1",
+        valueInputOption: "USER_ENTERED",
+        resource: headerBody
+      },
+      function(err, result) {
+        if (err) {
+          // Handle error
+          console.log(err);
+        } else {
+          console.log("%d cells updated.", result.updatedCells);
+        }
+      }
+    );
+  }
   sheets.spreadsheets.values.update(
     {
       auth: auth,

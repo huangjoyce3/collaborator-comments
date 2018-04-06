@@ -44,7 +44,7 @@ function authorize(credentials, callback) {
     if (err) {
       getNewToken(oauth2Client, callback);
     } else {
-      //console.log(token);
+      console.log(token);
       oauth2Client.credentials = JSON.parse(token);
       callback(oauth2Client);
     }
