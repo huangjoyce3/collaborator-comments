@@ -5,25 +5,23 @@
             <p v-bind:click="reverse">Date Created</p>
         </div>
         <item v-for="form in forms" v-bind:key="form.id" :form.sync="form"></item> -->
-        <!-- <form id="search">
-            Search <input name="query" v-model="searchQuery">
-        </form> -->
+        <form id="search">
+            Search: <input name="query" v-model="searchQuery">
+        </form>
         <table>
             <thead>
             <tr>
-                <!-- <th v-for="key in columns"
-                @click="sortBy(key)"
-                :class="{ active: sortKey == key }">
-                {{ key | capitalize }}
-                <span class="arrow" :class="sortOrders[key] > 0 ? 'asc' : 'dsc'">
+                <th v-for="header in formHeaders" v-bind:key="header.id">
+                {{ header  }}
+                <span class="arrow" >
                 </span>
-                </th> -->
-                <th class="column1">Form Name</th>
-                <th>Date Created</th>
+                </th>
+                <!-- <th class="column1">Form Name</th>
+                <th>Date Created</th> -->
             </tr>
             </thead>
             <tbody>
-            <tr v-for="form in forms" v-bind:key="form.id">
+            <tr v-for="form in testForms" v-bind:key="form.id">
                 <td class="column1">
                     {{form.Name}}
                 </td>
@@ -83,11 +81,12 @@ export default {
     data(){
         return {
             forms: [],
-             testForms: [
-                { name: 'Collaborator Comments: GBD 2015 Updated', dateCreated: '1/2/2018' , url: 'form-name', totalEntries: 122},
-                { name: 'Comment Form: Cause of death preliminary estimates', dateCreated: '1/22/2017' , url: 'form-name', totalEntries: 122},
-                { name: 'Comment Form: EMR Obesity Paper', dateCreated: '10/8/2016' , url: 'form-name', totalEntries: 122},
-                { name: 'Comment Form: EMR HIV', dateCreated: '12/14/2018' , url: 'form-name', totalEntries: 122},
+            formHeaders: ['Name', 'Date'],
+            testForms: [
+                { Name: 'Collaborator Comments: GBD 2015 Updated', DateCreated: '1/2/2018' , url: 'form-name', totalEntries: 122},
+                { Name: 'Comment Form: Cause of death preliminary estimates', DateCreated: '1/22/2017' , url: 'form-name', totalEntries: 78},
+                { Name: 'Comment Form: EMR Obesity Paper', DateCreated: '10/8/2016' , url: 'form-name', totalEntries: 0},
+                { Name: 'Comment Form: EMR HIV', DateCreated: '12/14/2018' , url: 'form-name', totalEntries: 53},
             ],
             searchQuery: '',
         };
@@ -97,27 +96,27 @@ export default {
         this.getForms();
     },
     computed: {
-        filteredData() {
-            var sortKey = this.sortKey
-            var filterKey = this.filterKey && this.filterKey.toLowerCase()
-            var order = this.sortOrders[sortKey] || 1
-            var data = this.data
-            if (filterKey) {
-                data = data.filter(function (row) {
-                    return Object.keys(row).some(function (key) {
-                        return String(row[key]).toLowerCase().indexOf(filterKey) > -1
-                    })
-                })
-            }
-            if (sortKey) {
-                data = data.slice().sort(function (a, b) {
-                    a = a[sortKey]
-                    b = b[sortKey]
-                    return (a === b ? 0 : a > b ? 1 : -1) * order
-                })
-            }
-            return data
-        }
+        // filteredData() {
+        //     var sortKey = this.sortKey
+        //     var filterKey = this.filterKey && this.filterKey.toLowerCase()
+        //     var order = this.sortOrders[sortKey] || 1
+        //     var data = this.data
+        //     if (filterKey) {
+        //         data = data.filter(function (row) {
+        //             return Object.keys(row).some(function (key) {
+        //                 return String(row[key]).toLowerCase().indexOf(filterKey) > -1
+        //             })
+        //         })
+        //     }
+        //     if (sortKey) {
+        //         data = data.slice().sort(function (a, b) {
+        //             a = a[sortKey]
+        //             b = b[sortKey]
+        //             return (a === b ? 0 : a > b ? 1 : -1) * order
+        //         })
+        //     }
+        //     return data
+        // }
     }
 };
 </script>
