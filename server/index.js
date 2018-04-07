@@ -172,9 +172,6 @@ function clean(str, e, cat) {
         let onlyVal = [e.firstName, e.lastName, e.email, cat, current, date];
         //memStore.insertComment(aLine);
         memStore.insertCommentValue(onlyVal, currentForm);
-
-        //console.log(aLine);
-        //console.log(memStore.getAllComment(e.formName));
         console.log(memStore.getAllComment(currentForm));
       }
     }
@@ -193,13 +190,76 @@ app.get("/allForms", (req, res) => {
         sendImmediately: false
       }
     },
-    function(error, response, body) {
+    async function(error, response, body) {
       var obj = JSON.parse(body).Forms;
-      res.json(obj);
+      for (var index in obj) {
+        let form = {
+          name: obj[index].Name,
+          dateCreate: obj[index].DateCreated,
+          url: obj[index].Url,
+          totalEntries: 0,
+          type: ""
+        };
+        memStore.insertForm(form);
+      }
+      let forms = memStore.getAllForm();
+      const promises = forms.map(updateCount);
+      await Promise.all(promises);
+      //await updateCount(forms);
+      console.log("done");
+      res.json(memStore.getAllForm());
+      memStore.deleteAllForm();
     }
   );
 });
 
+function updateCount(form) {
+  return new Promise(function(resolve, reject) {
+    request(
+      {
+        uri: baseUrl + "forms/" + form.url + "/entries/count.json",
+        method: "GET",
+        auth: {
+          username: userName,
+          password: pass,
+          sendImmediately: false
+        }
+      },
+      function(error, response, body) {
+        // in addition to parsing the value, deal with possible errors
+        if (error) return reject(error);
+        try {
+          // JSON.parse() can throw an exception if not valid JSON
+          console.log("in");
+          form.totalEntries = JSON.parse(body).EntryCount;
+          resolve(JSON.parse(body).EntryCount);
+        } catch (e) {
+          reject(e);
+        }
+      }
+    );
+  });
+}
+
+function update(form) {
+  let url = baseUrl + "forms/" + form.url + "/entries/count.json";
+  request(
+    {
+      uri: url,
+      async: false,
+      method: "GET",
+      auth: {
+        username: userName,
+        password: pass,
+        sendImmediately: false
+      }
+    },
+    function(error, response, body) {
+      //console.log("in");
+      forms.totalEntries = 2;
+    }
+  );
+}
 // get form entry count
 app.get("/count/:formName", (req, res) => {
   let formName = req.params.formName;

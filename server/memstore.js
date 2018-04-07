@@ -3,6 +3,7 @@
 class MemStore {
   constructor(map1) {
     this.commentMap = map1;
+    this.formArray = [];
     this.insertComment = this.insertComment.bind(this);
   }
   insertComment(comment) {
@@ -13,6 +14,15 @@ class MemStore {
     }
     collection.push(comment);
     return comment;
+  }
+  insertForm(form) {
+    this.formArray.push(form);
+  }
+  getAllForm() {
+    return this.formArray;
+  }
+  deleteAllForm() {
+    this.formArray = [];
   }
   insertCommentValue(comment, name) {
     let collection = this.commentMap.get(name);
