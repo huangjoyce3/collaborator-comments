@@ -1,4 +1,4 @@
-"use strict";
+("use strict");
 
 // account key + random password
 //var auth = base64("DNNA-7JKC-SN41-K6MU:footastic");
@@ -39,6 +39,7 @@ let memStore = new MemStore(map1);
 var startLength = 0;
 var headIndex = 0;
 var currentForm = "";
+var currentSheetID = "";
 
 //app.use(express.json());
 app.use(function(req, res, next) {
@@ -241,25 +242,24 @@ function updateCount(form) {
   });
 }
 
-function update(form) {
-  let url = baseUrl + "forms/" + form.url + "/entries/count.json";
-  request(
-    {
-      uri: url,
-      async: false,
-      method: "GET",
-      auth: {
-        username: userName,
-        password: pass,
-        sendImmediately: false
-      }
-    },
-    function(error, response, body) {
-      //console.log("in");
-      forms.totalEntries = 2;
+// create a new sheet
+app.post("/sheet/:sheetName", (req, res) => {
+  let sheetName = req.params.sheetName;
+  currentForm = sheetName;
+  fs.readFile("client_secret.json", function processClientSecrets(
+    err,
+    content
+  ) {
+    if (err) {
+      console.log("Error loading client secret file: " + err);
+      return;
     }
-  );
-}
+    auth.authenticate(JSON.parse(content), createSheet);
+  });
+
+  setTimeout(() => res.send(currentSheetID), 1000);
+});
+
 // get form entry count
 app.get("/count/:formName", (req, res) => {
   let formName = req.params.formName;
@@ -348,6 +348,29 @@ function write(auth) {
       } else {
         console.log("%d cells updated.", result.updatedCells);
       }
+    }
+  );
+}
+
+function createSheet(auth) {
+  var sheets = google.sheets("v4");
+  sheets.spreadsheets.create(
+    {
+      auth: auth,
+      resource: {
+        properties: {
+          title: currentForm
+        }
+      }
+    },
+    function(err, response) {
+      if (err) {
+        console.log("The API returned an error: " + err);
+        return;
+      }
+      console.log("sucess!");
+      console.log(response.spreadsheetId);
+      currentSheetID = response.spreadsheetId;
     }
   );
 }
