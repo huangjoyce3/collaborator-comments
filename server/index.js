@@ -117,6 +117,94 @@ app.get("/form/:formName", (req, res) => {
   res.json(memStore.getAllComment(formName));
 });
 
+// Capstone Paper
+app.get("/capstoneForm/:formName", (req, res) => {
+  let formName = req.params.formName;
+  //let sheetID = req.params.sheetID;
+  currentForm = formName;
+  /*if (!sheetIDMap.get(formName)) {
+    sheetIDMap.set(formName, sheetID);
+  }*/
+  var o = null;
+  var url =
+    "https://ihmeuw.wufoo.com/api/v3/forms/" +
+    formName +
+    "/entries.json?sort=EntryId&sortDirection=DESC";
+  request(
+    {
+      uri: url,
+      method: "GET",
+      auth: {
+        username: userName,
+        password: "footastic",
+        sendImmediately: false
+      }
+    },
+    function(error, response, body) {
+      var obj = JSON.parse(body).Entries;
+      for (var index in obj) {
+        var sets = {
+          127: new Set(),
+          227: new Set(),
+          327: new Set()
+        };
+
+        for (var j = 127; j <= 327; j += 100) {
+          var categorySet = sets[j];
+          for (var i = j; i <= j + 15; i++) {
+            key = "Field" + i;
+            console.log(key);
+            console.log(obj[index][key]);
+            if (obj[index][key]) {
+              categorySet.add(obj[index][key]); // add category
+            }
+          }
+        }
+        console.log(sets);
+
+        let entry = {
+          formName: formName,
+          firstName: obj[index].Field47,
+          lastName: obj[index].Field48,
+          email: obj[index].Field7,
+          //numericalResult: obj[index].Field52,
+
+          numericalResult1: obj[index].Field105,
+          numericalResult2: obj[index].Field116,
+          numericalResult3: obj[index].Field111,
+
+          descrOfMethod: obj[index].Field62,
+          //methodological: obj[index].Field87,
+          dataSource: obj[index].Field59,
+          narrativeStructure: obj[index].Field85,
+          futureDirection: obj[index].Field61,
+          tableAndFigure: obj[index].Field54,
+          methodAppendix: obj[index].Field50,
+          supplementaryAppendix: obj[index].Field119,
+          writeupAppendix: obj[index].Field120
+        };
+        console.log(entry);
+        //processData(entry);
+      }
+
+      // start writing
+      /*
+      fs.readFile("client_secret.json", function processClientSecrets(
+        err,
+        content
+      ) {
+        if (err) {
+          console.log("Error loading client secret file: " + err);
+          return;
+        }
+        auth.authenticate(JSON.parse(content), write);
+      });*/
+
+      res.send("hi");
+    }
+  );
+});
+
 // clean each category
 function processData(e) {
   //console.log(e);
@@ -376,9 +464,9 @@ function createSheet(auth) {
 }
 // returns details on all the forms you have permission to access
 
-/*
 // returns a specific form
 
+/*
 request(
     {
         uri: baseUrl + "forms/zmi7o29077l3ga.json",
