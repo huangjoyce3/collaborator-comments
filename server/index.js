@@ -92,7 +92,7 @@ app.get("/form/:formName/:sheetID", (req, res) => {
           appendix: obj[index].Field50
         };
         //console.log(entry);
-        processData(entry);
+        processData(entry, "topic");
       }
 
       // start writing
@@ -146,35 +146,49 @@ app.get("/capstoneForm/:formName", (req, res) => {
         var sets = {
           127: new Set(),
           227: new Set(),
-          327: new Set()
+          327: new Set(),
+          427: new Set(),
+          527: new Set()
         };
 
-        for (var j = 127; j <= 327; j += 100) {
+        for (var j = 127; j <= 527; j += 100) {
           var categorySet = sets[j];
           for (var i = j; i <= j + 15; i++) {
             key = "Field" + i;
-            console.log(key);
-            console.log(obj[index][key]);
+            //console.log(key);
+            //console.log(obj[index][key]);
             if (obj[index][key]) {
               categorySet.add(obj[index][key]); // add category
             }
           }
         }
-        console.log(sets);
+        //console.log(sets);
 
         let entry = {
           formName: formName,
           firstName: obj[index].Field47,
           lastName: obj[index].Field48,
           email: obj[index].Field7,
-          //numericalResult: obj[index].Field52,
 
+          // numerical result multiple
+          numericalResultCat1: sets["127"],
           numericalResult1: obj[index].Field105,
+          hasNextNu1: obj[index].Field114,
+          numericalResultCat2: sets["227"],
           numericalResult2: obj[index].Field116,
+          hasNextNu2: obj[index].Field116,
+          numericalResultCat3: sets["327"],
           numericalResult3: obj[index].Field111,
 
           descrOfMethod: obj[index].Field62,
-          //methodological: obj[index].Field87,
+
+          // methodological feeback multiple
+          methodological1: obj[index].Field87,
+          methodologicalCat1: sets["427"],
+          hasNextMethod: obj[index].Field123,
+          methodological2: obj[index].Field50,
+          methodologicalCat2: sets["527"],
+
           dataSource: obj[index].Field59,
           narrativeStructure: obj[index].Field85,
           futureDirection: obj[index].Field61,
@@ -183,8 +197,8 @@ app.get("/capstoneForm/:formName", (req, res) => {
           supplementaryAppendix: obj[index].Field119,
           writeupAppendix: obj[index].Field120
         };
-        console.log(entry);
-        //processData(entry);
+        //console.log(entry);
+        processData(entry, "capstone");
       }
 
       // start writing
@@ -206,20 +220,35 @@ app.get("/capstoneForm/:formName", (req, res) => {
 });
 
 // clean each category
-function processData(e) {
+function processData(e, type) {
   //console.log(e);
 
   // check if email is duplicated
   if (!emailSet.has(e.email)) {
     emailSet.add(e.email);
-    clean(e.numericalResult, e, "numericalResult");
-    clean(e.descrOfMethod, e, "descrOfMethod");
-    clean(e.methodological, e, "methodological");
-    clean(e.dataSource, e, "dataSource");
-    clean(e.narrativeStructure, e, "narrativeStructure");
-    clean(e.futureDirection, e, "futureDirection");
-    clean(e.tableAndFigure, e, "tableAndFigure");
-    clean(e.appendix, e, "appendix");
+    clean(e.descrOfMethod, e, "descrOfMethod", "");
+    clean(e.dataSource, e, "dataSource", "");
+    clean(e.narrativeStructure, e, "narrativeStructure", "");
+    clean(e.futureDirection, e, "futureDirection", "");
+    //clean(e.tableAndFigure, e, "tableAndFigure", "");
+    clean(e.methodAppendix, e, "appendix", "");
+
+    if (type == "capstone") {
+      clean(e.numericalResult1, e, "numericalResult", "numericalResultCat1");
+      //if (e.hasNextNu1) {
+      clean(e.numericalResult2, e, "numericalResult", "numericalResultCat2");
+      //}
+      //if (e.hasNextNu2) {
+      clean(e.numericalResult3, e, "numericalResult", "numericalResultCat3");
+      //}
+      clean(e.methodological1, e, "methodological", "methodologicalCat1");
+      //if (e.hasNextMethod) {
+      clean(e.methodological2, e, "methodological", "methodologicalCat2");
+      //}
+    } else {
+      clean(e.numericalResult, e, "numericalResult", "");
+      clean(e.methodological, e, "methodological", "");
+    }
   }
 }
 
@@ -229,7 +258,7 @@ split comment by •
 call to save into db
 */
 
-function clean(str, e, cat) {
+function clean(str, e, cat, cause) {
   if (
     str != null ||
     str != "" ||
@@ -255,10 +284,24 @@ function clean(str, e, cat) {
           email: e.email,
           category: cat,
           comment: current,
+          causeGroup: null,
           dateAdded: date
         };
 
-        let onlyVal = [e.firstName, e.lastName, e.email, cat, current, date];
+        if (cause.length > 0) {
+          aLine.causeGroup = e[cause];
+        }
+
+        let onlyVal = [
+          e.firstName,
+          e.lastName,
+          e.email,
+          cat,
+          current,
+          date,
+          aLine.causeGroup
+        ];
+        console.log("aLine: " + aLine);
         //memStore.insertComment(aLine);
         memStore.insertCommentValue(onlyVal, currentForm);
         console.log(memStore.getAllComment(currentForm));
@@ -266,6 +309,8 @@ function clean(str, e, cat) {
     }
   }
 }
+
+function cleanMulti(category, categorySet, comment) {}
 
 // get all forms
 app.get("/allForms", (req, res) => {
