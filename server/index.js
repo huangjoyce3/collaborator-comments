@@ -118,13 +118,13 @@ app.get("/form/:formName", (req, res) => {
 });
 
 // Capstone Paper
-app.get("/capstoneForm/:formName", (req, res) => {
+app.get("/capstoneForm/:formName/:sheetID", (req, res) => {
   let formName = req.params.formName;
-  //let sheetID = req.params.sheetID;
+  let sheetID = req.params.sheetID;
   currentForm = formName;
-  /*if (!sheetIDMap.get(formName)) {
+  if (!sheetIDMap.get(formName)) {
     sheetIDMap.set(formName, sheetID);
-  }*/
+  }
   var o = null;
   var url =
     "https://ihmeuw.wufoo.com/api/v3/forms/" +
@@ -173,10 +173,10 @@ app.get("/capstoneForm/:formName", (req, res) => {
           // numerical result multiple
           numericalResultCat1: sets["127"],
           numericalResult1: obj[index].Field105,
-          hasNextNu1: obj[index].Field114,
+          //hasNextNu1: obj[index].Field114,
           numericalResultCat2: sets["227"],
           numericalResult2: obj[index].Field116,
-          hasNextNu2: obj[index].Field116,
+          //hasNextNu2: obj[index].Field116,
           numericalResultCat3: sets["327"],
           numericalResult3: obj[index].Field111,
 
@@ -185,24 +185,24 @@ app.get("/capstoneForm/:formName", (req, res) => {
           // methodological feeback multiple
           methodological1: obj[index].Field87,
           methodologicalCat1: sets["427"],
-          hasNextMethod: obj[index].Field123,
+          //hasNextMethod: obj[index].Field123,
           methodological2: obj[index].Field50,
           methodologicalCat2: sets["527"],
 
           dataSource: obj[index].Field59,
           narrativeStructure: obj[index].Field85,
-          futureDirection: obj[index].Field61,
-          tableAndFigure: obj[index].Field54,
+          futureDirection: obj[index].Field61
+          /*tableAndFigure: obj[index].Field54,
           methodAppendix: obj[index].Field50,
           supplementaryAppendix: obj[index].Field119,
-          writeupAppendix: obj[index].Field120
+          writeupAppendix: obj[index].Field120*/
         };
         //console.log(entry);
         processData(entry, "capstone");
       }
 
       // start writing
-      /*
+
       fs.readFile("client_secret.json", function processClientSecrets(
         err,
         content
@@ -212,8 +212,101 @@ app.get("/capstoneForm/:formName", (req, res) => {
           return;
         }
         auth.authenticate(JSON.parse(content), write);
-      });*/
+      });
 
+      res.send("hi");
+    }
+  );
+});
+
+// Capstone Paper
+app.get("/capstoneForm2/:formName/:sheetID", (req, res) => {
+  let formName = req.params.formName;
+  let sheetID = req.params.sheetID;
+  currentForm = formName;
+  if (!sheetIDMap.get(formName)) {
+    sheetIDMap.set(formName, sheetID);
+  }
+  var o = null;
+  var url =
+    "https://ihmeuw.wufoo.com/api/v3/forms/" +
+    formName +
+    "/entries.json?sort=EntryId&sortDirection=DESC";
+  request(
+    {
+      uri: url,
+      method: "GET",
+      auth: {
+        username: userName,
+        password: "footastic",
+        sendImmediately: false
+      }
+    },
+    function(error, response, body) {
+      var obj = JSON.parse(body).Entries;
+      for (var index in obj) {
+        var sets = {
+          327: new Set(),
+          425: new Set(),
+          526: new Set()
+        };
+
+        for (var ind in sets) {
+          var categorySet = sets[ind];
+          var j;
+          if (ind == 0) {
+            j = 327;
+          } else if (ind == 1) {
+            j = 425;
+          } else {
+            j = 526;
+          }
+          for (var i = j; i <= j + 15; i++) {
+            key = "Field" + i;
+            //console.log(key);
+            //console.log(obj[index][key]);
+            if (obj[index][key]) {
+              categorySet.add(obj[index][key]); // add category
+            }
+          }
+        }
+        //console.log(sets);
+
+        let entry = {
+          formName: formName,
+          firstName: obj[index].Field47,
+          lastName: obj[index].Field48,
+          email: obj[index].Field7,
+
+          tableAndFigure: obj[index].Field54,
+          methodAppendix: obj[index].Field50,
+          supplementaryAppendix: obj[index].Field119,
+          writeupAppendix: obj[index].Field120,
+          hasViz1: obj[index].Field323,
+          viz1: obj[index].Field111,
+          vizCat1: sets["526"],
+          hasViz2: obj[index].Field525,
+          viz2: obj[index].Field122,
+          vizCat2: sets["324"],
+          hasViz3: obj[index].Field626,
+          viz3: obj[index].Field424,
+          vizCat3: sets["425"]
+        };
+        //console.log(entry);
+        processData(entry, "capstone2");
+      }
+
+      // start writing
+      fs.readFile("client_secret.json", function processClientSecrets(
+        err,
+        content
+      ) {
+        if (err) {
+          console.log("Error loading client secret file: " + err);
+          return;
+        }
+        auth.authenticate(JSON.parse(content), write);
+      });
       res.send("hi");
     }
   );
@@ -226,28 +319,32 @@ function processData(e, type) {
   // check if email is duplicated
   if (!emailSet.has(e.email)) {
     emailSet.add(e.email);
-    clean(e.descrOfMethod, e, "descrOfMethod", "");
-    clean(e.dataSource, e, "dataSource", "");
-    clean(e.narrativeStructure, e, "narrativeStructure", "");
-    clean(e.futureDirection, e, "futureDirection", "");
-    //clean(e.tableAndFigure, e, "tableAndFigure", "");
-    clean(e.methodAppendix, e, "appendix", "");
+
+    if (type != "capstone2") {
+      clean(e.descrOfMethod, e, "descrOfMethod", "");
+      clean(e.dataSource, e, "dataSource", "");
+      clean(e.narrativeStructure, e, "narrativeStructure", "");
+      clean(e.futureDirection, e, "futureDirection", "");
+    }
 
     if (type == "capstone") {
       clean(e.numericalResult1, e, "numericalResult", "numericalResultCat1");
-      //if (e.hasNextNu1) {
       clean(e.numericalResult2, e, "numericalResult", "numericalResultCat2");
-      //}
-      //if (e.hasNextNu2) {
       clean(e.numericalResult3, e, "numericalResult", "numericalResultCat3");
-      //}
       clean(e.methodological1, e, "methodological", "methodologicalCat1");
-      //if (e.hasNextMethod) {
       clean(e.methodological2, e, "methodological", "methodologicalCat2");
-      //}
+    } else if (type == "capstone2") {
+      clean(e.tableAndFigure, e, "tableAndFigure", "");
+      clean(e.supplementaryAppendix, e, "supplementaryAppendix", "");
+      clean(e.writeupAppendix, e, "writeupAppendix", "");
+      clean(e.methodAppendix, e, "methodAppendix", "");
+      clean(e.viz1, e, "viz comment", "vizCat1");
+      clean(e.viz2, e, "viz comment", "vizCat2");
+      clean(e.viz3, e, "viz comment", "vizCat3");
     } else {
       clean(e.numericalResult, e, "numericalResult", "");
       clean(e.methodological, e, "methodological", "");
+      clean(e.methodAppendix, e, "appendix", "");
     }
   }
 }
@@ -284,12 +381,14 @@ function clean(str, e, cat, cause) {
           email: e.email,
           category: cat,
           comment: current,
-          causeGroup: null,
+          causeGroup: "",
           dateAdded: date
         };
 
-        if (cause.length > 0) {
-          aLine.causeGroup = e[cause];
+        if (cause.length > 0 && e[cause] != null) {
+          for (let c of e[cause].values()) {
+            aLine.causeGroup += c + "\n";
+          }
         }
 
         let onlyVal = [
@@ -439,12 +538,22 @@ function write(auth) {
   var formName = "comment-form-gbd-2016-cancer-paper";
   let values = memStore.getAllComment(currentForm);
   let count = startLength + 2;
-  let range = "B2:G" + count;
+  let range = "B2:H" + count;
   //var values = [["1-1", "1-2", "1-3"], ["2-1", "2-2", "2-3"]];
   var body = {
     values: values
   };
-  var headers = [["First name", "Last name", "Email", "Category", "Comment"]];
+  var headers = [
+    [
+      "First name",
+      "Last name",
+      "Email",
+      "Category",
+      "Comment",
+      "Date",
+      "Cause/Cause Group"
+    ]
+  ];
   var headerBody = { values: headers };
   var sheets = google.sheets("v4");
   if (headIndex == 0) {
@@ -452,7 +561,7 @@ function write(auth) {
       {
         auth: auth,
         spreadsheetId: sheetIDMap.get(currentForm),
-        range: "B1:G1",
+        range: "B1:H1",
         valueInputOption: "USER_ENTERED",
         resource: headerBody
       },
