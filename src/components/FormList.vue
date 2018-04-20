@@ -36,7 +36,16 @@
     </div> -->
     <div class="form-list">
         <table-component
-     :data="fetchData"
+     :data="[
+     { name: 'Authorship form: GBD 2016 Firearms Paper', dateCreate: '2016-09-23', totalEntries: 337 },
+     { name: 'Authorship form: GBD 2016 HAQ paper', dateCreate: '2018-02-28', totalEntries: 68 },
+     { name: 'Collaborator Comments: GBD 2015 Updated', dateCreate: '2018-03-23', totalEntries: 922 },
+     { name: 'Comment Form: Alcohol use and burden paper', dateCreate: '2016-10-28', totalEntries: 270 },
+     { name: 'Injuries, and Risk Factors Study 2016', dateCreate: '2017-7-21', totalEntries: 270 },
+     { name: 'Funding Universal Health Coverage and the Unfinished HIV/AIDS Agenda', dateCreate: '2019-1-13', totalEntries: 47 },
+     { name: 'Spending on health and HIV/AIDS: domestic health spending and development assistance', dateCreate: '2018-03-28', totalEntries: 543 },
+     { name: 'Trends in future health financing and coverage', dateCreate: '2014-02-03', totalEntries: 232 },
+     ]"
      sort-by="totalEntries"
      sort-order="asc"
      >
