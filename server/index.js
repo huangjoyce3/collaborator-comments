@@ -38,36 +38,11 @@ var sheetIDMap = new HashMap();
 var map2 = new HashMap();
 populateCause(map2);
 let memStore = new MemStore(map1, map2);
-console.log(map2);
 
 var startLength = 0;
 var headIndex = 0;
 var currentForm = "";
 var currentSheetID = "";
-
-function populateCause(map) {
-  let originCause = {
-    "Cardiovascular diseases & neoplasms": "Tahiya",
-    "Congenital disorders": "Helen",
-    "Diabetes and kidney diseases": "Mari",
-    "Digestive disorders": "Katya",
-    "Enteric & Respiratory infections": "Brigette",
-    "Genitourinary conditions": "Mari",
-    "HIV/Tuberculosis": "Molly",
-    "Hemoglobinopathies, anemias": "Helen",
-    Injuries: "Caitie",
-    "Mental and substance use disorders": "Mari",
-    "Neglected tropical diseases": "Shreya",
-    "Sense organ disorders": "Mari",
-    "Sexually transmitted infections": "Mari",
-    "Skin conditions": "Katya"
-  };
-
-  for (var key in originCause) {
-    map.set(key, originCause[key]);
-    //console.log(map.get(key));
-  }
-}
 
 //app.use(express.json());
 app.use(function(req, res, next) {
@@ -507,6 +482,9 @@ app.get("/allForms", (req, res) => {
           type: ""
         };
         if (new Date(form.dateCreate) > date) {
+          if (form.url.includes("capstone")) {
+            form.type = "capstone";
+          }
           memStore.insertForm(form);
           console.log(form);
         }
@@ -690,6 +668,30 @@ function createSheet(auth) {
       currentSheetID = response.spreadsheetId;
     }
   );
+}
+
+function populateCause(map) {
+  let originCause = {
+    "Cardiovascular diseases & neoplasms": "Tahiya",
+    "Congenital disorders": "Helen",
+    "Diabetes and kidney diseases": "Mari",
+    "Digestive disorders": "Katya",
+    "Enteric & Respiratory infections": "Brigette",
+    "Genitourinary conditions": "Mari",
+    "HIV/Tuberculosis": "Molly",
+    "Hemoglobinopathies, anemias": "Helen",
+    Injuries: "Caitie",
+    "Mental and substance use disorders": "Mari",
+    "Neglected tropical diseases": "Shreya",
+    "Sense organ disorders": "Mari",
+    "Sexually transmitted infections": "Mari",
+    "Skin conditions": "Katya"
+  };
+
+  for (var key in originCause) {
+    map.set(key, originCause[key]);
+    //console.log(map.get(key));
+  }
 }
 // returns details on all the forms you have permission to access
 
