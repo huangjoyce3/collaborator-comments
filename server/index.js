@@ -27,6 +27,7 @@ var emailSet = new Set();
 const express = require("express");
 const app = express();
 const mongodb = require("mongodb");
+var bodyParser = require("body-parser");
 
 const MemStore = require("./memstore");
 
@@ -34,7 +35,8 @@ const MemStore = require("./memstore");
 var HashMap = require("hashmap");
 var map1 = new HashMap();
 var sheetIDMap = new HashMap();
-let memStore = new MemStore(map1);
+var map2 = new HashMap();
+let memStore = new MemStore(map1, map2);
 
 var startLength = 0;
 var headIndex = 0;
@@ -50,6 +52,41 @@ app.use(function(req, res, next) {
     "GET, POST, OPTIONS, PUT, PATCH, DELETE"
   );
   next();
+});
+
+app.use(bodyParser.json());
+
+app.get("/test", (req, res) => {
+  //let arr = [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+  let q = new Date();
+  let m = q.getMonth() + 1 - 2;
+  if (m <= 0) {
+    m += 12;
+  }
+  let d = q.getDay();
+  let y = q.getFullYear();
+  let date = new Date(y, m, d);
+  /*let date2 = new Date("2018-03-20 15:37:56");
+  let date3 = new Date("2018-01-02 15:37:56");
+  console.log(date);
+  console.log(y);
+  console.log(d);
+  console.log(date2 > date);
+  console.log(date3 > date);*/
+});
+
+app.post("/causeGroup", (req, res) => {
+  console.log(req.body);
+  let r = req.body;
+  var loop = new Promise((resolve, reject) => {
+    Object.keys(r).forEach(function(key) {
+      memStore.insertCauseGroup(key, r[key]);
+    });
+    resolve();
+  });
+  loop.then(() => {
+    res.send(memStore.getAllCauseGroup());
+  });
 });
 
 app.get("/form/:formName/:sheetID", (req, res) => {
@@ -413,6 +450,16 @@ function cleanMulti(category, categorySet, comment) {}
 
 // get all forms
 app.get("/allForms", (req, res) => {
+  memStore.deleteAllForm();
+  let q = new Date();
+  let m = q.getMonth() - 2;
+  if (m <= 0) {
+    m += 12;
+  }
+  let d = q.getDay();
+  let y = q.getFullYear();
+  let date = new Date(y, m, d);
+
   request(
     {
       uri: baseUrl + "forms.json",
@@ -433,7 +480,10 @@ app.get("/allForms", (req, res) => {
           totalEntries: 0,
           type: ""
         };
-        memStore.insertForm(form);
+        if (new Date(form.dateCreate) > date) {
+          memStore.insertForm(form);
+          console.log(form);
+        }
       }
       let forms = memStore.getAllForm();
       const promises = forms.map(updateCount);
@@ -441,7 +491,6 @@ app.get("/allForms", (req, res) => {
       //await updateCount(forms);
       console.log("done");
       res.json(memStore.getAllForm());
-      memStore.deleteAllForm();
     }
   );
 });
@@ -463,7 +512,7 @@ function updateCount(form) {
         if (error) return reject(error);
         try {
           // JSON.parse() can throw an exception if not valid JSON
-          console.log("in");
+          //console.log("in");
           form.totalEntries = JSON.parse(body).EntryCount;
           resolve(JSON.parse(body).EntryCount);
         } catch (e) {

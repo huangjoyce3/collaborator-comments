@@ -1,8 +1,9 @@
 "use strict";
 
 class MemStore {
-  constructor(map1) {
+  constructor(map1, map2) {
     this.commentMap = map1;
+    this.causeGroupMap = map2;
     this.formArray = [];
     this.insertComment = this.insertComment.bind(this);
   }
@@ -15,11 +16,24 @@ class MemStore {
     collection.push(comment);
     return comment;
   }
+  insertCauseGroup(cause, assignee) {
+    let collection = this.causeGroupMap.get(cause);
+    if (!collection) {
+      this.causeGroupMap.set(cause, assignee);
+    }
+    return cause;
+  }
   insertForm(form) {
     this.formArray.push(form);
   }
   getAllForm() {
     return this.formArray;
+  }
+  getAssignee(cause) {
+    return this.causeGroupMap.get(cause);
+  }
+  getAllCauseGroup() {
+    return this.causeGroupMap;
   }
   deleteAllForm() {
     this.formArray = [];
