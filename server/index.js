@@ -38,6 +38,7 @@ var sheetIDMap = new HashMap();
 var map2 = new HashMap();
 populateCause(map2);
 let memStore = new MemStore(map1, map2);
+console.log(memStore.getAssignee("Congenital disorders"));
 
 var startLength = 0;
 var headIndex = 0;
@@ -420,12 +421,15 @@ function clean(str, e, cat, cause) {
           category: cat,
           comment: current,
           causeGroup: "",
-          dateAdded: date
+          dateAdded: date,
+          assignee: ""
         };
 
+        var thisCause = "";
         if (cause.length > 0 && e[cause] != null) {
           for (let c of e[cause].values()) {
             aLine.causeGroup += c + "\n";
+            aLine.assignee += memStore.getAssignee(c) + "\n";
           }
         }
 
@@ -436,12 +440,14 @@ function clean(str, e, cat, cause) {
           cat,
           current,
           date,
-          aLine.causeGroup
+          aLine.causeGroup,
+          aLine.assignee
         ];
-        console.log("aLine: " + aLine);
+
+        //console.log("aLine: " + aLine);
         //memStore.insertComment(aLine);
         memStore.insertCommentValue(onlyVal, currentForm);
-        console.log(memStore.getAllComment(currentForm));
+        //console.log(memStore.getAllComment(currentForm));
       }
     }
   }
@@ -591,7 +597,7 @@ function write(auth) {
   var formName = "comment-form-gbd-2016-cancer-paper";
   let values = memStore.getAllComment(currentForm);
   let count = startLength + 2;
-  let range = "B2:H" + count;
+  let range = "B2:I" + count;
   //var values = [["1-1", "1-2", "1-3"], ["2-1", "2-2", "2-3"]];
   var body = {
     values: values
@@ -604,7 +610,8 @@ function write(auth) {
       "Category",
       "Comment",
       "Date",
-      "Cause/Cause Group"
+      "Cause/Cause Group",
+      "Assignee"
     ]
   ];
   var headerBody = { values: headers };
@@ -614,7 +621,7 @@ function write(auth) {
       {
         auth: auth,
         spreadsheetId: sheetIDMap.get(currentForm),
-        range: "B1:H1",
+        range: "B1:I1",
         valueInputOption: "USER_ENTERED",
         resource: headerBody
       },
@@ -672,9 +679,9 @@ function createSheet(auth) {
 
 function populateCause(map) {
   let originCause = {
-    "Cardiovascular diseases & neoplasms": "Tahiya",
+    "Cardiovascular disorders & Neoplasms": "Tahiya",
     "Congenital disorders": "Helen",
-    "Diabetes and kidney diseases": "Mari",
+    "Diabetes & Kidney diseases": "Mari",
     "Digestive disorders": "Katya",
     "Enteric & Respiratory infections": "Brigette",
     "Genitourinary conditions": "Mari",
@@ -683,6 +690,7 @@ function populateCause(map) {
     Injuries: "Caitie",
     "Mental and substance use disorders": "Mari",
     "Neglected tropical diseases": "Shreya",
+    "Neurological conditions": "Mari",
     "Sense organ disorders": "Mari",
     "Sexually transmitted infections": "Mari",
     "Skin conditions": "Katya"
