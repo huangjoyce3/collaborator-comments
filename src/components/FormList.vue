@@ -1,51 +1,4 @@
 <template>
-    <!-- <div class="form-list">
-        <table>
-            <thead>
-            <tr>
-                <th class="column1">Form Name</th>
-                <th>Date Created</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr v-for="form in forms" v-bind:key="form.id">
-                <td class="column1">
-                    {{form.Name}}
-                </td>
-                <td>
-                    {{form.DateCreated.split(" ")[0]}}
-                </td>
-                <td>
-                {{getEntries(form.Url)}}
-                </td>
-                <td>
-                    <div v-on:click="onClick(form.Url)" id="export" class="button">Export</div>
-                </td>
-            </tr>
-            </tbody>
-        </table>:data="[
-     { name: 'Authorship form: GBD 2016 Firearms Paper', dateCreate: '2016-09-23', totalEntries: 337 },
-     { name: 'Authorship form: GBD 2016 HAQ paper', dateCreate: '2018-02-28', totalEntries: 68 },
-     { name: 'Collaborator Comments: GBD 2015 Updated', dateCreate: '2018-03-23', totalEntries: 922 },
-     { name: 'Comment Form: Alcohol use and burden paper', dateCreate: '2016-10-28', totalEntries: 270 },
-     { name: 'Injuries, and Risk Factors Study 2016', dateCreate: '2017-7-21', totalEntries: 270 },
-     { name: 'Comment Form: GBD 2016 Child & Adolescent Health', dateCreate: '2018-03-14', totalEntries: 47 },
-     { name: 'Comment Form: GBD 2016 Cancer paper', dateCreate: '2018-02-22', totalEntries: 543 },
-     { name: 'Authorship form: GBD 2016 Firearms Paper', dateCreate: '2014-02-03', totalEntries: 232 },
-     { name: 'Comment Form: GBD 2016 Diarrhea Paper', dateCreate: '2017-12-06', totalEntries: 397 },
-     { name: 'Comment Form: GBD 2016 Headache Paper', dateCreate: '2018-01-25', totalEntries: 47 },
-     { name: 'Comment Form: GBD 2016 Latent TB Paper', dateCreate: '2017-11-30', totalEntries: 92 },
-     { name: 'Comment Form: GBD 2016 Russia Paper', dateCreate: '2018-01-16', totalEntries: 53 },
-     { name: 'Comment Form: GBD 2016 Stroke Pape', dateCreate: '2017-11-30', totalEntries: 15 },
-     { name: 'FGH Retrospective Paper Author Form', dateCreate: '2018-03-05', totalEntries: 231 },
-     { name: 'GBD 2016 Brazil Country Paper Author Form', dateCreate: '2018-04-12', totalEntries: 65 },
-     { name: 'GBD 2017 Cause Review Weeks', dateCreate: '2018-01-16', totalEntries: 135 },
-     { name: 'GBD 2017 Cause of Death Preliminary Results', dateCreate: '2018-02-22', totalEntries: 35 },
-     { name: 'GBD 2017 Preliminary Nonfatal Estimates', dateCreate: '2018-03-22', totalEntries: 97 },
-     { name: 'GBD 2017 Cause of Death Preliminary Results', dateCreate: '2018-02-22', totalEntries: 85 },
-     { name: 'GBD Authorship Form: Diarrhea Topic Paper', dateCreate: '2018-03-20', totalEntries: 90 },
-     ]"
-    </div> -->
     <div class="form-list">
         <table-component
      :data="forms"
@@ -82,20 +35,9 @@ export default {
         getEntries(formName){
             let url = "http://localhost:3000/count/" + formName;
             axios.get(url).then((response) => {
-                // return response.data.EntryCount
                 this.entries = response.data.EntryCount
-                // return this.entries;
             })
         },
-        async fetchData({ page, filter, sort }) {
-            let url = "http://localhost:3000/allForms";
-            var response = await axios.get(url, { page });
-            // response.data=response.data.replace(/"(\w+)"\s*:/g, '$1:');
-            console.log(response.data)
-            // An object that has a `data` and an optional `pagination` property
-            return response;
-        },
-
         async onClick(formURL){
             alert(formURL);
             // Step 1: call createSheetAPI if no SheetID is stored
@@ -130,13 +72,6 @@ export default {
     data(){
         return {
             forms: [],
-            // formHeaders: ['Name', 'Date'],
-            // testForms: [
-            //     { Name: 'Collaborator Comments: GBD 2015 Updated', DateCreated: '1/2/2018' , url: 'form-name', totalEntries: 122},
-            //     { Name: 'Comment Form: Cause of death preliminary estimates', DateCreated: '1/22/2017' , url: 'form-name', totalEntries: 78},
-            //     { Name: 'Comment Form: EMR Obesity Paper', DateCreated: '10/8/2016' , url: 'form-name', totalEntries: 0},
-            //     { Name: 'Comment Form: EMR HIV', DateCreated: '12/14/2018' , url: 'form-name', totalEntries: 53},
-            // ],
             searchQuery: '',
         };
     },
