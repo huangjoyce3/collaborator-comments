@@ -483,14 +483,15 @@ app.get("/allForms", (req, res) => {
         let form = {
           name: obj[index].Name,
           dateCreate: obj[index].DateCreated,
+          dateUpdated: obj[index].DateUpdated,
           url: obj[index].Url,
           totalEntries: 0,
           type: ""
         };
-        if (new Date(form.dateCreate) > date) {
+        if (new Date(form.dateUpdated) > date) {
           if (form.url.includes("capstone")) {
             form.type = "capstone";
-            if (form.url.includes("-2")) {
+            if (form.url.includes("page-2")) {
               form.type = "capstone2";
             }
           }
