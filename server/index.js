@@ -490,6 +490,9 @@ app.get("/allForms", (req, res) => {
         if (new Date(form.dateCreate) > date) {
           if (form.url.includes("capstone")) {
             form.type = "capstone";
+            if (form.url.includes("page-2")) {
+              form.type = "capstone2";
+            }
           }
           memStore.insertForm(form);
           console.log(form);
