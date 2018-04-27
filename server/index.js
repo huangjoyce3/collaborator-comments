@@ -27,6 +27,7 @@ var emailSet = new Set();
 const express = require("express");
 const app = express();
 const mongodb = require("mongodb");
+var bodyParser = require("body-parser");
 
 const MemStore = require("./memstore");
 
@@ -34,7 +35,10 @@ const MemStore = require("./memstore");
 var HashMap = require("hashmap");
 var map1 = new HashMap();
 var sheetIDMap = new HashMap();
-let memStore = new MemStore(map1);
+var map2 = new HashMap();
+populateCause(map2);
+let memStore = new MemStore(map1, map2);
+console.log(memStore.getAssignee("Congenital disorders"));
 
 var startLength = 0;
 var headIndex = 0;
@@ -50,6 +54,41 @@ app.use(function(req, res, next) {
     "GET, POST, OPTIONS, PUT, PATCH, DELETE"
   );
   next();
+});
+
+app.use(bodyParser.json());
+
+app.get("/test", (req, res) => {
+  //let arr = [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+  let q = new Date();
+  let m = q.getMonth() + 1 - 2;
+  if (m <= 0) {
+    m += 12;
+  }
+  let d = q.getDay();
+  let y = q.getFullYear();
+  let date = new Date(y, m, d);
+  /*let date2 = new Date("2018-03-20 15:37:56");
+  let date3 = new Date("2018-01-02 15:37:56");
+  console.log(date);
+  console.log(y);
+  console.log(d);
+  console.log(date2 > date);
+  console.log(date3 > date);*/
+});
+
+app.post("/causeGroup", (req, res) => {
+  console.log(req.body);
+  let r = req.body;
+  var loop = new Promise((resolve, reject) => {
+    Object.keys(r).forEach(function(key) {
+      memStore.insertCauseGroup(key, r[key]);
+    });
+    resolve();
+  });
+  loop.then(() => {
+    res.send(memStore.getAllCauseGroup());
+  });
 });
 
 app.get("/form/:formName/:sheetID", (req, res) => {
@@ -382,12 +421,15 @@ function clean(str, e, cat, cause) {
           category: cat,
           comment: current,
           causeGroup: "",
-          dateAdded: date
+          dateAdded: date,
+          assignee: ""
         };
 
+        var thisCause = "";
         if (cause.length > 0 && e[cause] != null) {
           for (let c of e[cause].values()) {
             aLine.causeGroup += c + "\n";
+            aLine.assignee += memStore.getAssignee(c) + "\n";
           }
         }
 
@@ -398,12 +440,14 @@ function clean(str, e, cat, cause) {
           cat,
           current,
           date,
-          aLine.causeGroup
+          aLine.causeGroup,
+          aLine.assignee
         ];
-        console.log("aLine: " + aLine);
+
+        //console.log("aLine: " + aLine);
         //memStore.insertComment(aLine);
         memStore.insertCommentValue(onlyVal, currentForm);
-        console.log(memStore.getAllComment(currentForm));
+        //console.log(memStore.getAllComment(currentForm));
       }
     }
   }
@@ -413,6 +457,16 @@ function cleanMulti(category, categorySet, comment) {}
 
 // get all forms
 app.get("/allForms", (req, res) => {
+  memStore.deleteAllForm();
+  let q = new Date();
+  let m = q.getMonth() - 2;
+  if (m <= 0) {
+    m += 12;
+  }
+  let d = q.getDay();
+  let y = q.getFullYear();
+  let date = new Date(y, m, d);
+
   request(
     {
       uri: baseUrl + "forms.json",
@@ -433,7 +487,16 @@ app.get("/allForms", (req, res) => {
           totalEntries: 0,
           type: ""
         };
-        memStore.insertForm(form);
+        if (new Date(form.dateCreate) > date) {
+          if (form.url.includes("capstone")) {
+            form.type = "capstone";
+            if (form.url.includes("page-2")) {
+              form.type = "capstone2";
+            }
+          }
+          memStore.insertForm(form);
+          console.log(form);
+        }
       }
       let forms = memStore.getAllForm();
       const promises = forms.map(updateCount);
@@ -441,7 +504,6 @@ app.get("/allForms", (req, res) => {
       //await updateCount(forms);
       console.log("done");
       res.json(memStore.getAllForm());
-      memStore.deleteAllForm();
     }
   );
 });
@@ -463,7 +525,7 @@ function updateCount(form) {
         if (error) return reject(error);
         try {
           // JSON.parse() can throw an exception if not valid JSON
-          console.log("in");
+          //console.log("in");
           form.totalEntries = JSON.parse(body).EntryCount;
           resolve(JSON.parse(body).EntryCount);
         } catch (e) {
@@ -538,7 +600,7 @@ function write(auth) {
   var formName = "comment-form-gbd-2016-cancer-paper";
   let values = memStore.getAllComment(currentForm);
   let count = startLength + 2;
-  let range = "B2:H" + count;
+  let range = "B2:I" + count;
   //var values = [["1-1", "1-2", "1-3"], ["2-1", "2-2", "2-3"]];
   var body = {
     values: values
@@ -551,7 +613,8 @@ function write(auth) {
       "Category",
       "Comment",
       "Date",
-      "Cause/Cause Group"
+      "Cause/Cause Group",
+      "Assignee"
     ]
   ];
   var headerBody = { values: headers };
@@ -561,7 +624,7 @@ function write(auth) {
       {
         auth: auth,
         spreadsheetId: sheetIDMap.get(currentForm),
-        range: "B1:H1",
+        range: "B1:I1",
         valueInputOption: "USER_ENTERED",
         resource: headerBody
       },
@@ -615,6 +678,31 @@ function createSheet(auth) {
       currentSheetID = response.spreadsheetId;
     }
   );
+}
+
+function populateCause(map) {
+  let originCause = {
+    "Cardiovascular disorders & Neoplasms": "Tahiya",
+    "Congenital disorders": "Helen",
+    "Diabetes & Kidney diseases": "Mari",
+    "Digestive disorders": "Katya",
+    "Enteric & Respiratory infections": "Brigette",
+    "Genitourinary conditions": "Mari",
+    "HIV/Tuberculosis": "Molly",
+    "Hemoglobinopathies, anemias": "Helen",
+    Injuries: "Caitie",
+    "Mental and substance use disorders": "Mari",
+    "Neglected tropical diseases": "Shreya",
+    "Neurological conditions": "Mari",
+    "Sense organ disorders": "Mari",
+    "Sexually transmitted infections": "Mari",
+    "Skin conditions": "Katya"
+  };
+
+  for (var key in originCause) {
+    map.set(key, originCause[key]);
+    //console.log(map.get(key));
+  }
 }
 // returns details on all the forms you have permission to access
 
