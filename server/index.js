@@ -128,7 +128,7 @@ app.get("/form/:formName/:sheetID", (req, res) => {
           narrativeStructure: obj[index].Field85,
           futureDirection: obj[index].Field61,
           tableAndFigure: obj[index].Field54,
-          appendix: obj[index].Field50
+          methodAppendix: obj[index].Field50
         };
         //console.log(entry);
         processData(entry, "topic");
@@ -401,6 +401,8 @@ function clean(str, e, cat, cause) {
     str.split(" ").length > 3 ||
     !commentSet.has(str)
   ) {
+    console.log(str);
+    console.log(cat);
     var strArr = str.split("•");
     var today = new Date();
     var mm = today.getMonth() + 1;
@@ -483,11 +485,12 @@ app.get("/allForms", (req, res) => {
         let form = {
           name: obj[index].Name,
           dateCreate: obj[index].DateCreated,
+          dateUpdated: obj[index].DateUpdated,
           url: obj[index].Url,
           totalEntries: 0,
           type: ""
         };
-        if (new Date(form.dateCreate) > date) {
+        if (new Date(form.dateUpdated) > date) {
           if (form.url.includes("capstone")) {
             form.type = "capstone";
             if (form.url.includes("page-2")) {
@@ -551,7 +554,7 @@ app.post("/sheet/:sheetName", (req, res) => {
     auth.authenticate(JSON.parse(content), createSheet);
   });
 
-  setTimeout(() => res.send(currentSheetID), 1000);
+  setTimeout(() => res.send(currentSheetID), 1200);
 });
 
 // get form entry count
