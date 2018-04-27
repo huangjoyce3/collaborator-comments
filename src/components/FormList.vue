@@ -29,19 +29,6 @@
      { name: 'Collaborator Comments: GBD 2015 Updated', dateCreate: '2018-03-23', totalEntries: 922 },
      { name: 'Comment Form: Alcohol use and burden paper', dateCreate: '2016-10-28', totalEntries: 270 },
      { name: 'Injuries, and Risk Factors Study 2016', dateCreate: '2017-7-21', totalEntries: 270 },
-     { name: 'Funding Universal Health Coverage and the Unfinished HIV/AIDS Agenda', dateCreate: '2019-1-13', totalEntries: 47 },
-     { name: 'Spending on health and HIV/AIDS: domestic health spending and development assistance', dateCreate: '2018-03-28', totalEntries: 543 },
-     { name: 'Trends in future health financing and coverage', dateCreate: '2014-02-03', totalEntries: 232 },
-     ]"
-    </div> -->
-    <div class="form-list">
-        <table-component
-     :data="[
-     { name: 'Authorship form: GBD 2016 Firearms Paper', dateCreate: '2016-09-23', totalEntries: 337 },
-     { name: 'Authorship form: GBD 2016 HAQ paper', dateCreate: '2018-02-28', totalEntries: 68 },
-     { name: 'Collaborator Comments: GBD 2015 Updated', dateCreate: '2018-03-23', totalEntries: 922 },
-     { name: 'Comment Form: Alcohol use and burden paper', dateCreate: '2016-10-28', totalEntries: 270 },
-     { name: 'Injuries, and Risk Factors Study 2016', dateCreate: '2017-7-21', totalEntries: 270 },
      { name: 'Comment Form: GBD 2016 Child & Adolescent Health', dateCreate: '2018-03-14', totalEntries: 47 },
      { name: 'Comment Form: GBD 2016 Cancer paper', dateCreate: '2018-02-22', totalEntries: 543 },
      { name: 'Authorship form: GBD 2016 Firearms Paper', dateCreate: '2014-02-03', totalEntries: 232 },
@@ -58,6 +45,10 @@
      { name: 'GBD 2017 Cause of Death Preliminary Results', dateCreate: '2018-02-22', totalEntries: 85 },
      { name: 'GBD Authorship Form: Diarrhea Topic Paper', dateCreate: '2018-03-20', totalEntries: 90 },
      ]"
+    </div> -->
+    <div class="form-list">
+        <table-component
+     :data="forms"
      sort-by="totalEntries"
      sort-order="asc"
      >
@@ -66,7 +57,7 @@
      <table-column show="dateCreate" label="Date Created" :filterable="false" data-type="date:YYYY/MM/DD"></table-column>
      <table-column label="" :sortable="false" :filterable="false">
          <template slot-scope="row">
-            <div v-on:click="onClick('comment-form-gbd-2016-cancer-paper')" id="export" class="button">Export</div>
+            <div v-on:click="onClick(forms.url)" id="export" class="button">Export</div>
          </template>
      </table-column>
  </table-component>
@@ -105,12 +96,25 @@ export default {
             return response;
         },
 
-        onClick(formURL){
+        async onClick(formURL){
             alert(formURL);
-            let sheetID = '15vAkt-aI_m18rZOzz7qRfIl1fAXhsX0BGVcYUGBIjAo'
+            // Step 1: call createSheetAPI if no SheetID is stored
+            let createSheetAPI = 'http://localhost:3000/sheet/' + formURL;
+            let sheetID = '';
+
+            try{
+                const response = await axios.post(createSheetAPI);
+                sheetID = response.data;
+                console.log('1: ' + sheetID);
+            } catch(e){
+                alert('Failed to create a new Google Sheets');
+                console.log(e);
+            }
+            
+            // let sheetID = '15vAkt-aI_m18rZOzz7qRfIl1fAXhsX0BGVcYUGBIjAo'
             let url = "http://localhost:3000/form/" + formURL + '/' + sheetID;
             //let url = 'http://localhost:3000/form/comment-form-gbd-2016-cancer-paper/1mKw1_QfofAOhJt-gud-5Trphct9hYtZHleit7l1eITU';
-            console.log(url);
+            console.log('2: ' + url);
             axios.get(url).then((response) => {
                 window.open('https://docs.google.com/spreadsheets/d/'+sheetID, '_blank');
                 console.log('Success');
@@ -121,6 +125,7 @@ export default {
 
             // TODO: Save entry count locally
         }
+
     },
     data(){
         return {

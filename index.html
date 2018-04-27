@@ -4,13 +4,19 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <title>collaborator-comments</title>
+    <style>
+      th:hover{
+        cursor: pointer;
+      }
+    </style>
   </head>
   <body>
       <script type="text/x-template" id="grid-template">
         <table>
           <thead>
             <tr>
-              <th v-for="key in columns"
+              <th  
+                v-for="key in columns"
                 @click="sortBy(key)"
                 :class="{ active: sortKey == key }">
                 {{ key | capitalize }}
