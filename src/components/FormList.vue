@@ -30,7 +30,9 @@ export default {
             let url = "http://localhost:3000/allForms";
             axios.get(url).then((response) => {
                 this.forms = response.data
+                console.log(this.forms);
             })
+            
         },
         getEntries(formName){
             let url = "http://localhost:3000/count/" + formName;
@@ -38,32 +40,43 @@ export default {
                 this.entries = response.data.EntryCount
             })
         },
+        async fetchData({ page, filter, sort }) {
+            let url = "http://localhost:3000/allForms";
+            var response = await axios.get(url, { page });
+            // response.data=response.data.replace(/"(\w+)"\s*:/g, '$1:');
+            console.log(response.data)
+            // An object that has a `data` and an optional `pagination` property
+            return response;
+        },
+
         async onClick(formURL){
             alert(formURL);
             // Step 1: call createSheetAPI if no SheetID is stored
             let createSheetAPI = 'http://localhost:3000/sheet/' + formURL;
             let sheetID = '';
-
-            try{
-                const response = await axios.post(createSheetAPI);
-                sheetID = response.data;
-                console.log('1: ' + sheetID);
-            } catch(e){
-                alert('Failed to create a new Google Sheets');
-                console.log(e);
+            if(formURL != undefined){
+                try{
+                    const response = await axios.post(createSheetAPI);
+                    sheetID = response.data;
+                    console.log('1: ' + sheetID);
+                } catch(e){
+                    alert('Failed to create a new Google Sheets');
+                    console.log(e);
+                }
+                
+                // let sheetID = '15vAkt-aI_m18rZOzz7qRfIl1fAXhsX0BGVcYUGBIjAo'
+                let url = "http://localhost:3000/form/" + formURL + '/' + sheetID;
+                //let url = 'http://localhost:3000/form/comment-form-gbd-2016-cancer-paper/1mKw1_QfofAOhJt-gud-5Trphct9hYtZHleit7l1eITU';
+                console.log('2: ' + url);
+                axios.get(url).then((response) => {
+                    window.open('https://docs.google.com/spreadsheets/d/'+sheetID, '_blank');
+                    console.log('Success');
+                }).catch((error) => {
+                    alert('Failed to export to Google Sheets');
+                    console.log(error);
+                })
             }
-            
-            // let sheetID = '15vAkt-aI_m18rZOzz7qRfIl1fAXhsX0BGVcYUGBIjAo'
-            let url = "http://localhost:3000/form/" + formURL + '/' + sheetID;
-            //let url = 'http://localhost:3000/form/comment-form-gbd-2016-cancer-paper/1mKw1_QfofAOhJt-gud-5Trphct9hYtZHleit7l1eITU';
-            console.log('2: ' + url);
-            axios.get(url).then((response) => {
-                window.open('https://docs.google.com/spreadsheets/d/'+sheetID, '_blank');
-                console.log('Success');
-            }).catch((error) => {
-                alert('Failed to export to Google Sheets');
-                console.log(error);
-            })
+            alert('formURL undefined');
 
             // TODO: Save entry count locally
         }
