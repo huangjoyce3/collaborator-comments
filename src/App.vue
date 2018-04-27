@@ -27,7 +27,7 @@ export default {
 }
 img{
   float: left;
-  margin: 0px 10px 0px 20px;
+  margin: 0px 10px 0px 40px;
 }
 #name{
   margin-top: 40px;
