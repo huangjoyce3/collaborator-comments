@@ -490,7 +490,7 @@ app.get("/allForms", (req, res) => {
         if (new Date(form.dateCreate) > date) {
           if (form.url.includes("capstone")) {
             form.type = "capstone";
-            if (form.url.includes("page-2")) {
+            if (form.url.includes("-2")) {
               form.type = "capstone2";
             }
           }
