@@ -85,6 +85,18 @@ app.post("/causeGroup", (req, res) => {
   });
 });
 
+app.post("/wordBank", (req, res) => {
+  let data = req.body;
+  memStore.insertWordBank(data.category, data.word.toLowerCase());
+  res.send(memStore.getAllWords(data.category));
+});
+
+app.delete("/wordBank", (req, res) => {
+  let data = req.body;
+  memStore.deleteWord(data.category, data.word.toLowerCase());
+  res.send(memStore.getAllWords(data.category));
+});
+
 app.get("/form/:formName/:sheetID", (req, res) => {
   let formName = req.params.formName;
   let sheetID = req.params.sheetID;

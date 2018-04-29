@@ -26,8 +26,8 @@ class MemStore {
     return cause;
   }
   insertWordBank(cat, word) {
-    let collection = this.causeGroupMap.get(cat);
-    if (!collectin) {
+    let collection = this.wordBank.get(cat);
+    if (!collection) {
       this.wordBank.set(cat, []);
       collection = this.wordBank.get(cat);
     }
@@ -53,7 +53,7 @@ class MemStore {
     return this.wordBank.keys();
   }
   deleteWord(cat, word) {
-    let collection = this.causeGroupMap.get(cat);
+    let collection = this.wordBank.get(cat);
     if (collection) {
       var index = collection.indexOf(word);
       if (index > -1) {
