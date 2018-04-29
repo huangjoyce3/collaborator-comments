@@ -37,8 +37,9 @@ var map1 = new HashMap();
 var sheetIDMap = new HashMap();
 var map2 = new HashMap();
 populateCause(map2);
-let memStore = new MemStore(map1, map2);
-console.log(memStore.getAssignee("Congenital disorders"));
+var wordBank = new HashMap();
+populateWordBank(wordBank);
+let memStore = new MemStore(map1, map2, wordBank);
 
 var startLength = 0;
 var headIndex = 0;
@@ -68,13 +69,6 @@ app.get("/test", (req, res) => {
   let d = q.getDay();
   let y = q.getFullYear();
   let date = new Date(y, m, d);
-  /*let date2 = new Date("2018-03-20 15:37:56");
-  let date3 = new Date("2018-01-02 15:37:56");
-  console.log(date);
-  console.log(y);
-  console.log(d);
-  console.log(date2 > date);
-  console.log(date3 > date);*/
 });
 
 app.post("/causeGroup", (req, res) => {
@@ -411,9 +405,10 @@ function clean(str, e, cat, cause) {
     for (var index in strArr) {
       var current = strArr[index];
 
-      if (!commentSet.has(current) && current.split(" ").length > 3) {
+      if (!commentSet.has(current) /*&& current.split(" ").length > 3*/) {
         commentSet.add(current);
         //console.log(current);
+
         startLength++;
         let aLine = {
           formName: e.formName, // replace it with request parameter
@@ -424,8 +419,29 @@ function clean(str, e, cat, cause) {
           comment: current,
           causeGroup: "",
           dateAdded: date,
-          assignee: ""
+          assignee: "",
+          recommendedTriage: ""
         };
+
+        let a = current
+          .toLowerCase()
+          .replace(".", "")
+          .split(" ");
+        //console.log("KEYS: " + memStore.getKeys());
+        //noRes.some(e => a.includes(e));
+        if (a.length <= 4) {
+          aLine.recommendedTriage = "No response needed";
+        } else {
+          for (var key of memStore.getKeys() /*wordBank.keys()*/) {
+            console.log("THIS IS KEY: " + key);
+            var words = memStore.getAllWords(key); //wordBank.get(key);
+            console.log(words);
+            if (words.some(e => a.includes(e))) {
+              aLine.recommendedTriage = key;
+              break;
+            }
+          }
+        }
 
         var thisCause = "";
         if (cause.length > 0 && e[cause] != null) {
@@ -443,7 +459,8 @@ function clean(str, e, cat, cause) {
           current,
           date,
           aLine.causeGroup,
-          aLine.assignee
+          aLine.assignee,
+          aLine.recommendedTriage
         ];
 
         //console.log("aLine: " + aLine);
@@ -454,8 +471,6 @@ function clean(str, e, cat, cause) {
     }
   }
 }
-
-function cleanMulti(category, categorySet, comment) {}
 
 // get all forms
 app.get("/allForms", (req, res) => {
@@ -603,7 +618,7 @@ function write(auth) {
   var formName = "comment-form-gbd-2016-cancer-paper";
   let values = memStore.getAllComment(currentForm);
   let count = startLength + 2;
-  let range = "B2:I" + count;
+  let range = "B2:J" + count;
   //var values = [["1-1", "1-2", "1-3"], ["2-1", "2-2", "2-3"]];
   var body = {
     values: values
@@ -617,7 +632,8 @@ function write(auth) {
       "Comment",
       "Date",
       "Cause/Cause Group",
-      "Assignee"
+      "Assignee",
+      "Recommended Triage"
     ]
   ];
   var headerBody = { values: headers };
@@ -627,7 +643,7 @@ function write(auth) {
       {
         auth: auth,
         spreadsheetId: sheetIDMap.get(currentForm),
-        range: "B1:I1",
+        range: "B1:J1",
         valueInputOption: "USER_ENTERED",
         resource: headerBody
       },
@@ -704,6 +720,48 @@ function populateCause(map) {
 
   for (var key in originCause) {
     map.set(key, originCause[key]);
+    //console.log(map.get(key));
+  }
+}
+
+function populateWordBank(map) {
+  let originWordBank = {
+    "Tables And Figures": [
+      "table",
+      "tables",
+      "figure",
+      "figures",
+      "caption",
+      "legend",
+      "color",
+      "colors",
+      "colour",
+      "colours"
+    ],
+    Manuscript: [
+      "wording",
+      "language",
+      "replace",
+      "rephrase",
+      "clarify",
+      "explain",
+      "reference"
+    ],
+    Priority: ["model", "modell"],
+    "Future Implications": ["future", "next time", "next gbd"],
+    "No Respond Needed": [
+      "great",
+      "excellent",
+      "adequate",
+      "sufficient",
+      "appropriate",
+      "good",
+      "fantastic",
+      "impressive"
+    ]
+  };
+  for (var key in originWordBank) {
+    map.set(key, originWordBank[key]);
     //console.log(map.get(key));
   }
 }
