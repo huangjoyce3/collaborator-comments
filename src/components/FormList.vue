@@ -184,17 +184,20 @@ tbody{
     display: flex;
     float: right;
     margin-right: 10%;
-    margin-top: 25%;
+    margin-top: 5%;
 }
 
 .flex{
     display: inline-flex;
     float: right;
     margin-right: 10%;
+    width: 24%;
 }
 
 .refresh-info{
     margin-right: 10px;
+    font-style: italic;
+    color: #bdbdbd;
 }
 
 .refresh:hover{
