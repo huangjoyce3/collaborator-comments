@@ -1,11 +1,13 @@
 "use strict";
 
 class MemStore {
-  constructor(map1, map2) {
+  constructor(map1, map2, map3) {
     this.commentMap = map1;
     this.causeGroupMap = map2;
+    this.wordBank = map3;
     this.formArray = [];
     this.insertComment = this.insertComment.bind(this);
+    this.getKeys = this.getKeys.bind(this);
   }
   insertComment(comment) {
     let collection = this.commentMap.get(comment.formName);
@@ -23,6 +25,15 @@ class MemStore {
     }
     return cause;
   }
+  insertWordBank(cat, word) {
+    let collection = this.wordBank.get(cat);
+    if (!collection) {
+      this.wordBank.set(cat, []);
+      collection = this.wordBank.get(cat);
+    }
+    collection.push(word);
+    return word;
+  }
   insertForm(form) {
     this.formArray.push(form);
   }
@@ -34,6 +45,23 @@ class MemStore {
   }
   getAllCauseGroup() {
     return this.causeGroupMap;
+  }
+  getAllWords(cat) {
+    return this.wordBank.get(cat);
+  }
+  getKeys() {
+    return this.wordBank.keys();
+  }
+  deleteWord(cat, word) {
+    let collection = this.wordBank.get(cat);
+    if (collection) {
+      var index = collection.indexOf(word);
+      if (index > -1) {
+        collection.splice(index, 1);
+        return word;
+      }
+    }
+    return null;
   }
   deleteAllForm() {
     this.formArray = [];
