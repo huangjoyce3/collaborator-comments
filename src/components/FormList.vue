@@ -47,34 +47,33 @@ export default {
         async onClick(formURL){
             alert(formURL);
             // Step 1: call createSheetAPI if no SheetID is stored
-            let createSheetAPI = 'http://localhost:3000/sheet/' + formURL;
             let sheetID = '';
-            if(formURL != undefined){
+            let createSheetAPI = 'http://localhost:3000/sheet/' + formURL;
+            if(localStorage.getItem(formURL)){ // if sheetID of formURL exists
+                sheetID = localStorage.getItem(formURL);
+                console.log('stored');
+            } else{
                 try{
                     const response = await axios.post(createSheetAPI);
                     sheetID = response.data;
+                    localStorage.setItem(formURL, sheetID);
                     console.log('1: ' + sheetID);
                 } catch(e){
                     alert('Failed to create a new Google Sheets');
                     console.log(e);
                 }
-                
-                let url = "http://localhost:3000/form/" + formURL + '/' + sheetID;
-                console.log('2: ' + url);
-                axios.get(url).then((response) => {
-                    window.open('https://docs.google.com/spreadsheets/d/'+sheetID, '_blank');
-                    console.log('Success');
-                }).catch((error) => {
-                    alert('Error: Failed to export to Google Sheets');
-                    console.log(error);
-                })
-            } else {
-                alert('Error: form URL undefined');
             }
+            let url = "http://localhost:3000/form/" + formURL + '/' + sheetID;
+            console.log('2: ' + url);
+            axios.get(url).then((response) => {
+                window.open('https://docs.google.com/spreadsheets/d/'+sheetID, '_blank');
+                console.log('Success');
+            }).catch((error) => {
+                alert('Error: Failed to export to Google Sheets');
+                console.log(error);
+            })
+
             // TODO: Save entry count locally
-        },
-        updateLocalStorage(key, value){
-            localStorage.setItem(key, storage);
         },
         refresh(){
             this.getForms();
