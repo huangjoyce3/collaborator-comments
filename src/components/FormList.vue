@@ -1,19 +1,19 @@
 <template>
     <div class="form-list">
         <table-component
-     :data="forms"
-     sort-by="totalEntries"
-     sort-order="asc"
-     >
-     <table-column show="name" label="Name"></table-column>
-     <table-column show="totalEntries" label="Total Entries" data-type="numeric"></table-column>
-     <table-column show="dateCreate" label="Date Created" :filterable="false" data-type="date:YYYY/MM/DD"></table-column>
-     <table-column label="" :sortable="false" :filterable="false">
-         <template slot-scope="row">
-            <div v-on:click="onClick(forms.url)" id="export" class="button">Export</div>
-         </template>
-     </table-column>
- </table-component>
+            :data="forms"
+            sort-by="totalEntries"
+            sort-order="asc"
+            >
+            <table-column show="name" label="Name"></table-column>
+            <table-column show="totalEntries" label="Total Entries" data-type="numeric"></table-column>
+            <table-column show="dateCreate" label="Date Created" :filterable="false" data-type="date:YYYY/MM/DD"></table-column>
+            <table-column label="" :sortable="false" :filterable="false">
+                <template slot-scope="row">
+                    <div v-on:click="onClick(row.url)" id="export" class="button">Export</div>
+                </template>
+            </table-column>
+        </table-component>
     </div>
 </template>
 
@@ -39,14 +39,6 @@ export default {
             axios.get(url).then((response) => {
                 this.entries = response.data.EntryCount
             })
-        },
-        async fetchData({ page, filter, sort }) {
-            let url = "http://localhost:3000/allForms";
-            var response = await axios.get(url, { page });
-            // response.data=response.data.replace(/"(\w+)"\s*:/g, '$1:');
-            console.log(response.data)
-            // An object that has a `data` and an optional `pagination` property
-            return response;
         },
 
         async onClick(formURL){
@@ -93,27 +85,6 @@ export default {
         this.getForms();
     },
     computed: {
-        // filteredData() {
-        //     var sortKey = this.sortKey
-        //     var filterKey = this.filterKey && this.filterKey.toLowerCase()
-        //     var order = this.sortOrders[sortKey] || 1
-        //     var data = this.data
-        //     if (filterKey) {
-        //         data = data.filter(function (row) {
-        //             return Object.keys(row).some(function (key) {
-        //                 return String(row[key]).toLowerCase().indexOf(filterKey) > -1
-        //             })
-        //         })
-        //     }
-        //     if (sortKey) {
-        //         data = data.slice().sort(function (a, b) {
-        //             a = a[sortKey]
-        //             b = b[sortKey]
-        //             return (a === b ? 0 : a > b ? 1 : -1) * order
-        //         })
-        //     }
-        //     return data
-        // }
     }
 };
 </script>
