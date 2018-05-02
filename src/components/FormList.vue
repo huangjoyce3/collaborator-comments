@@ -77,11 +77,14 @@ export default {
         },
         refresh(){
             this.getForms();
-            localStorage.setItem('lastUpdated', this.moment());
+            localStorage.setItem('lastUpdated', this.momentLLL());
             this.lastUpdated = localStorage.getItem('lastUpdated');
         },
-        moment(){
+        momentLLL(){
             return moment().format('LLL');
+        },
+        momentL(date){
+            return moment(date).format('L');
         }
     },
     data(){
@@ -182,7 +185,6 @@ tbody{
 .refresh{
     display: flex;
     float: right;
-    margin-right: 10%;
     margin-top: 5%;
 }
 
@@ -194,7 +196,7 @@ tbody{
 }
 
 .refresh-info{
-    margin-right: 10px;
+    margin-right: 30px;
     font-style: italic;
     color: #bdbdbd;
 }
