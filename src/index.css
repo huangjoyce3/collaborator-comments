@@ -29,6 +29,7 @@ input{
     border: solid 2px #e0e0e0;
     border-radius: 10px;
     font-family: 'Avenir', Helvetica, Arial, sans-serif;
+    float: left;
 }
 
 input[type=text] {
@@ -37,11 +38,11 @@ input[type=text] {
     transition: width 0.4s ease-in-out;
     font-size: 15px;
     padding: 7px;
+    margin-left: 8%;
 }
 
 /* When the input field gets focus, change its width to 100% */
 input[type=text]:focus {
     width: 50%;
     border-color: linear-gradient(to right,rgba(205, 250, 164, 0.753), #AEE7DD);
-
 }
