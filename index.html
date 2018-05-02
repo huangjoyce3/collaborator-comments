@@ -7,9 +7,10 @@
     <style>
       th:hover{
         cursor: pointer;
+        color: darkgrey;
       }
     </style>
-  </head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">  </head>
   <body>
       <script type="text/x-template" id="grid-template">
         <table>
@@ -36,10 +37,10 @@
       </script>
     <div id="app">
       <demo-grid
-    :data="gridData"
-    :columns="gridColumns"
-    :filter-key="searchQuery">
-  </demo-grid>
+        :data="gridData"
+        :columns="gridColumns"
+        :filter-key="searchQuery">
+      </demo-grid>
     </div>
     
     <!-- built files will be auto injected -->

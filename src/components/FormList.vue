@@ -1,5 +1,9 @@
 <template>
     <div class="form-list">
+        <div class="flex">
+            <p class="refresh-info">Last updated: {{ lastUpdated }} </p>
+            <div class="refresh fa fa-refresh" v-on:click="refresh"></div>
+        </div>
         <table-component
             :data="forms"
             sort-by="totalEntries"
@@ -21,6 +25,7 @@
 
 import Item from './Item';
 import axios from 'axios';
+import moment from 'moment';
 
 export default {
     name: 'form-list',
@@ -30,9 +35,8 @@ export default {
             let url = "http://localhost:3000/allForms";
             axios.get(url).then((response) => {
                 this.forms = response.data
-                console.log(this.forms);
+                localStorage.setItem('forms', JSON.stringify(response.data));
             })
-            
         },
         getEntries(formName){
             let url = "http://localhost:3000/count/" + formName;
@@ -40,7 +44,6 @@ export default {
                 this.entries = response.data.EntryCount
             })
         },
-
         async onClick(formURL){
             alert(formURL);
             // Step 1: call createSheetAPI if no SheetID is stored
@@ -56,35 +59,55 @@ export default {
                     console.log(e);
                 }
                 
-                // let sheetID = '15vAkt-aI_m18rZOzz7qRfIl1fAXhsX0BGVcYUGBIjAo'
                 let url = "http://localhost:3000/form/" + formURL + '/' + sheetID;
-                //let url = 'http://localhost:3000/form/comment-form-gbd-2016-cancer-paper/1mKw1_QfofAOhJt-gud-5Trphct9hYtZHleit7l1eITU';
                 console.log('2: ' + url);
                 axios.get(url).then((response) => {
                     window.open('https://docs.google.com/spreadsheets/d/'+sheetID, '_blank');
                     console.log('Success');
                 }).catch((error) => {
-                    alert('Failed to export to Google Sheets');
+                    alert('Error: Failed to export to Google Sheets');
                     console.log(error);
                 })
+            } else {
+                alert('Error: form URL undefined');
             }
-            alert('formURL undefined');
-
             // TODO: Save entry count locally
+        },
+        updateLocalStorage(key, value){
+            localStorage.setItem(key, storage);
+        },
+        refresh(){
+            this.getForms();
+            localStorage.setItem('lastUpdated', this.moment());
+            this.lastUpdated = localStorage.getItem('lastUpdated');
+        },
+        moment(){
+            return moment().format('LLL');
         }
-
     },
     data(){
         return {
-            forms: [],
+            forms: localStorage.getItem('forms'),
             searchQuery: '',
+            lastUpdated: localStorage.getItem('lastUpdated')
         };
     },
     mounted(){
-        // call method
-        this.getForms();
+        if (localStorage.getItem('forms')) {
+            this.forms = JSON.parse(localStorage.getItem('forms'));
+        }
+
+        if (localStorage.getItem('lastUpdated')) {
+            this.lastUpdated = localStorage.getItem('lastUpdated');
+        }
     },
-    computed: {
+    watch: {
+        forms(val){
+            this.forms = val;
+        },
+        lastUpdated(val){
+            this.lastUpdated = val;
+        }
     }
 };
 </script>
@@ -155,5 +178,27 @@ tbody{
   box-shadow: 0 10px 10px -10px rgba(0, 0, 0, 0.5);
   -webkit-transform: scale(1.1);
   transform: scale(1.1);
+}
+
+.refresh{
+    display: flex;
+    float: right;
+    margin-right: 10%;
+    margin-top: 25%;
+}
+
+.flex{
+    display: inline-flex;
+    float: right;
+    margin-right: 10%;
+}
+
+.refresh-info{
+    margin-right: 10px;
+}
+
+.refresh:hover{
+    cursor: pointer;
+    color: green;
 }
 </style>
