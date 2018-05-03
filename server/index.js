@@ -74,15 +74,16 @@ app.get("/test", (req, res) => {
 app.post("/causeGroup", (req, res) => {
   console.log(req.body);
   let r = req.body;
-  var loop = new Promise((resolve, reject) => {
+  memStore.insertCauseGroup(r.cause, r.assignee);
+  /*var loop = new Promise((resolve, reject) => {
     Object.keys(r).forEach(function(key) {
       memStore.insertCauseGroup(key, r[key]);
     });
     resolve();
   });
-  loop.then(() => {
-    res.send(memStore.getAllCauseGroup());
-  });
+  loop.then(() => {*/
+  res.send(memStore.getAllCauseGroup());
+  //});
 });
 
 app.post("/wordBank", (req, res) => {
@@ -95,6 +96,11 @@ app.delete("/wordBank", (req, res) => {
   let data = req.body;
   memStore.deleteWord(data.category, data.word.toLowerCase());
   res.send(memStore.getAllWords(data.category));
+});
+
+app.get("/wordBank/:category", (req, res) => {
+  let cat = req.params.category;
+  res.send(memStore.getAllWords(cat));
 });
 
 app.get("/form/:formName/:sheetID", (req, res) => {

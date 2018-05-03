@@ -52,6 +52,9 @@ class MemStore {
   getKeys() {
     return this.wordBank.keys();
   }
+  getWordBank() {
+    return this.wordBank;
+  }
   deleteWord(cat, word) {
     let collection = this.wordBank.get(cat);
     if (collection) {
