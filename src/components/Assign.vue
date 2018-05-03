@@ -8,7 +8,7 @@
             <div class="input-field">
                 <input class="notransition" placeholder="assignee" type="text" id="assignee" v-model="assignee" required />
             </div>
-            <button type="submit" @click.prevent="addTableRow(grouping, assignee)">Add</button>
+            <button class="add fa fa-plus-circle" type="submit" @click.prevent="addTableRow(grouping, assignee)"></button>
         </form>
         <table>
             <thead>
@@ -24,7 +24,7 @@
                 </th>
             </thead>
             <tbody>
-            <tr v-for="assign in assignments" :class="{editing: editMode}" v-cloak :key="assign.id">
+            <tr v-for="(assign,index) in assignments" :class="{editing: editMode}" v-cloak :key="assign.id">
                 <td>
                     <div class="view">
                         {{assign.grouping}}
@@ -50,7 +50,7 @@
                     </div>
                 </td>
                 <td>
-                    <div class="fa fa-trash-o" style="font-size:25px" @click="deleteData(assign.id)"></div>
+                    <div class="trash fa fa-trash-o" @click="deleteData(index)"></div>
                 </td>
             </tr>
             </tbody>
@@ -75,8 +75,9 @@ export default {
         editData() {
             this.editMode = true;
         },
-        deleteData(row){
-            this.assignments.splice(row, 1);
+        deleteData(index){
+            this.assignments.splice(index, 1);
+            this.saveData();
         },
         addTableRow(gr, assignee) { 
             this.assignments.push(
@@ -119,13 +120,27 @@ input, input[type=text]:focus  {
   border-bottom: 2px solid #d3d3d3;
   border-radius: 0;
 }
+input[id="assignee"]{
+    margin-right: 30px;
+}
 .notransition {
   -webkit-transition: none !important;
   -moz-transition: none !important;
   -o-transition: none !important;
   transition: none !important;
 }
-.trash:hover{
+.trash, .add{
+    font-size: 25px;
+}
+.add{
+    color: dodgerblue;
+    border: none;
+    display: block;
+}
+.trash{
+    color: indianred;
+}
+.fa:hover{
     cursor: pointer;
 }
 </style>
