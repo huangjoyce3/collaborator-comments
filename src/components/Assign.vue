@@ -25,29 +25,29 @@
                 </th>
             </thead>
             <tbody>
-            <tr v-for="(assign,index) in assignments" :class="{editing: editMode}" v-cloak :key="assign.id">
+            <tr v-for="(row,index) in assignments" :class="{editing: row == editedRow}" v-cloak :key="row.id">
                 <td>
                     <div class="view">
-                        {{assign.grouping}}
+                        {{row.cause}}
                     </div>
                     <div class="edit">
-                        <input type="text" v-model="assign.grouping"/>
+                        <input type="text" v-model="row.cause"/>
                     </div>
                 </td>
                 <td>
                     <div class="view">
-                        {{assign.officer}}
+                        {{row.assignee}}
                     </div>
                     <div class="edit">
-                        <input type="text" v-model="assign.officer"/>
+                        <input type="text" v-model="row.assignee"/>
                     </div>
                 </td>
                 <td>
                     <div class="view">
-                        <button @click="editData(assign)">edit</button>
+                        <button @click="editData(row)">edit</button>
                     </div>
                     <div class="edit">
-                        <button @click="saveData(assign)">save</button>
+                        <button @click="saveData(row)">save</button>
                     </div>
                 </td>
                 <td>
@@ -60,6 +60,8 @@
 </template>
 <script>
 import moment from 'moment';
+import axios from 'axios';
+
 export default {
     name: 'Assign',
     data(){
@@ -71,23 +73,37 @@ export default {
         };
     },
     methods: {
-        saveData () {
+        saveData(row) {
             this.editMode = false;
             localStorage.setItem('assignments', JSON.stringify(this.assignments));
             localStorage.setItem('lastEditAssign', this.momentLLL());
+            this.postAssignment(row.cause, row.assignee);
         },
-        editData() {
+        editData(row) {
             this.editMode = true;
+            this.editedRow = row;
         },
         deleteData(index){
             this.assignments.splice(index, 1);
             this.saveData();
         },
-        addTableRow(gr, assignee) { 
+        addTableRow(c, officer) { 
             this.assignments.push(
-                {grouping: gr, officer: assignee}
+                {cause: c, assignee: officer}
             );
             this.saveData();
+        },
+        postAssignment(c, officer){
+            let url = 'http://localhost:3000/causeGroup';
+            axios.post(url,{
+                cause: c,
+                assignee: officer
+            }).then(function (response) {
+                console.log(response);
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
         },
         momentLLL(){
             return moment().format('LLL');
