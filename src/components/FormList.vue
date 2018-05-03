@@ -17,6 +17,11 @@
                     <div v-on:click="onClick(row.url)" id="export" class="button">Export</div>
                 </template>
             </table-column>
+            <table-column label="" :sortable="false" :filterable="false">
+                <template slot-scope="row">
+                    <a :href="`#${row.name}`">Edit</a>
+                </template>
+            </table-column>
         </table-component>
     </div>
 </template>
