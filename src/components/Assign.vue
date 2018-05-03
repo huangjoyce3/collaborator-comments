@@ -97,6 +97,10 @@ export default {
 </script>
 
 <style scoped>
+.assign{
+    position: absolute;
+    margin-left: 25%;
+}
 [v-cloak] {
     display: none;
 }
@@ -111,6 +115,7 @@ export default {
 }
 form{
     margin-bottom: 30px;
+    margin-left: inherit;
 }
 input, input[type=text]:focus  {
   width: 20%;
