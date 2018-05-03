@@ -6,10 +6,11 @@
                 <input class="notransition" placeholder="category" type="text" id="grouping" v-model="grouping" required />
             </div>
             <div class="input-field">
-                <input class="notransition" placeholder="word bank" type="text" id="assignee" v-model="assignee" required />
+                <input class="notransition" placeholder="word1, word2, word3, etc" type="text" id="assignee" v-model="assignee" required />
             </div>
             <button class="add fa fa-plus-circle" type="submit" @click.prevent="addTableRow(grouping, assignee)"></button>
         </form>
+        <p class="edit-info">Last edited: {{ lastEditWordbank }} </p>
         <table>
             <thead>
                 <th>Triage Category</th>
@@ -24,21 +25,18 @@
                 </th>
             </thead>
             <tbody>
-            <tr v-for="(assign,index) in assignments" :class="{editing: editMode}" v-cloak :key="assign.id">
+            <tr v-for="(item, key, index) in map" :class="{editing: editMode}" v-cloak :key="item.id">
                 <td>
                     <div class="view">
-                        {{assign.grouping}}
-                    </div>
-                    <div class="edit">
-                        <input type="text" v-model="assign.grouping"/>
+                        {{key}}
                     </div>
                 </td>
                 <td>
                     <div class="view">
-                        {{assign.officer}}
+                        {{toString(map[key])}}
                     </div>
                     <div class="edit">
-                        <input type="text" v-model="assign.officer"/>
+                        <input type="text" v-model="map[triage]"/>
                     </div>
                 </td>
                 <td>
@@ -58,19 +56,25 @@
     </div>
 </template>
 <script>
+import moment from 'moment';
 export default {
     name: 'Wordbank',
     data(){
         return{
-            wordbank: JSON.parse(localStorage.getItem('wordbank')),
+            map: {
+                Manuscript: ["wording", "language", "replace"],
+                Priory: ["model", "modell"]   
+            },
             editMode: false,
-            editedRow: null
+            editedRow: null,
+            lastEditWordbank: localStorage.getItem('lastEditWordbank')
         };
     },
     methods: {
         saveData () {
             this.editMode = false;
-            localStorage.setItem('wordbank', JSON.stringify(this.wordbank));
+            localStorage.setItem('wordbank', JSON.stringify(this.map));
+            localStorage.setItem('lastEditWordbank', this.momentLLL());
         },
         editData() {
             this.editMode = true;
@@ -84,23 +88,45 @@ export default {
                 {grouping: gr, officer: assignee}
             );
             this.saveData();
+        },
+        toString(wordbank){
+            var str = '';
+            for(var word in wordbank){
+                str += wordbank[word]+', ';
+            }
+            return str;
+        },
+        momentLLL(){
+            return moment().format('LLL');
+        },
+        momentL(date){
+            return moment(date).format('L');
         }
     },
     mounted(){
-        if (localStorage.getItem('assignments')) {
-            this.assignments = JSON.parse(localStorage.getItem('wordbank'));
-        }else{
-            this.assignments = []
+        // if (localStorage.getItem('assignments')) {
+        //     this.map = JSON.parse(localStorage.getItem('wordbank'));
+        // }else{
+        //     this.map = {}
+        // }
+
+        if (localStorage.getItem('lastEditWordbank')) {
+            this.lastEditWordbank = localStorage.getItem('lastEditWordbank');
         }
     },
+    watch: {
+        lastEditWordbank(val){
+            this.lastEditWordbank = val;
+        }
+    }
 }
 </script>
 
 <style scoped>
-.assign{
+/* .wordbank{
     position: absolute;
     margin-left: 25%;
-}
+} */
 [v-cloak] {
     display: none;
 }
