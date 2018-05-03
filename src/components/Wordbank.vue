@@ -8,21 +8,13 @@
             <div class="input-field">
                 <input class="notransition" placeholder="word1, word2, word3, etc" type="text" id="assignee" v-model="assignee" required />
             </div>
-            <button class="add fa fa-plus-circle" type="submit" @click.prevent="addTableRow(grouping, assignee)"></button>
+            <button class="add fa fa-plus-circle" id="icon" type="submit" @click.prevent="addTableRow(grouping, assignee)"></button>
         </form>
         <p class="edit-info">Last edited: {{ lastEditWordbank }} </p>
         <table>
             <thead>
                 <th>Triage Category</th>
                 <th>Word Bank</th>
-                <th>
-                    <div class="view">
-                        <button @click="editData()">edit</button>
-                    </div>
-                    <div class="edit">
-                        <button @click="saveData()">save</button>
-                    </div>
-                </th>
             </thead>
             <tbody>
             <tr v-for="(item, key, index) in map" :class="{editing: editMode}" v-cloak :key="item.id">
@@ -41,14 +33,14 @@
                 </td>
                 <td>
                     <div class="view">
-                        <button @click="editData(assign)">edit</button>
+                        <div class="edit fa fa-edit" id="icon" @click="editData(assign)"></div>
                     </div>
                     <div class="edit">
-                        <button @click="saveData(assign)">save</button>
+                        <div class="save fa fa-save" id="icon" @click="saveData(assign)"></div>
                     </div>
                 </td>
                 <td>
-                    <div class="trash fa fa-trash-o" @click="deleteData(index)"></div>
+                    <div class="trash fa fa-trash-o" id="icon" @click="deleteData(index)"></div>
                 </td>
             </tr>
             </tbody>
@@ -160,18 +152,38 @@ input[id="assignee"]{
   -o-transition: none !important;
   transition: none !important;
 }
-.trash, .add{
+.trash, .add, .edit, .save{
     font-size: 25px;
+    border-radius: 50px;
 }
 .add{
     color: dodgerblue;
     border: none;
     display: block;
 }
+.save{
+    color: darkgreen;
+}
 .trash{
     color: indianred;
 }
 .fa:hover{
     cursor: pointer;
+}
+#icon{
+  display: inline-block;
+  vertical-align: middle;
+  -webkit-transform: perspective(1px) translateZ(0);
+  transform: perspective(1px) translateZ(0);
+  box-shadow: 0 0 1px rgba(0, 0, 0, 0);
+  -webkit-transition-duration: 0.3s;
+  transition-duration: 0.3s;
+  -webkit-transition-property: box-shadow, transform;
+  transition-property: box-shadow, transform;
+}
+#icon:hover, #icon:focus, #icon:active {
+  box-shadow: 0 10px 10px -10px rgba(0, 0, 0, 0.5);
+  -webkit-transform: scale(1.1);
+  transform: scale(1.1);
 }
 </style>
