@@ -3,12 +3,12 @@
         <h1>Project Officer Assignments</h1>
         <form>
             <div class="input-field">
-                <input class="notransition" placeholder="grouping" type="text" id="grouping" v-model="grouping" required />
+                <input class="notransition" placeholder="grouping" type="text" id="cause" v-model="cause" required />
             </div>
             <div class="input-field">
                 <input class="notransition" placeholder="assignee" type="text" id="assignee" v-model="assignee" required />
             </div>
-            <button class="add fa fa-plus-circle" type="submit" @click.prevent="addTableRow(grouping, assignee)"></button>
+            <button class="add fa fa-plus-circle" type="submit" @click.prevent="addTableRow()"></button>
         </form>
         <p class="edit-info">Last edited: {{ lastEditAssign }} </p>
         <table>
@@ -77,29 +77,41 @@ export default {
             this.editMode = false;
             localStorage.setItem('assignments', JSON.stringify(this.assignments));
             localStorage.setItem('lastEditAssign', this.momentLLL());
-            this.postAssignment(row.cause, row.assignee);
+            this.postAssignmentAPI(row.cause, row.assignee);
         },
         editData(row) {
             this.editMode = true;
             this.editedRow = row;
         },
         deleteData(index){
+            this.deleteAssignmentAPI(this.assignments[index].cause);
             this.assignments.splice(index, 1);
             this.saveData();
         },
-        addTableRow(c, officer) { 
+        addTableRow() { 
             this.assignments.push(
-                {cause: c, assignee: officer}
+                {cause: this.cause, assignee: this.assignee}
             );
-            this.saveData();
+            this.saveData(this.cause, this.assignee);
         },
-        postAssignment(c, officer){
+        postAssignmentAPI(c, officer){
             let url = 'http://localhost:3000/causeGroup';
             axios.post(url,{
                 cause: c,
                 assignee: officer
             }).then(function (response) {
-                console.log(response);
+                console.log(response.request.response);
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+        },
+        deleteAssignmentAPI(c){
+            let url = 'http://localhost:3000/causeGroup';
+            axios.delete(url,{
+                cause: c
+            }).then(function (response) {
+                console.log(response.request.response);
             })
             .catch(function (error) {
                 console.log(error);
