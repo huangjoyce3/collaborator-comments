@@ -14,9 +14,17 @@
             <thead>
                 <th>Cause/Cause Grouping</th>
                 <th>Project Officer to be Assigned</th>
+                <th>
+                    <div class="view">
+                        <button @click="editData()">edit</button>
+                    </div>
+                    <div class="edit">
+                        <button @click="saveData()">save</button>
+                    </div>
+                </th>
             </thead>
             <tbody>
-            <tr v-for="assign in assignments" :class="{editing: assign == editedRow}" v-cloak :key="assign.id">
+            <tr v-for="assign in assignments" :class="{editing: editMode}" v-cloak :key="assign.id">
                 <td>
                     <div class="view">
                         {{assign.grouping}}
@@ -41,7 +49,9 @@
                         <button @click="saveData(assign)">save</button>
                     </div>
                 </td>
-                <td><button>delete</button></td>
+                <td>
+                    <div class="fa fa-trash-o" style="font-size:25px" @click="deleteData(assign.id)"></div>
+                </td>
             </tr>
             </tbody>
         </table>
@@ -52,29 +62,36 @@ export default {
     name: 'Assign',
     data(){
         return{
-            assignments: [
-                {grouping: 'Cardiovasular Diseases & Neoplasms', officer: 'Tahiya'},
-                {grouping: 'Congenital disorders', officer: 'Helen'},
-                {grouping: 'Disbetes', officer: 'Mari'},
-            ],
+            assignments: JSON.parse(localStorage.getItem('assignments')),
             editMode: false,
             editedRow: null
         };
     },
     methods: {
         saveData () {
-        
+            this.editMode = false;
+            localStorage.setItem('assignments', JSON.stringify(this.assignments));
         },
-        editData(row) {
-            this.beforEditCache = row
-            this.editedRow = row
+        editData() {
+            this.editMode = true;
+        },
+        deleteData(row){
+            this.assignments.splice(row, 1);
         },
         addTableRow(gr, assignee) { 
             this.assignments.push(
                 {grouping: gr, officer: assignee}
             );
+            this.saveData();
         }
-    }
+    },
+    mounted(){
+        if (localStorage.getItem('assignments')) {
+            this.assignments = JSON.parse(localStorage.getItem('assignments'));
+        }else{
+            this.assignments = []
+        }
+    },
 }
 </script>
 
@@ -107,5 +124,8 @@ input, input[type=text]:focus  {
   -moz-transition: none !important;
   -o-transition: none !important;
   transition: none !important;
+}
+.trash:hover{
+    cursor: pointer;
 }
 </style>
