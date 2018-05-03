@@ -10,6 +10,7 @@
             </div>
             <button class="add fa fa-plus-circle" type="submit" @click.prevent="addTableRow(grouping, assignee)"></button>
         </form>
+        <p class="edit-info">Last edited: {{ lastEditAssign }} </p>
         <table>
             <thead>
                 <th>Cause/Cause Grouping</th>
@@ -58,19 +59,22 @@
     </div>
 </template>
 <script>
+import moment from 'moment';
 export default {
     name: 'Assign',
     data(){
         return{
             assignments: JSON.parse(localStorage.getItem('assignments')),
             editMode: false,
-            editedRow: null
+            editedRow: null,
+            lastEditAssign: localStorage.getItem('lastEditAssign')
         };
     },
     methods: {
         saveData () {
             this.editMode = false;
             localStorage.setItem('assignments', JSON.stringify(this.assignments));
+            localStorage.setItem('lastEditAssign', this.momentLLL());
         },
         editData() {
             this.editMode = true;
@@ -84,6 +88,12 @@ export default {
                 {grouping: gr, officer: assignee}
             );
             this.saveData();
+        },
+        momentLLL(){
+            return moment().format('LLL');
+        },
+        momentL(date){
+            return moment(date).format('L');
         }
     },
     mounted(){
@@ -92,7 +102,16 @@ export default {
         }else{
             this.assignments = []
         }
+
+        if (localStorage.getItem('lastEditAssign')) {
+            this.lastEditAssign = localStorage.getItem('lastEditAssign');
+        }
     },
+    watch: {
+        lastEditAssign(val){
+            this.lastEditAssign = val;
+        }
+    }
 }
 </script>
 
@@ -114,7 +133,7 @@ export default {
     display: none;
 }
 form{
-    margin-bottom: 30px;
+    margin-bottom: 0px;
     margin-left: inherit;
 }
 input, input[type=text]:focus  {
@@ -147,5 +166,10 @@ input[id="assignee"]{
 }
 .fa:hover{
     cursor: pointer;
+}
+.edit-info{
+    font-style: italic;
+    color: #bdbdbd;
+    margin: 0px 0px 30px;
 }
 </style>
