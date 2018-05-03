@@ -1,7 +1,19 @@
 <template>
   <div id="app">
-    <img src="./assets/ihme-logo.png">
+    
+    <router-link :to="{name: 'home'}">
+      <img src="./assets/ihme-logo.png">
+    </router-link>
     <p id="name">IHME Collaborator</p>
+    <router-link :to="{name: 'home'}">
+        <button class="button">Form Manager</button>
+    </router-link>
+    <router-link :to="{name: 'assign'}">
+        <button class="button">Assign</button>
+    </router-link>
+    <router-link :to="{name: 'wordbank'}">
+        <button class="button">Wordbank</button>
+    </router-link>
     <router-view/>
   </div>
 </template>
