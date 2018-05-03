@@ -8,21 +8,15 @@
             <div class="input-field">
                 <input class="notransition" placeholder="assignee" type="text" id="assignee" v-model="assignee" required />
             </div>
-            <button class="add fa fa-plus-circle" type="submit" @click.prevent="addTableRow()"></button>
+            <button class="add fa fa-plus-circle" type="submit" @click.prevent="addTableRow(cause, assignee)"></button>
         </form>
         <p class="edit-info">Last edited: {{ lastEditAssign }} </p>
         <table>
             <thead>
                 <th>Cause/Cause Grouping</th>
                 <th>Project Officer to be Assigned</th>
-                <th>
-                    <div class="view">
-                        <button @click="editData()">edit</button>
-                    </div>
-                    <div class="edit">
-                        <button @click="saveData()">save</button>
-                    </div>
-                </th>
+                <th></th>
+                <th></th>
             </thead>
             <tbody>
             <tr v-for="(row,index) in assignments" :class="{editing: row == editedRow}" v-cloak :key="row.id">
@@ -88,9 +82,9 @@ export default {
             this.assignments.splice(index, 1);
             this.saveData();
         },
-        addTableRow() { 
+        addTableRow(c, a) { 
             this.assignments.push(
-                {cause: this.cause, assignee: this.assignee}
+                {cause: c, assignee: a}
             );
             this.saveData(this.cause, this.assignee);
         },
