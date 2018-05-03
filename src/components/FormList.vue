@@ -115,6 +115,9 @@ export default {
 </script>
 
 <style scoped>
+.form-list{
+    margin-top: 30px;
+}
 table{
     width: 80%;
     margin: auto;
