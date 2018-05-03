@@ -7,6 +7,7 @@ class MemStore {
     this.wordBank = map3;
     this.formArray = [];
     this.insertComment = this.insertComment.bind(this);
+    this.insertWordBank = this.insertWordBank.bind(this);
     this.getKeys = this.getKeys.bind(this);
   }
   insertComment(comment) {
@@ -19,20 +20,18 @@ class MemStore {
     return comment;
   }
   insertCauseGroup(cause, assignee) {
-    let collection = this.causeGroupMap.get(cause);
-    if (!collection) {
-      this.causeGroupMap.set(cause, assignee);
-    }
+    this.causeGroupMap.set(cause, assignee);
     return cause;
   }
-  insertWordBank(cat, word) {
-    let collection = this.wordBank.get(cat);
-    if (!collection) {
+  insertWordBank(cat, words) {
+    //let collection = this.wordBank.get(cat);
+    /*if (!collection) {
       this.wordBank.set(cat, []);
       collection = this.wordBank.get(cat);
     }
     collection.push(word);
-    return word;
+    return word;*/
+    this.wordBank.set(cat, words);
   }
   insertForm(form) {
     this.formArray.push(form);
@@ -65,6 +64,9 @@ class MemStore {
       }
     }
     return null;
+  }
+  deleteCauseGroup(cause) {
+    return this.causeGroupMap.delete(cause);
   }
   deleteAllForm() {
     this.formArray = [];

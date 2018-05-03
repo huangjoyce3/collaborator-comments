@@ -38,8 +38,8 @@ var sheetIDMap = new HashMap();
 var map2 = new HashMap();
 populateCause(map2);
 var wordBank = new HashMap();
-populateWordBank(wordBank);
 let memStore = new MemStore(map1, map2, wordBank);
+populateWordBank(wordBank);
 
 var startLength = 0;
 var headIndex = 0;
@@ -86,16 +86,25 @@ app.post("/causeGroup", (req, res) => {
   //});
 });
 
+app.delete("/causeGroup", (req, res) => {
+  let data = req.body;
+  res.send(memStore.deleteCauseGroup(data.cause));
+});
+
+app.get("/causeGroup", (req, res) => {
+  res.json(memStore.getAllCauseGroup());
+});
+
 app.post("/wordBank", (req, res) => {
   let data = req.body;
-  memStore.insertWordBank(data.category, data.word.toLowerCase());
-  res.send(memStore.getAllWords(data.category));
+  memStore.insertWordBank(data.category, data.word);
+  res.json(memStore.getAllWords(data.category));
 });
 
 app.delete("/wordBank", (req, res) => {
   let data = req.body;
-  memStore.deleteWord(data.category, data.word.toLowerCase());
-  res.send(memStore.getAllWords(data.category));
+  memStore.deleteWord(data.category, data.word);
+  res.json(memStore.getAllWords(data.category));
 });
 
 app.get("/wordBank/:category", (req, res) => {
@@ -740,6 +749,7 @@ function populateCause(map) {
     map.set(key, originCause[key]);
     //console.log(map.get(key));
   }
+  map.set("Congenital disorders", "test");
 }
 
 function populateWordBank(map) {
@@ -779,7 +789,8 @@ function populateWordBank(map) {
     ]
   };
   for (var key in originWordBank) {
-    map.set(key, originWordBank[key]);
+    memStore.insertWordBank(key, originWordBank[key]);
+    //map.set(key, originWordBank[key]);
     //console.log(map.get(key));
   }
 }
