@@ -8,7 +8,7 @@
             <div class="input-field">
                 <input class="notransition" placeholder="assignee" type="text" id="assignee" v-model="newItem.assignee" required />
             </div>
-            <div class="add fa fa-plus-circle" id="icon" type="submit"></div>
+            <button class="add fa fa-plus-circle" id="icon" type="submit"></button>
         </form>
         <p class="edit-info">Last edited: {{ lastEditAssign }} </p>
         <table>
