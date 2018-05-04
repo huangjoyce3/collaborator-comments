@@ -25,7 +25,8 @@
                         {{row.cause}}
                     </div>
                     <div class="edit">
-                        <input class="input-assign" type="text" v-model="row.cause"/>
+                        <!-- <input class="input-assign" type="text" v-model="row.cause"/> -->
+                        {{row.cause}}
                     </div>
                 </td>
                 <td>
@@ -38,7 +39,7 @@
                 </td>
                 <td>
                     <div class="view">
-                        <div class="edit fa fa-edit" id="icon" @click="editData(row)"></div>
+                        <div class="icon-edit fa fa-edit" id="icon" @click="editData(row)"></div>
                     </div>
                     <div class="edit">
                         <div class="save fa fa-save" id="icon" @click="saveData(row)"></div>
@@ -189,11 +190,13 @@ input, input[type=text]:focus{
   border-radius: 0;
 }
 input[id="assignee"]{
-    margin-right: -90px;
+    margin-right: -140px;
     width: max-content;
 }
 input[id="cause"]{
     width: max-content;
+    margin-left: -10px;
+    margin-right: 20px;
 }
 .notransition {
   -webkit-transition: none !important;
@@ -211,7 +214,7 @@ input[id="cause"]{
 input[id="cause"]:focus, input[id="assignee"]:focus{
     width: max-content;
 }
-.trash, .add, .edit, .save{
+.trash, .add, .icon-edit, .save{
     font-size: 25px;
 }
 .add{
@@ -219,7 +222,7 @@ input[id="cause"]:focus, input[id="assignee"]:focus{
     border: none;
     display: block;
 }
-.edit{
+.icon-edit{
     color: dodgerblue;
 }
 .save{

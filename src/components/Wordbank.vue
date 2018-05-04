@@ -1,25 +1,30 @@
 <template>
     <div class="wordbank">
         <h1>Smart Triage Word Bank</h1>
-        <form>
+        <form @submit.prevent="addTableRow()">
             <div class="input-field">
-                <input class="notransition" placeholder="category" type="text" id="grouping" v-model="grouping" required />
+                <input class="notransition" placeholder="category" type="text" id="category" v-model="newItem.category" required />
             </div>
             <div class="input-field">
-                <input class="notransition" placeholder="word1, word2, word3, etc" type="text" id="assignee" v-model="assignee" required />
+                <input class="notransition" placeholder="word1, word2, etc" type="text" id="word" v-model="newItem.word" required />
             </div>
-            <button class="add fa fa-plus-circle" id="icon" type="submit" @click.prevent="addTableRow(grouping, assignee)"></button>
+            <button class="add fa fa-plus-circle" id="icon" type="submit"></button>
         </form>
         <p class="edit-info">Last edited: {{ lastEditWordbank }} </p>
         <table>
             <thead>
                 <th>Triage Category</th>
                 <th>Word Bank</th>
+                <th></th>
+                <th></th>
             </thead>
             <tbody>
-            <tr v-for="(item, key, index) in map" :class="{editing: editMode}" v-cloak :key="item.id">
+            <tr v-for="(item, key, index) in map" :class="{editing: item == editedRow}" v-cloak :key="item.id">
                 <td>
                     <div class="view">
+                        {{key}}
+                    </div>
+                    <div class="edit">
                         {{key}}
                     </div>
                 </td>
@@ -28,19 +33,19 @@
                         {{toString(map[key])}}
                     </div>
                     <div class="edit">
-                        <input type="text" v-model="map[triage]"/>
+                        <input class="input-wordbank" type="text" v-model="map[key]"/>
                     </div>
                 </td>
                 <td>
                     <div class="view">
-                        <div class="edit fa fa-edit" id="icon" @click="editData(assign)"></div>
+                        <div class="icon-edit fa fa-edit" id="icon" @click="editData(item)"></div>
                     </div>
                     <div class="edit">
-                        <div class="save fa fa-save" id="icon" @click="saveData(assign)"></div>
+                        <div class="save fa fa-save" id="icon" @click="saveData(key)"></div>
                     </div>
                 </td>
                 <td>
-                    <div class="trash fa fa-trash-o" id="icon" @click="deleteData(index)"></div>
+                    <div class="trash fa fa-trash-o" id="icon" @click="deleteData(key)"></div>
                 </td>
             </tr>
             </tbody>
@@ -54,12 +59,17 @@ export default {
     data(){
         return{
             map: {
-                Manuscript: ["wording", "language", "replace"],
-                Priory: ["model", "modell"]   
+                'Manuscript': ['wording', 'language', 'replace'],
+                'Priority': ['model', 'modell'],
+                'No response needed': ['great', 'awesome', 'perfect', 'amazing']
             },
             editMode: false,
             editedRow: null,
-            lastEditWordbank: localStorage.getItem('lastEditWordbank')
+            lastEditWordbank: localStorage.getItem('lastEditWordbank'),
+            newItem: {
+                category: '',
+                word: ''
+            }
         };
     },
     methods: {
@@ -68,17 +78,24 @@ export default {
             localStorage.setItem('wordbank', JSON.stringify(this.map));
             localStorage.setItem('lastEditWordbank', this.momentLLL());
         },
-        editData() {
+        editData(row) {
             this.editMode = true;
+            this.editedRow = row;
         },
         deleteData(index){
             this.wordbank.splice(index, 1);
             this.saveData();
         },
-        addTableRow(gr, assignee) { 
-            this.wordbank.push(
-                {grouping: gr, officer: assignee}
-            );
+        addTableRow() { 
+            alert('click');
+            // Parse string to array
+
+            // this.wordbank.push(
+            //     {category: this.newItem.category, word: this.newItem.word.split('')}
+            // );
+            this.map[this.newItem.category] = this.newItem.word.split(',');
+            console.log(this.map);
+
             this.saveData();
         },
         toString(wordbank){
@@ -115,10 +132,10 @@ export default {
 </script>
 
 <style scoped>
-/* .wordbank{
+.wordbank{
     position: absolute;
     margin-left: 25%;
-} */
+}
 [v-cloak] {
     display: none;
 }
@@ -132,7 +149,7 @@ export default {
     display: none;
 }
 form{
-    margin-bottom: 30px;
+    margin-bottom: 0px;
     margin-left: inherit;
 }
 input, input[type=text]:focus  {
@@ -143,8 +160,17 @@ input, input[type=text]:focus  {
   border-bottom: 2px solid #d3d3d3;
   border-radius: 0;
 }
-input[id="assignee"]{
-    margin-right: 30px;
+input[id="word"]{
+    margin-right: -130px;
+    width: max-content;
+}
+input[id="category"]{
+    margin-right: 20px;
+    margin-left: 0px;
+    width: max-content;
+}
+input[id="category"]:focus, input[id="word"]:focus{
+    width: max-content;
 }
 .notransition {
   -webkit-transition: none !important;
@@ -152,17 +178,26 @@ input[id="assignee"]{
   -o-transition: none !important;
   transition: none !important;
 }
-.trash, .add, .edit, .save{
+.input-wordbank{
+    width: 100%;
+    margin: auto;
+}
+.input-wordbank:focus{
+    width: 100% !important;
+}
+.trash, .add, .icon-edit, .save{
     font-size: 25px;
-    border-radius: 50px;
 }
 .add{
     color: dodgerblue;
     border: none;
     display: block;
 }
+.icon-edit{
+    color: dodgerblue;
+}
 .save{
-    color: darkgreen;
+    color: limegreen;
 }
 .trash{
     color: indianred;
