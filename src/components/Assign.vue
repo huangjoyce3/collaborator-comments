@@ -3,7 +3,7 @@
         <h1>Project Officer Assignments</h1>
         <form @submit.prevent="addTableRow()">
             <div class="input-field">
-                <input class="notransition" placeholder="grouping" type="text" id="cause" v-model="newItem.cause" required />
+                <input class="notransition" placeholder="cause" type="text" id="cause" v-model="newItem.cause" required />
             </div>
             <div class="input-field">
                 <input class="notransition" placeholder="assignee" type="text" id="assignee" v-model="newItem.assignee" required />
@@ -189,7 +189,11 @@ input, input[type=text]:focus{
   border-radius: 0;
 }
 input[id="assignee"]{
-    margin-right: 30px;
+    margin-right: -90px;
+    width: max-content;
+}
+input[id="cause"]{
+    width: max-content;
 }
 .notransition {
   -webkit-transition: none !important;
@@ -203,6 +207,9 @@ input[id="assignee"]{
 }
 .input-assign:focus{
     width: 100% !important;
+}
+input[id="cause"]:focus, input[id="assignee"]:focus{
+    width: max-content;
 }
 .trash, .add, .edit, .save{
     font-size: 25px;
