@@ -8,7 +8,7 @@
             <div class="input-field">
                 <input class="notransition" placeholder="assignee" type="text" id="assignee" v-model="newItem.assignee" required />
             </div>
-            <button class="add fa fa-plus-circle" id="icon" type="submit"></button>
+            <div class="add fa fa-plus-circle" id="icon" type="submit"></div>
         </form>
         <p class="edit-info">Last edited: {{ lastEditAssign }} </p>
         <table>
@@ -74,7 +74,7 @@ export default {
         saveData(row) {
             this.editMode = false;
             localStorage.setItem('assignments', JSON.stringify(this.assignments));
-            localStorage.setItem('lastEditAssign', this.momentLLL());
+            this.updateLastEdited();
             this.postAssignmentAPI(row.cause, row.assignee);
         },
         editData(row) {
@@ -85,7 +85,7 @@ export default {
             this.deleteAssignmentAPI(this.assignments[index].cause);
             this.assignments.splice(index, 1);
             localStorage.setItem('assignments', JSON.stringify(this.assignments));
-            localStorage.setItem('lastEditAssign', this.momentLLL());
+            this.updateLastEdited();
         },
         addTableRow() { 
             this.assignments.push(
@@ -103,7 +103,7 @@ export default {
                 console.log(error);
             });
             localStorage.setItem('assignments', JSON.stringify(this.assignments));
-            localStorage.setItem('lastEditAssign', this.momentLLL());
+            this.updateLastEdited();
             this.resetForm();
         },
         postAssignmentAPI(c, officer){
@@ -134,6 +134,10 @@ export default {
             this.newItem.cause = '';
             this.newItem.assignee = '';
         },
+        updateLastEdited(){
+            localStorage.setItem('lastEditAssign', this.momentLLL());
+            this.lastEditAssign = localStorage.getItem('lastEditAssign');
+        },
         momentLLL(){
             return moment().format('LLL');
         }
@@ -149,7 +153,6 @@ export default {
     },
     watch: {
         lastEditAssign(val){
-            alert(val);
             this.lastEditAssign = val;
         }
     }
