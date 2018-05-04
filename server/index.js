@@ -115,7 +115,7 @@ app.get("/wordBank/:category", (req, res) => {
   res.send(memStore.getAllWords(cat));
 });
 
-app.get("/form/:formName/:sheetID", (req, res) => {
+app.get("/topicForm/:formName/:sheetID", (req, res) => {
   let formName = req.params.formName;
   let sheetID = req.params.sheetID;
   currentForm = formName;
@@ -750,7 +750,7 @@ function populateCause(map) {
 
   for (var key in originCause) {
     map.set(key, originCause[key]);
-    console.log(map.get(key));
+    //console.log(map.get(key));
   }
 }
 
