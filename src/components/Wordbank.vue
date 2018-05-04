@@ -181,6 +181,7 @@ input[id="category"]:focus, input[id="word"]:focus{
 .input-wordbank{
     width: 100%;
     margin: auto;
+    text-align: center;
 }
 .input-wordbank:focus{
     width: 100% !important;
