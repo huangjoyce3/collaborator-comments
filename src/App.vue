@@ -8,10 +8,10 @@
 				<p id="name">IHME Collaborator</p>
 			</div>
 			<div class="tab-wrapper">
-				<router-link :to="{name: 'home'}">
-					<button class="tab" :class="{highlight: highlighted}" @click="toggleHighlight">Form Manager</button>
+				<router-link class-active="active" :to="{name: 'home'}">
+					<button class="tab" :class="{highlight: highlighted}" @click="toggleHighlight($event)">Form Manager</button>
 				</router-link>
-				<router-link :to="{name: 'assign'}">
+				<router-link class-active="active" :to="{name: 'assign'}">
 					<button class="tab" :class="{highlight: highlighted}" @click="toggleHighlight">Assign</button>
 				</router-link>
 				<router-link :to="{name: 'wordbank'}">
@@ -62,6 +62,10 @@ export default {
   margin-bottom: 0px;
   margin-top: auto;
 }
+router-link-exact-active {
+   background-color: indianred;
+   cursor: pointer;
+ }
 .logo-wrapper{
 	width: 50%;
 }

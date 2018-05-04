@@ -25,7 +25,7 @@
                         {{row.cause}}
                     </div>
                     <div class="edit">
-                        <input type="text" v-model="row.cause"/>
+                        <input class="input-assign" type="text" v-model="row.cause"/>
                     </div>
                 </td>
                 <td>
@@ -33,7 +33,7 @@
                         {{row.assignee}}
                     </div>
                     <div class="edit">
-                        <input type="text" v-model="row.assignee"/>
+                        <input class="input-assign" type="text" v-model="row.assignee"/>
                     </div>
                 </td>
                 <td>
@@ -180,7 +180,7 @@ form{
     margin-bottom: 0px;
     margin-left: inherit;
 }
-input, input[type=text]:focus  {
+input, input[type=text]:focus{
   width: 20%;
   border: 0;
   outline: 0;
@@ -196,6 +196,13 @@ input[id="assignee"]{
   -moz-transition: none !important;
   -o-transition: none !important;
   transition: none !important;
+}
+.input-assign{
+    width: 100%;
+    margin: auto;
+}
+.input-assign:focus{
+    width: 100% !important;
 }
 .trash, .add, .edit, .save{
     font-size: 25px;
