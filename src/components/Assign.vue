@@ -102,7 +102,8 @@ export default {
             .catch(function (error) {
                 console.log(error);
             });
-
+            localStorage.setItem('assignments', JSON.stringify(this.assignments));
+            localStorage.setItem('lastEditAssign', this.momentLLL());
             this.resetForm();
         },
         postAssignmentAPI(c, officer){
@@ -119,6 +120,7 @@ export default {
         },
         deleteAssignmentAPI(c){
             let url = 'http://localhost:3000/causeGroup';
+            console.log(c);
             axios.delete(url,{
                 cause: c
             }).then(function (response) {
@@ -134,16 +136,11 @@ export default {
         },
         momentLLL(){
             return moment().format('LLL');
-        },
-        momentL(date){
-            return moment(date).format('L');
         }
     },
     mounted(){
         if (localStorage.getItem('assignments')) {
             this.assignments = JSON.parse(localStorage.getItem('assignments'));
-        }else{
-            this.assignments = []
         }
 
         if (localStorage.getItem('lastEditAssign')) {
@@ -152,6 +149,7 @@ export default {
     },
     watch: {
         lastEditAssign(val){
+            alert(val);
             this.lastEditAssign = val;
         }
     }
