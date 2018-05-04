@@ -121,11 +121,11 @@ export default {
         },
         deleteAssignmentAPI(c){
             let url = 'http://localhost:3000/causeGroup';
-            console.log(c);
+            console.log('deleting: ' + typeof c);
             axios.delete(url,{
-                cause: c
+                data: { cause: c }
             }).then(function (response) {
-                console.log(response.request.response);
+                console.log(response.request);
             })
             .catch(function (error) {
                 console.log(error);

@@ -92,6 +92,7 @@ app.post("/causeGroup", (req, res) => {
 
 app.delete("/causeGroup", (req, res) => {
   let data = req.body;
+  console.log("Delete Cause: " + data.cause)
   res.send(memStore.deleteCauseGroup(data.cause));
 });
 
