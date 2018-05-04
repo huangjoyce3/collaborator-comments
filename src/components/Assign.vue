@@ -1,14 +1,14 @@
 <template>
     <div class="assign">
         <h1>Project Officer Assignments</h1>
-        <form>
+        <form @submit.prevent="addTableRow()">
             <div class="input-field">
-                <input class="notransition" placeholder="grouping" type="text" id="cause" v-model="cause" required />
+                <input class="notransition" placeholder="grouping" type="text" id="cause" v-model="newItem.cause" required />
             </div>
             <div class="input-field">
-                <input class="notransition" placeholder="assignee" type="text" id="assignee" v-model="assignee" required />
+                <input class="notransition" placeholder="assignee" type="text" id="assignee" v-model="newItem.assignee" required />
             </div>
-            <button class="add fa fa-plus-circle" type="submit" @click.prevent="addTableRow(cause, assignee)"></button>
+            <button class="add fa fa-plus-circle" type="submit"></button>
         </form>
         <p class="edit-info">Last edited: {{ lastEditAssign }} </p>
         <table>
@@ -63,7 +63,11 @@ export default {
             assignments: JSON.parse(localStorage.getItem('assignments')),
             editMode: false,
             editedRow: null,
-            lastEditAssign: localStorage.getItem('lastEditAssign')
+            lastEditAssign: localStorage.getItem('lastEditAssign'),
+            newItem: {
+                cause: '',
+                assignee: ''
+            }
         };
     },
     methods: {
@@ -80,13 +84,26 @@ export default {
         deleteData(index){
             this.deleteAssignmentAPI(this.assignments[index].cause);
             this.assignments.splice(index, 1);
-            this.saveData();
+            localStorage.setItem('assignments', JSON.stringify(this.assignments));
+            localStorage.setItem('lastEditAssign', this.momentLLL());
         },
-        addTableRow(c, a) { 
+        addTableRow() { 
             this.assignments.push(
-                {cause: c, assignee: a}
+                {cause: this.newItem.cause, assignee: this.newItem.assignee}
             );
-            this.saveData(this.cause, this.assignee);
+            
+            let url = 'http://localhost:3000/causeGroup';
+            axios.post(url,{
+                cause: this.newItem.cause,
+                assignee: this.newItem.assignee
+            }).then(function (response) {
+                console.log(response.request.response);
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+
+            this.resetForm();
         },
         postAssignmentAPI(c, officer){
             let url = 'http://localhost:3000/causeGroup';
@@ -110,6 +127,10 @@ export default {
             .catch(function (error) {
                 console.log(error);
             });
+        },
+        resetForm(){
+            this.newItem.cause = '';
+            this.newItem.assignee = '';
         },
         momentLLL(){
             return moment().format('LLL');
