@@ -107,8 +107,7 @@ app.post("/wordBank", (req, res) => {
 
 app.delete("/wordBank", (req, res) => {
   let data = req.body;
-  memStore.deleteWord(data.category, data.word);
-  res.json(memStore.getAllWords(data.category));
+  res.json(memStore.deleteWord(data.category, data.word));
 });
 
 app.get("/wordBank/:category", (req, res) => {
@@ -751,9 +750,8 @@ function populateCause(map) {
 
   for (var key in originCause) {
     map.set(key, originCause[key]);
-    //console.log(map.get(key));
+    console.log(map.get(key));
   }
-  map.set("Congenital disorders", "test");
 }
 
 function populateWordBank(map) {

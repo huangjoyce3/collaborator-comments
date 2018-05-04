@@ -43,6 +43,7 @@ class MemStore {
     return this.causeGroupMap.get(cause);
   }
   getAllCauseGroup() {
+    console.log(this.causeGroupMap);
     return this.causeGroupMap;
   }
   getAllWords(cat) {
@@ -60,13 +61,17 @@ class MemStore {
       var index = collection.indexOf(word);
       if (index > -1) {
         collection.splice(index, 1);
-        return word;
+        return true;
       }
     }
-    return null;
+    return false;
   }
   deleteCauseGroup(cause) {
-    return this.causeGroupMap.delete(cause);
+    if (this.causeGroupMap.get(cause)) {
+      this.causeGroupMap.delete(cause);
+      return true;
+    }
+    return false;
   }
   deleteAllForm() {
     this.formArray = [];
