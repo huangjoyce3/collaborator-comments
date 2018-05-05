@@ -65,10 +65,13 @@ router-link-exact-active {
 .logo-wrapper{
 	width: 50%;
 }
-.is-active{
-	border-bottom: 2px solid #8AB76B;
-	color: #2c3e50;
+.is-active, .is-active:hover{
+	border-bottom: 2px solid #8AB76B !important;
+	color: #2c3e50 !important;
 	font-weight: bold;
+}
+.tab:hover{
+	color: #8AB76B;
 }
 .header-wrapper{
   display: flow-root;
