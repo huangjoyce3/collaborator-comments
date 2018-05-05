@@ -22,15 +22,15 @@
             <tr v-for="(item, key, index) in map" :class="{editing: item == editedRow}" v-cloak :key="item.id">
                 <td>
                     <div class="view">
-                        {{key}}
+                        {{ key }}
                     </div>
                     <div class="edit">
-                        {{key}}
+                        {{ key }}
                     </div>
                 </td>
                 <td>
                     <div class="view">
-                        {{toString(map[key])}}
+                        {{ map[key] }}
                     </div>
                     <div class="edit">
                         <input class="input-wordbank" type="text" v-model="map[key]"/>
@@ -59,9 +59,9 @@ export default {
     data(){
         return{
             map: {
-                'Manuscript': ['wording', 'language', 'replace'],
-                'Priority': ['model', 'modell'],
-                'No response needed': ['great', 'awesome', 'perfect', 'amazing']
+                'Manuscript': 'wording, language, replace',
+                'Priority': 'model, modell',
+                'No response needed': 'great, awesome, perfect, amazing'
             },
             editMode: false,
             editedRow: null,

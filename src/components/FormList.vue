@@ -63,7 +63,11 @@ export default {
                     console.log(e);
                 }
             }
-            let url = "http://localhost:3000/form/" + formURL + '/' + sheetID;
+            let topic = "http://localhost:3000/topicForm/" + formURL + '/' + sheetID;
+
+            // TODO: check form category
+            let capstone1 = "http://localhost:3000/capstoneForm/";
+            let capstone2 = "http://localhost:3000/capstoneForm/";
             console.log('2: ' + url);
             axios.get(url).then((response) => {
                 window.open('https://docs.google.com/spreadsheets/d/'+sheetID, '_blank');

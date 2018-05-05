@@ -18,6 +18,7 @@ Vue.use(TableComponent, {
 Vue.use(Router)
 
 export default new Router({
+  linkActiveClass: 'is-active',
   routes: [
     {
       path: "/",

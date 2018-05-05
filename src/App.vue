@@ -8,16 +8,10 @@
 				<p id="name">IHME Collaborator</p>
 			</div>
 			<div class="tab-wrapper">
-				<router-link class-active="active" :to="{name: 'home'}">
-					<button class="tab" :class="{highlight: highlighted}" @click="toggleHighlight($event)">Form Manager</button>
-				</router-link>
-				<router-link class-active="active" :to="{name: 'assign'}">
-					<button class="tab" :class="{highlight: highlighted}" @click="toggleHighlight">Assign</button>
-				</router-link>
-				<router-link :to="{name: 'wordbank'}">
-					<button class="tab" :class="{highlight: highlighted}" @click="toggleHighlight">Word Bank</button>
-				</router-link>
-			</div>
+				<router-link class="tab" active-class="is-active" :to="{name: 'home'}">Form Manager</router-link>
+				<router-link class="tab" active-class="is-active" :to="{name: 'assign'}">Assign</router-link>
+				<router-link class="tab" active-class="is-active" :to="{name: 'wordbank'}">Word Bank</router-link>
+			</div> 
 		</div>
 		<router-view/>
 	</div>
@@ -57,6 +51,8 @@ export default {
 	margin-right: 20px;
 	font-weight: lighter;
 	cursor: pointer;
+	text-decoration: none;
+	color: gray;
 }
 .tab-wrapper{
   margin-bottom: 0px;
@@ -69,8 +65,10 @@ router-link-exact-active {
 .logo-wrapper{
 	width: 50%;
 }
-.highlight{
-  border-bottom: 2px solid #8AB76B;
+.is-active{
+	border-bottom: 2px solid #8AB76B;
+	color: #2c3e50;
+	font-weight: bold;
 }
 .header-wrapper{
   display: flow-root;
