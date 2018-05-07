@@ -33,6 +33,7 @@ const MemStore = require("./memstore");
 
 // map
 var HashMap = require("hashmap");
+var indexMap = new HashMap();
 var map1 = new HashMap();
 var sheetIDMap = new HashMap();
 var map2 = new HashMap();
@@ -544,7 +545,6 @@ app.get("/allForms", (req, res) => {
             }
           }
           memStore.insertForm(form);
-          console.log(form);
         }
       }
       let forms = memStore.getAllForm();
@@ -576,6 +576,7 @@ function updateCount(form) {
           // JSON.parse() can throw an exception if not valid JSON
           //console.log("in");
           form.totalEntries = JSON.parse(body).EntryCount;
+          console.log(form);
           resolve(JSON.parse(body).EntryCount);
         } catch (e) {
           reject(e);
