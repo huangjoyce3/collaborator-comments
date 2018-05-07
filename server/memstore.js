@@ -55,15 +55,20 @@ class MemStore {
   getWordBank() {
     return this.wordBank;
   }
-  deleteWord(cat, word) {
-    let collection = this.wordBank.get(cat);
+  deleteWord(cat) {
+    /*let collection = this.wordBank.get(cat);
     if (collection) {
       var index = collection.indexOf(word);
       if (index > -1) {
         collection.splice(index, 1);
         return true;
       }
+    }*/
+    if (this.wordBank.get(cat)) {
+      this.wordBank.delete(cat);
+      return true;
     }
+
     return false;
   }
   deleteCauseGroup(cause) {

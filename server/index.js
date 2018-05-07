@@ -107,7 +107,7 @@ app.post("/wordBank", (req, res) => {
 
 app.delete("/wordBank", (req, res) => {
   let data = req.body;
-  res.json(memStore.deleteWord(data.category, data.word));
+  res.json(memStore.deleteWord(data.category));
 });
 
 app.get("/wordBank/:category", (req, res) => {
