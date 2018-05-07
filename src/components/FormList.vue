@@ -8,8 +8,10 @@
             :data="forms"
             sort-by="totalEntries"
             sort-order="asc"
+            :show-filter=true
             >
             <table-column show="name" label="Name"></table-column>
+            <table-column show="unExported" label="Unexported Entries" data-type="numeric"></table-column>
             <table-column show="totalEntries" label="Total Entries" data-type="numeric"></table-column>
             <table-column show="dateCreate" label="Date Created" :filterable="false" data-type="date:YYYY/MM/DD"></table-column>
             <table-column label="" :sortable="false" :filterable="false">
@@ -35,6 +37,9 @@ export default {
             let url = "http://localhost:3000/allForms";
             axios.get(url).then((response) => {
                 this.forms = response.data
+                for(var form in this.forms){
+                    this.forms[form].totalEntries = parseInt(this.forms[form].totalEntries);
+                }   
                 localStorage.setItem('forms', JSON.stringify(response.data));
             })
         },
@@ -93,7 +98,7 @@ export default {
     },
     data(){
         return {
-            forms: localStorage.getItem('forms'),
+            forms: JSON.parse(localStorage.getItem('forms')),
             searchQuery: '',
             lastUpdated: localStorage.getItem('lastUpdated')
         };
@@ -120,8 +125,7 @@ export default {
 
 <style scoped>
 .form-list{
-    margin-top: 130px;
-    margin-bottom: 30px;
+    margin: 130px 5% 100px 5%;
 }
 table{
     width: 80%;
@@ -200,7 +204,6 @@ tbody{
     display: inline-flex;
     float: right;
     margin-right: 10%;
-    width: 24%;
 }
 
 .refresh-info{
@@ -212,5 +215,23 @@ tbody{
 .refresh:hover{
     cursor: pointer;
     color: green;
+}
+
+#icon{
+    display: inline-block;
+    vertical-align: middle;
+}
+#icon:hover, #icon:focus, #icon:active {
+    -webkit-transform: scale(1.2);
+    transform: scale(1.2);
+    transition-duration: 0.3s;
+}
+.table-component__th--sort-asc:after {
+  content: '↑';
+  background-color: darkgreen;
+}
+
+.table-component__th--sort-desc:after {
+  content: '↓';
 }
 </style>
