@@ -113,7 +113,7 @@ export default {
             this.getForms();
             localStorage.setItem('lastUpdated', this.momentLLL());
             this.lastUpdated = localStorage.getItem('lastUpdated');
-            console.log(JSON.parse(localStorage.getItem('comment-form-alcohol-use-and-burden-paper'))[1]);
+            // console.log(JSON.parse(localStorage.getItem('comment-form-alcohol-use-and-burden-paper'))[1]);
         },
         momentLLL(){
             return moment().format('LLL');

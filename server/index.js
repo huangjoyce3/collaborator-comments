@@ -600,7 +600,7 @@ app.post("/sheet/:sheetName", (req, res) => {
     auth.authenticate(JSON.parse(content), createSheet);
   });
 
-  setTimeout(() => res.send(currentSheetID), 1200);
+  setTimeout(() => res.send(currentSheetID), 1500);
 });
 
 // get form entry count
