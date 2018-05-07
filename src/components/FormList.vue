@@ -11,12 +11,12 @@
             :show-filter=true
             >
             <table-column show="name" label="Name"></table-column>
-            <table-column show="unExported" label="Unexported Entries" data-type="numeric"></table-column>
+            <table-column show="unexportedEntries" label="Unexported Entries" data-type="numeric"></table-column>
             <table-column show="totalEntries" label="Total Entries" data-type="numeric"></table-column>
-            <table-column show="dateCreate" label="Date Created" :filterable="false" data-type="date:YYYY/MM/DD"></table-column>
+            <table-column show="dateCreate" label="Date Created" :filterable="false" data-type="date:MM/DD/YYYY"></table-column>
             <table-column label="" :sortable="false" :filterable="false">
                 <template slot-scope="row">
-                    <div v-on:click="onClick(row.url)" id="export" class="button">Export</div>
+                    <div v-on:click="onClick(row)" id="export" class="button">Export</div>
                 </template>
             </table-column>
         </table-component>
@@ -37,8 +37,18 @@ export default {
             let url = "http://localhost:3000/allForms";
             axios.get(url).then((response) => {
                 this.forms = response.data
+
+                // change totalEntries into a number
+                // format date
                 for(var form in this.forms){
                     this.forms[form].totalEntries = parseInt(this.forms[form].totalEntries);
+                    this.forms[form].dateCreate = this.momentL(this.forms[form].dateCreate);
+                    console.log(this.forms[form].url);
+                    if (localStorage.getItem(this.forms[form].url)){
+                        this.forms[form].unexportedEntries = this.forms[form].totalEntries - JSON.parse(localStorage.getItem(this.forms[form].url))[1];
+                    }else {
+                        this.forms[form].unexportedEntries = this.forms[form].totalEntries;
+                    }
                 }   
                 localStorage.setItem('forms', JSON.stringify(response.data));
             })
@@ -49,45 +59,61 @@ export default {
                 this.entries = response.data.EntryCount
             })
         },
-        async onClick(formURL){
-            alert(formURL);
+        async onClick(form){
             // Step 1: call createSheetAPI if no SheetID is stored
+            var formInfo = [];
             let sheetID = '';
-            let createSheetAPI = 'http://localhost:3000/sheet/' + formURL;
-            if(localStorage.getItem(formURL)){ // if sheetID of formURL exists
-                sheetID = localStorage.getItem(formURL);
+            let createSheetAPI = 'http://localhost:3000/sheet/' + form.url;
+            if(localStorage.getItem(form.url)){ // if sheetID of formURL exists
+                sheetID = localStorage.getItem(form.url);
                 console.log('stored');
             } else{
                 try{
                     const response = await axios.post(createSheetAPI);
                     sheetID = response.data;
-                    localStorage.setItem(formURL, sheetID);
+                    formInfo.push(sheetID);
                     console.log('1: ' + sheetID);
                 } catch(e){
                     alert('Failed to create a new Google Sheets');
                     console.log(e);
                 }
             }
-            let topic = "http://localhost:3000/topicForm/" + formURL + '/' + sheetID;
 
-            // TODO: check form category
-            let capstone1 = "http://localhost:3000/capstoneForm/";
-            let capstone2 = "http://localhost:3000/capstoneForm/";
+            // Calls cleaning algorithm based on form type
+            var url = ''
+            if (form.type === ''){ // topic paper
+                url = 'http://localhost:3000/topicForm/' + form.url + '/' + sheetID;
+            } else if (form.type === 'capstone'){
+                url = 'http://localhost:3000/capstoneForm/' + form.url + '/' + sheetID;
+            } else if (form.type === 'capstone2'){                
+                url = 'http://localhost:3000/capstoneForm2/' + form.url + '/' + sheetID;   
+            }
+            
             console.log('2: ' + url);
             axios.get(url).then((response) => {
                 window.open('https://docs.google.com/spreadsheets/d/'+sheetID, '_blank');
                 console.log('Success');
+                // Save exported entry count locally
+                let currentIndex = form.vueTableComponentInternalRowId;
+
+                // save total entries
+                formInfo.push(this.forms[currentIndex].totalEntries);
+
+                // display unexported
+                //this.forms[currentIndex].unexportedEntries = this.forms[currentIndex].totalEntries - localStorage.getItem(form.url)[1];
+                
+                localStorage.setItem(form.url, JSON.stringify(formInfo));
+                localStorage.setItem('forms', JSON.stringify(this.forms));
             }).catch((error) => {
                 alert('Error: Failed to export to Google Sheets');
                 console.log(error);
             })
-
-            // TODO: Save entry count locally
         },
         refresh(){
             this.getForms();
             localStorage.setItem('lastUpdated', this.momentLLL());
             this.lastUpdated = localStorage.getItem('lastUpdated');
+            console.log(JSON.parse(localStorage.getItem('comment-form-alcohol-use-and-burden-paper'))[1]);
         },
         momentLLL(){
             return moment().format('LLL');

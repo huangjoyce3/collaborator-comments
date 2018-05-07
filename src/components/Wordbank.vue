@@ -102,7 +102,7 @@ export default {
                 console.log(response.request.response);
             })
             .catch(function (error) {
-                alert(error);
+                console.log(error);
             });
         },
         addTableRow() { 

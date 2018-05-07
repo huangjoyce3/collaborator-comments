@@ -21,7 +21,6 @@
                         {{row.cause}}
                     </div>
                     <div class="edit">
-                        <!-- <input class="input-assign" type="text" v-model="row.cause"/> -->
                         {{row.cause}}
                     </div>
                 </td>
@@ -58,7 +57,6 @@ export default {
     data(){
         return{
             assignments: JSON.parse(localStorage.getItem('assignments')),
-            editMode: false,
             editedRow: null,
             lastEditAssign: localStorage.getItem('lastEditAssign'),
             newItem: {
@@ -69,7 +67,7 @@ export default {
     },
     methods: {
         saveData(row) {
-            this.editMode = false;
+            this.editedRow = null;
             localStorage.setItem('assignments', JSON.stringify(this.assignments));
             this.updateLastEdited();
             this.postAssignmentAPI(row.cause, row.assignee);
@@ -120,7 +118,7 @@ export default {
             axios.delete(url,{
                 data: { cause: c.toLowerCase() }
             }).then(function (response) {
-                console.log(response.request);
+                console.log(response.request.response);
             })
             .catch(function (error) {
                 console.log(error);
