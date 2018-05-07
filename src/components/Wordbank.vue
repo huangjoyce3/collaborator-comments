@@ -2,12 +2,11 @@
     <div class="wordbank">
         <h1>Smart Triage Word Bank</h1>
         <form @submit.prevent="addTableRow()">
-            <div class="input-field">
+            <!-- <div class="input-field"> -->
                 <input class="notransition" placeholder="category" type="text" id="category" v-model="newItem.category" required />
-            </div>
-            <div class="input-field">
+            
                 <input class="notransition" placeholder="word1, word2, etc" type="text" id="word" v-model="newItem.word" required />
-            </div>
+            
             <button class="add fa fa-plus-circle" id="icon" type="submit"></button>
         </form>
         <p class="edit-info">Last edited: {{ lastEditWordbank }} </p>
@@ -86,8 +85,8 @@ export default {
         postWordbankAPI(category, word){
             let url = 'http://localhost:3000/wordBank';
             axios.post(url,{
-                category: category,
-                word: word
+                category: category.toLowerCase(),
+                word: word.toLowerCase()
             }).then(function (response) {
                 console.log(response.request.response);
             })
@@ -99,23 +98,23 @@ export default {
             let url = 'http://localhost:3000/wordBank';
             axios.delete(url,{
                 data: { 
-                    category: c,  
-                    word: w
+                    category: c.toLowerCase(),  
+                    word: w.toLowerCase()
                 }
             }).then(function (response) {
-                console.log(response.request);
+                console.log(response.request.response);
             })
             .catch(function (error) {
-                console.log(error);
+                alert(error);
             });
         },
         addTableRow() { 
             this.wordbank.push(
                 {category: this.newItem.category, word: this.newItem.word}
             );
+            this.postWordbankAPI(this.newItem.category,this.newItem.word);
             localStorage.setItem('wordbank', JSON.stringify(this.wordbank));
             this.updateLastEdited();
-            this.postWordbankAPI(this.newItem.category, this.newItem.word);
             this.resetForm();
         },
         resetForm(){
@@ -167,28 +166,27 @@ export default {
     display: none;
 }
 form{
-    margin-bottom: 0px;
-    margin-left: inherit;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 input, input[type=text]:focus  {
-  width: 20%;
-  border: 0;
-  outline: 0;
-  padding: 0;
-  border-bottom: 2px solid #d3d3d3;
-  border-radius: 0;
+    width: 20%;
+    border: 0;
+    outline: 0;
+    padding: 0;
+    border-bottom: 2px solid #d3d3d3;
+    border-radius: 0;
 }
 input[id="word"]{
-    margin-right: -130px;
-    width: max-content;
+    width: 200px;
 }
 input[id="category"]{
-    margin-right: 20px;
     margin-left: 0px;
-    width: max-content;
+    width: 200px;
 }
 input[id="category"]:focus, input[id="word"]:focus{
-    width: max-content;
+    width: 200px;
 }
 .notransition {
   -webkit-transition: none !important;
@@ -211,6 +209,7 @@ input[id="category"]:focus, input[id="word"]:focus{
     color: dodgerblue;
     border: none;
     display: block;
+    margin-left: 20px;
 }
 .icon-edit{
     color: dodgerblue;
@@ -227,18 +226,11 @@ input[id="category"]:focus, input[id="word"]:focus{
 #icon{
     display: inline-block;
     vertical-align: middle;
-    -webkit-transform: perspective(1px) translateZ(0);
-    transform: perspective(1px) translateZ(0);
-    box-shadow: 0 0 1px rgba(0, 0, 0, 0);
-    -webkit-transition-duration: 0.3s;
-    transition-duration: 0.3s;
-    -webkit-transition-property: box-shadow, transform;
-    transition-property: box-shadow, transform;
 }
 #icon:hover, #icon:focus, #icon:active {
-    box-shadow: 0 10px 10px -10px rgba(0, 0, 0, 0.5);
-    -webkit-transform: scale(1.1);
-    transform: scale(1.1);
+    -webkit-transform: scale(1.2);
+    transform: scale(1.2);
+    transition-duration: 0.3s;
 }
 textarea {
     width: 100%;
@@ -251,5 +243,13 @@ textarea {
 th:hover{
     cursor: default;
     color: #2c3e50;
+}
+.edit-info{
+    font-style: italic;
+    color: #bdbdbd;
+    margin: 0px 0px 30px;
+}
+table{
+    margin: auto;
 }
 </style>
