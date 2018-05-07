@@ -19,33 +19,33 @@
                 <th></th>
             </thead>
             <tbody>
-            <tr v-for="(item, key, index) in map" :class="{editing: item == editedRow}" v-cloak :key="item.id">
+            <tr v-for="(row, index) in map" :class="{editing: row == editedRow}" v-cloak :key="row.id">
                 <td>
                     <div class="view">
-                        {{ key }}
+                        {{ row.category }}
                     </div>
                     <div class="edit">
-                        {{ key }}
+                        {{ row.category }}
                     </div>
                 </td>
                 <td>
                     <div class="view">
-                        {{ map[key] }}
+                        {{ row.word }}
                     </div>
                     <div class="edit">
-                        <input class="input-wordbank" type="text" v-model="map[key]"/>
+                        <input class="input-wordbank" type="text" v-model="row.word"/> 
                     </div>
                 </td>
                 <td>
                     <div class="view">
-                        <div class="icon-edit fa fa-edit" id="icon" @click="editData(item)"></div>
+                        <div class="icon-edit fa fa-edit" id="icon" @click="editData(row)"></div>
                     </div>
                     <div class="edit">
-                        <div class="save fa fa-save" id="icon" @click="saveData(key)"></div>
+                        <div class="save fa fa-save" id="icon" @click="saveData(row)"></div>
                     </div>
                 </td>
                 <td>
-                    <div class="trash fa fa-trash-o" id="icon" @click="deleteData(key)"></div>
+                    <div class="trash fa fa-trash-o" id="icon" @click="deleteData(index)"></div>
                 </td>
             </tr>
             </tbody>
@@ -58,12 +58,20 @@ export default {
     name: 'Wordbank',
     data(){
         return{
-            map: {
-                'Manuscript': 'wording, language, replace',
-                'Priority': 'model, modell',
-                'No response needed': 'great, awesome, perfect, amazing'
-            },
-            editMode: false,
+            map: [
+                {
+                    category: 'Manuscript',
+                    word: 'wording, language, replace'
+                },
+                {
+                    category: 'Priority',
+                    word: 'model, modell'
+                },
+                {
+                    category: 'No response needed',
+                    word: 'great, awesome, perfect, amazing'
+                }
+            ],
             editedRow: null,
             lastEditWordbank: localStorage.getItem('lastEditWordbank'),
             newItem: {
@@ -73,18 +81,30 @@ export default {
         };
     },
     methods: {
-        saveData () {
-            this.editMode = false;
+        saveData(row) {
+            this.editedRow = null;
             localStorage.setItem('wordbank', JSON.stringify(this.map));
-            localStorage.setItem('lastEditWordbank', this.momentLLL());
+            this.updateLastEdited();
+            this.postWordbankAPI(row.category, row.word);
         },
         editData(row) {
-            this.editMode = true;
             this.editedRow = row;
         },
         deleteData(index){
             this.wordbank.splice(index, 1);
             this.saveData();
+        },
+        postWordbankAPI(category, word){
+            let url = 'http://localhost:3000/wordBank';
+            axios.post(url,{
+                category: category,
+                word: word
+            }).then(function (response) {
+                console.log(response.request.response);
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
         },
         addTableRow() { 
             alert('click');
@@ -108,16 +128,15 @@ export default {
         momentLLL(){
             return moment().format('LLL');
         },
-        momentL(date){
-            return moment(date).format('L');
-        }
+        updateLastEdited(){
+            localStorage.setItem('lastEditWordbank', this.momentLLL());
+            this.lastEditWordbank = localStorage.getItem('lastEditWordbank');
+        },
     },
     mounted(){
-        // if (localStorage.getItem('assignments')) {
-        //     this.map = JSON.parse(localStorage.getItem('wordbank'));
-        // }else{
-        //     this.map = {}
-        // }
+        if (localStorage.getItem('assignments')) {
+            this.map = JSON.parse(localStorage.getItem('wordbank'));
+        }
 
         if (localStorage.getItem('lastEditWordbank')) {
             this.lastEditWordbank = localStorage.getItem('lastEditWordbank');
