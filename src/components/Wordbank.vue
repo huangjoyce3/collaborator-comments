@@ -2,11 +2,8 @@
     <div class="wordbank">
         <h1>Smart Triage Word Bank</h1>
         <form @submit.prevent="addTableRow()">
-            <!-- <div class="input-field"> -->
-                <input class="notransition" placeholder="category" type="text" id="category" v-model="newItem.category" required />
-            
-                <input class="notransition" placeholder="word1, word2, etc" type="text" id="word" v-model="newItem.word" required />
-            
+            <input class="notransition" placeholder="category" type="text" id="category" v-model="newItem.category" required />
+            <input class="notransition" placeholder="word1, word2, etc" type="text" id="word" v-model="newItem.word" required />
             <button class="add fa fa-plus-circle" id="icon" type="submit"></button>
         </form>
         <p class="edit-info">Last edited: {{ lastEditWordbank }} </p>
