@@ -2,12 +2,8 @@
     <div class="assign">
         <h1>Project Officer Assignments</h1>
         <form @submit.prevent="addTableRow()">
-            <div class="input-field">
-                <input class="notransition" placeholder="cause" type="text" id="cause" v-model="newItem.cause" required />
-            </div>
-            <div class="input-field">
-                <input class="notransition" placeholder="assignee" type="text" id="assignee" v-model="newItem.assignee" required />
-            </div>
+            <input class="notransition" placeholder="cause" type="text" id="cause" v-model="newItem.cause" required />
+            <input class="notransition" placeholder="assignee" type="text" id="assignee" v-model="newItem.assignee" required />
             <button class="add fa fa-plus-circle" id="icon" type="submit"></button>
         </form>
         <p class="edit-info">Last edited: {{ lastEditAssign }} </p>
@@ -95,8 +91,8 @@ export default {
             
             let url = 'http://localhost:3000/causeGroup';
             axios.post(url,{
-                cause: this.newItem.cause,
-                assignee: this.newItem.assignee
+                cause: this.newItem.cause.toLowerCase(),
+                assignee: this.newItem.assignee.toLowerCase()
             }).then(function (response) {
                 console.log(response.request.response);
             })
@@ -110,8 +106,8 @@ export default {
         postAssignmentAPI(c, officer){
             let url = 'http://localhost:3000/causeGroup';
             axios.post(url,{
-                cause: c,
-                assignee: officer
+                cause: c.toLowerCase(),
+                assignee: officer.toLowerCase()
             }).then(function (response) {
                 console.log(response.request.response);
             })
@@ -121,9 +117,8 @@ export default {
         },
         deleteAssignmentAPI(c){
             let url = 'http://localhost:3000/causeGroup';
-            console.log('deleting: ' + typeof c);
             axios.delete(url,{
-                data: { cause: c }
+                data: { cause: c.toLowerCase() }
             }).then(function (response) {
                 console.log(response.request);
             })
@@ -164,6 +159,7 @@ export default {
 .assign{
     margin: auto;
     margin-top: 130px; 
+    margin-bottom: 100px;
     width: 50%;
     padding: 10px;
 }
@@ -180,8 +176,9 @@ export default {
     display: none;
 }
 form{
-    margin-bottom: 0px;
-    margin-left: inherit;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 input, input[type=text]:focus{
   width: 20%;
@@ -192,13 +189,11 @@ input, input[type=text]:focus{
   border-radius: 0;
 }
 input[id="assignee"]{
-    margin-right: -140px;
-    width: max-content;
+    width: 200px;
 }
 input[id="cause"]{
-    width: max-content;
-    margin-left: -10px;
-    margin-right: 20px;
+    margin-left: 0px;
+    width: 200px;
 }
 .notransition {
   -webkit-transition: none !important;
@@ -215,7 +210,7 @@ input[id="cause"]{
     width: 100% !important;
 }
 input[id="cause"]:focus, input[id="assignee"]:focus{
-    width: max-content;
+    width: 200px;
 }
 .trash, .add, .icon-edit, .save{
     font-size: 25px;
@@ -224,6 +219,7 @@ input[id="cause"]:focus, input[id="assignee"]:focus{
     color: dodgerblue;
     border: none;
     display: block;
+    margin-left: 20px;
 }
 .icon-edit{
     color: dodgerblue;
@@ -238,24 +234,24 @@ input[id="cause"]:focus, input[id="assignee"]:focus{
     cursor: pointer;
 }
 #icon{
-  display: inline-block;
-  vertical-align: middle;
-  -webkit-transform: perspective(1px) translateZ(0);
-  transform: perspective(1px) translateZ(0);
-  box-shadow: 0 0 1px rgba(0, 0, 0, 0);
-  -webkit-transition-duration: 0.3s;
-  transition-duration: 0.3s;
-  -webkit-transition-property: box-shadow, transform;
-  transition-property: box-shadow, transform;
+    display: inline-block;
+    vertical-align: middle;
 }
 #icon:hover, #icon:focus, #icon:active {
-  box-shadow: 0 10px 10px -10px rgba(0, 0, 0, 0.5);
-  -webkit-transform: scale(1.1);
-  transform: scale(1.1);
+    -webkit-transform: scale(1.2);
+    transform: scale(1.2);
+    transition-duration: 0.3s;
 }
 .edit-info{
     font-style: italic;
     color: #bdbdbd;
     margin: 0px 0px 30px;
+}
+th:hover{
+    cursor: default;
+    color: #2c3e50;
+}
+table{
+    margin: auto;
 }
 </style>
