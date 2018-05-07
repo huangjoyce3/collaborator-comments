@@ -162,8 +162,10 @@ export default {
 
 <style scoped>
 .assign{
-    position: absolute;
-    margin-left: 25%;
+    margin: auto;
+    margin-top: 130px; 
+    width: 50%;
+    padding: 10px;
 }
 [v-cloak] {
     display: none;

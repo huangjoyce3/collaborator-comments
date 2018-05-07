@@ -58,10 +58,6 @@ export default {
   margin-bottom: 0px;
   margin-top: auto;
 }
-router-link-exact-active {
-   background-color: indianred;
-   cursor: pointer;
- }
 .logo-wrapper{
 	width: 50%;
 }
@@ -76,7 +72,12 @@ router-link-exact-active {
 .header-wrapper{
   display: flow-root;
   border-bottom: 1px solid #bdbdbd;
-  justify-content: space-around;
+	justify-content: space-around;
+	position: fixed;
+	top: 0;
+	width: 100%;
+	background-color: white;
+	z-index: 10;
 }
 img{
 	float: left;

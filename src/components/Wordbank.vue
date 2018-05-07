@@ -133,8 +133,15 @@ export default {
 
 <style scoped>
 .wordbank{
-    position: absolute;
+    /* position: absolute; */
+    /* width: 100%;
     margin-left: 25%;
+    margin-right: 25%;*/
+    
+    margin: auto;
+    margin-top: 130px; 
+    width: 50%;
+    padding: 10px;
 }
 [v-cloak] {
     display: none;

@@ -2,7 +2,7 @@
     <div class="form-list">
         <div class="flex">
             <p class="refresh-info">Last updated: {{ lastUpdated }} </p>
-            <div class="refresh fa fa-refresh" v-on:click="refresh"></div>
+            <div class="refresh fa fa-refresh" id="icon" v-on:click="refresh"></div>
         </div>
         <table-component
             :data="forms"
@@ -120,7 +120,8 @@ export default {
 
 <style scoped>
 .form-list{
-    margin-top: 30px;
+    margin-top: 130px;
+    margin-bottom: 30px;
 }
 table{
     width: 80%;
