@@ -19,7 +19,7 @@
                 <th></th>
             </thead>
             <tbody>
-            <tr v-for="(row, index) in map" :class="{editing: row == editedRow}" v-cloak :key="row.id">
+            <tr v-for="(row, index) in wordbank" :class="{editing: row == editedRow}" v-cloak :key="row.id">
                 <td>
                     <div class="view">
                         {{ row.category }}
@@ -33,7 +33,7 @@
                         {{ row.word }}
                     </div>
                     <div class="edit">
-                        <input class="input-wordbank" type="text" v-model="row.word"/> 
+                        <textarea class="input-wordbank" type="text" v-model="row.word"/> 
                     </div>
                 </td>
                 <td>
@@ -58,20 +58,7 @@ export default {
     name: 'Wordbank',
     data(){
         return{
-            map: [
-                {
-                    category: 'Manuscript',
-                    word: 'wording, language, replace'
-                },
-                {
-                    category: 'Priority',
-                    word: 'model, modell'
-                },
-                {
-                    category: 'No response needed',
-                    word: 'great, awesome, perfect, amazing'
-                }
-            ],
+            wordbank: [],
             editedRow: null,
             lastEditWordbank: localStorage.getItem('lastEditWordbank'),
             newItem: {
@@ -83,7 +70,7 @@ export default {
     methods: {
         saveData(row) {
             this.editedRow = null;
-            localStorage.setItem('wordbank', JSON.stringify(this.map));
+            localStorage.setItem('wordbank', JSON.stringify(this.wordbank));
             this.updateLastEdited();
             this.postWordbankAPI(row.category, row.word);
         },
@@ -91,8 +78,10 @@ export default {
             this.editedRow = row;
         },
         deleteData(index){
+            this.deleteWordbankAPI(this.wordbank[index].category, this.wordbank[index].word);
             this.wordbank.splice(index, 1);
-            this.saveData();
+            localStorage.setItem('wordbank', JSON.stringify(this.wordbank));
+            this.updateLastEdited();
         },
         postWordbankAPI(category, word){
             let url = 'http://localhost:3000/wordBank';
@@ -106,11 +95,25 @@ export default {
                 console.log(error);
             });
         },
+        deleteWordbankAPI(c, w){
+            let url = 'http://localhost:3000/wordBank';
+            axios.delete(url,{
+                data: { 
+                    category: c,  
+                    word: w
+                }
+            }).then(function (response) {
+                console.log(response.request);
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+        },
         addTableRow() { 
-            this.map.push(
+            this.wordbank.push(
                 {category: this.newItem.category, word: this.newItem.word}
             );
-            localStorage.setItem('wordbank', JSON.stringify(this.map));
+            localStorage.setItem('wordbank', JSON.stringify(this.wordbank));
             this.updateLastEdited();
             this.postWordbankAPI(this.newItem.category, this.newItem.word);
             this.resetForm();
@@ -129,7 +132,7 @@ export default {
     },
     mounted(){
         if (localStorage.getItem('assignments')) {
-            this.map = JSON.parse(localStorage.getItem('wordbank'));
+            this.wordbank = JSON.parse(localStorage.getItem('wordbank'));
         }
 
         if (localStorage.getItem('lastEditWordbank')) {
@@ -146,11 +149,6 @@ export default {
 
 <style scoped>
 .wordbank{
-    /* position: absolute; */
-    /* width: 100%;
-    margin-left: 25%;
-    margin-right: 25%;*/
-    
     margin: auto;
     margin-top: 130px; 
     width: 50%;
@@ -227,19 +225,31 @@ input[id="category"]:focus, input[id="word"]:focus{
     cursor: pointer;
 }
 #icon{
-  display: inline-block;
-  vertical-align: middle;
-  -webkit-transform: perspective(1px) translateZ(0);
-  transform: perspective(1px) translateZ(0);
-  box-shadow: 0 0 1px rgba(0, 0, 0, 0);
-  -webkit-transition-duration: 0.3s;
-  transition-duration: 0.3s;
-  -webkit-transition-property: box-shadow, transform;
-  transition-property: box-shadow, transform;
+    display: inline-block;
+    vertical-align: middle;
+    -webkit-transform: perspective(1px) translateZ(0);
+    transform: perspective(1px) translateZ(0);
+    box-shadow: 0 0 1px rgba(0, 0, 0, 0);
+    -webkit-transition-duration: 0.3s;
+    transition-duration: 0.3s;
+    -webkit-transition-property: box-shadow, transform;
+    transition-property: box-shadow, transform;
 }
 #icon:hover, #icon:focus, #icon:active {
-  box-shadow: 0 10px 10px -10px rgba(0, 0, 0, 0.5);
-  -webkit-transform: scale(1.1);
-  transform: scale(1.1);
+    box-shadow: 0 10px 10px -10px rgba(0, 0, 0, 0.5);
+    -webkit-transform: scale(1.1);
+    transform: scale(1.1);
+}
+textarea {
+    width: 100%;
+    padding: 12px 20px;
+    box-sizing: border-box;
+    border: 2px solid #bdbdbd;
+    border-radius: 4px;
+    outline: none;
+}
+th:hover{
+    cursor: default;
+    color: #2c3e50;
 }
 </style>
