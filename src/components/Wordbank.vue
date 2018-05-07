@@ -107,23 +107,17 @@ export default {
             });
         },
         addTableRow() { 
-            alert('click');
-            // Parse string to array
-
-            // this.wordbank.push(
-            //     {category: this.newItem.category, word: this.newItem.word.split('')}
-            // );
-            this.map[this.newItem.category] = this.newItem.word.split(',');
-            console.log(this.map);
-
-            this.saveData();
+            this.map.push(
+                {category: this.newItem.category, word: this.newItem.word}
+            );
+            localStorage.setItem('wordbank', JSON.stringify(this.map));
+            this.updateLastEdited();
+            this.postWordbankAPI(this.newItem.category, this.newItem.word);
+            this.resetForm();
         },
-        toString(wordbank){
-            var str = '';
-            for(var word in wordbank){
-                str += wordbank[word]+', ';
-            }
-            return str;
+        resetForm(){
+            this.newItem.category = '';
+            this.newItem.word = '';
         },
         momentLLL(){
             return moment().format('LLL');
