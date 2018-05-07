@@ -36,21 +36,22 @@ export default {
         getForms(){
             let url = "http://localhost:3000/allForms";
             axios.get(url).then((response) => {
-                this.forms = response.data
+                var tempForms = response.data
 
                 // change totalEntries into a number
                 // format date
-                for(var form in this.forms){
-                    this.forms[form].totalEntries = parseInt(this.forms[form].totalEntries);
-                    this.forms[form].dateCreate = this.momentL(this.forms[form].dateCreate);
-                    console.log(this.forms[form].url);
-                    if (localStorage.getItem(this.forms[form].url)){
-                        this.forms[form].unexportedEntries = this.forms[form].totalEntries - JSON.parse(localStorage.getItem(this.forms[form].url))[1];
+                for(var form in tempForms){
+                    tempForms[form].totalEntries = parseInt(tempForms[form].totalEntries);
+                    tempForms[form].dateCreate = this.momentL(tempForms[form].dateCreate);
+                    console.log(tempForms[form].url);
+                    if (localStorage.getItem(tempForms[form].url)){
+                        tempForms[form].unexportedEntries = tempForms[form].totalEntries - JSON.parse(localStorage.getItem(tempForms[form].url))[1];
                     }else {
-                        this.forms[form].unexportedEntries = this.forms[form].totalEntries;
+                        tempForms[form].unexportedEntries = tempForms[form].totalEntries;
                     }
                 }   
-                localStorage.setItem('forms', JSON.stringify(response.data));
+                this.forms = tempForms;
+                localStorage.setItem('forms', JSON.stringify(this.forms));
             })
         },
         getEntries(formName){
