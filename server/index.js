@@ -581,6 +581,8 @@ function updateCount(form) {
         }
       }
     );
+  }).catch(error => {
+    return reject(error);
   });
 }
 
