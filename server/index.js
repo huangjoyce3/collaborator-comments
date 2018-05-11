@@ -509,6 +509,7 @@ function processData(e, type) {
       clean(e.viz2, e, "viz comment", "vizCat2");
       clean(e.viz3, e, "viz comment", "vizCat3");
     } else {
+      clean(e.tableAndFigure, e, "tableAndFigure", "");
       clean(e.numericalResult, e, "numericalResult", "");
       clean(e.methodological, e, "methodological", "");
       clean(e.methodAppendix, e, "appendix", "");
@@ -917,8 +918,6 @@ function populateWordBank(map) {
   };
   for (var key in originWordBank) {
     memStore.insertWordBank(key, originWordBank[key]);
-    //map.set(key, originWordBank[key]);
-    //console.log(map.get(key));
   }
 }
 // returns details on all the forms you have permission to access
