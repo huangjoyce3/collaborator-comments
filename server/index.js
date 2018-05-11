@@ -43,6 +43,9 @@ let memStore = new MemStore(map1, map2, wordBank);
 populateWordBank(wordBank);
 
 var startLength = 0;
+var startMap = new HashMap();
+var unexportedMap = new HashMap();
+var countMap = new HashMap();
 var headIndex = 0;
 var currentForm = "";
 var currentSheetID = "";
@@ -65,30 +68,23 @@ app.use(function(req, res, next) {
 app.use(bodyParser.json());
 
 app.get("/test", (req, res) => {
-  //let arr = [12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
-  let q = new Date();
+  /*let q = new Date();
   let m = q.getMonth() + 1 - 2;
   if (m <= 0) {
     m += 12;
   }
   let d = q.getDay();
   let y = q.getFullYear();
-  let date = new Date(y, m, d);
+  let date = new Date(y, m, d);*/
+  let arr = [{ name: "a", type: "b" }, { name: "b", type: "c" }];
+  console.log(arr.filter(w => w.name == "a"));
+  res.send(arr);
 });
 
 app.post("/causeGroup", (req, res) => {
-  console.log(req.body);
   let r = req.body;
   memStore.insertCauseGroup(r.cause, r.assignee);
-  /*var loop = new Promise((resolve, reject) => {
-    Object.keys(r).forEach(function(key) {
-      memStore.insertCauseGroup(key, r[key]);
-    });
-    resolve();
-  });
-  loop.then(() => {*/
   res.send(memStore.getAllCauseGroup());
-  //});
 });
 
 app.delete("/causeGroup", (req, res) => {
@@ -120,6 +116,17 @@ app.get("/topicForm/:formName/:sheetID", (req, res) => {
   let formName = req.params.formName;
   let sheetID = req.params.sheetID;
   currentForm = formName;
+  let formSize = memStore.getForm(formName);
+  /*if (!indexMap.get(formName)) {
+    indexMap.set(formName, 0);
+  }*/
+  indexMap.set(formName, 0);
+  if (!unexportedMap.get(formName)) {
+    unexportedMap.set(formName, formSize);
+    console.log("unexported: " + unexportedMap.get(formName));
+  } else {
+    unexportedMap.set(formName, formSize - unexportedMap.get(formName));
+  }
   if (!sheetIDMap.get(formName)) {
     sheetIDMap.set(formName, sheetID);
   }
@@ -128,53 +135,149 @@ app.get("/topicForm/:formName/:sheetID", (req, res) => {
     "https://ihmeuw.wufoo.com/api/v3/forms/" +
     formName +
     "/entries.json?sort=EntryId&sortDirection=DESC";
-  request(
-    {
-      uri: url,
-      method: "GET",
-      auth: {
-        username: userName,
-        password: "footastic",
-        sendImmediately: false
-      }
-    },
-    function(error, response, body) {
-      var obj = JSON.parse(body).Entries;
-      for (var index in obj) {
-        let entry = {
-          formName: formName,
-          firstName: obj[index].Field47,
-          lastName: obj[index].Field48,
-          email: obj[index].Field7,
-          numericalResult: obj[index].Field52,
-          descrOfMethod: obj[index].Field62,
-          methodological: obj[index].Field87,
-          dataSource: obj[index].Field59,
-          narrativeStructure: obj[index].Field85,
-          futureDirection: obj[index].Field61,
-          tableAndFigure: obj[index].Field54,
-          methodAppendix: obj[index].Field50
-        };
-        //console.log(entry);
-        processData(entry, "topic");
-      }
+  var calls = [];
+  while (unexportedMap.get(formName) > 0) {
+    var ps =
+      unexportedMap.get(formName) > 100 ? 100 : unexportedMap.get(formName);
+    var propertiesObject = {
+      pageStart: indexMap.get(formName),
+      pageSize: ps
+    };
+    console.log("pageSize: " + ps);
+    console.log("pageStart: " + indexMap.get(formName));
 
-      // start writing
-      fs.readFile("client_secret.json", function processClientSecrets(
-        err,
-        content
-      ) {
-        if (err) {
-          console.log("Error loading client secret file: " + err);
-          return;
+    let call = {
+      formName: formName,
+      url: url,
+      propertiesObject: propertiesObject
+    };
+    console.log(call);
+    calls.push(call);
+
+    indexMap.set(formName, indexMap.get(formName) + ps);
+    unexportedMap.set(formName, unexportedMap.get(formName) - ps);
+
+    /*request(
+      {
+        uri: url,
+        qs: propertiesObject,
+        method: "GET",
+        auth: {
+          username: userName,
+          password: "footastic",
+          sendImmediately: false
         }
-        auth.authenticate(JSON.parse(content), write);
-      });
+      },
+      function(error, response, body) {
+        var obj = JSON.parse(body).Entries;
+        console.log("THIS IS OBJ: " + obj);
+        for (var index in obj) {
+          let entry = {
+            formName: formName,
+            firstName: obj[index].Field47,
+            lastName: obj[index].Field48,
+            email: obj[index].Field7,
+            numericalResult: obj[index].Field52,
+            descrOfMethod: obj[index].Field62,
+            methodological: obj[index].Field87,
+            dataSource: obj[index].Field59,
+            narrativeStructure: obj[index].Field85,
+            futureDirection: obj[index].Field61,
+            tableAndFigure: obj[index].Field54,
+            methodAppendix: obj[index].Field50
+          };
+          processData(entry, "topic");
+        }
+        indexMap.set(formName, indexMap.get(formName) + ps);
+        unexportedMap.set(formName, unexportedMap.get(formName) - ps);
 
-      res.json(obj);
-    }
-  );
+        fs.readFile("client_secret.json", function processClientSecrets(
+          err,
+          content
+        ) {
+          if (err) {
+            console.log("Error loading client secret file: " + err);
+            return;
+          }
+          auth.authenticate(JSON.parse(content), write);
+        });
+
+        res.json(obj);
+      }
+    );*/
+  }
+  async function x() {
+    console.log("async");
+    const promises = calls.map(topicReq);
+    await Promise.all(promises);
+
+    fs.readFile("client_secret.json", function processClientSecrets(
+      err,
+      content
+    ) {
+      if (err) {
+        console.log("Error loading client secret file: " + err);
+        return;
+      }
+      auth.authenticate(JSON.parse(content), write);
+    });
+
+    res.send("yes");
+  }
+  x();
+
+  // start writing
 });
+
+function topicReq(call) {
+  return new Promise(function(resolve, reject) {
+    console.log("topicReq");
+    console.log(call.url);
+    console.log(call.propertiesObject);
+    request(
+      {
+        uri: call.url,
+        qs: call.propertiesObject,
+        method: "GET",
+        auth: {
+          username: userName,
+          password: "footastic",
+          sendImmediately: false
+        }
+      },
+      function(error, response, body) {
+        // in addition to parsing the value, deal with possible errors
+        if (error) return reject(error);
+        try {
+          var obj = JSON.parse(body).Entries;
+          console.log("THIS IS OBJ: " + obj);
+          for (var index in obj) {
+            let entry = {
+              formName: call.formName,
+              firstName: obj[index].Field47,
+              lastName: obj[index].Field48,
+              email: obj[index].Field7,
+              numericalResult: obj[index].Field52,
+              descrOfMethod: obj[index].Field62,
+              methodological: obj[index].Field87,
+              dataSource: obj[index].Field59,
+              narrativeStructure: obj[index].Field85,
+              futureDirection: obj[index].Field61,
+              tableAndFigure: obj[index].Field54,
+              methodAppendix: obj[index].Field50
+            };
+            processData(entry, "topic");
+          }
+          //indexMap.set(formName, indexMap.get(formName) + ps);
+          //unexportedMap.set(formName, unexportedMap.get(formName) - ps);
+          resolve(obj);
+        } catch (e) {
+          reject(e);
+        }
+      }
+    );
+  });
+}
 
 app.get("/form/:formName", (req, res) => {
   var formName = req.params.formName;
@@ -420,14 +523,17 @@ call to save into db
 */
 
 function clean(str, e, cat, cause) {
+  if (!countMap.get(e.formName)) {
+    countMap.set(e.formName, 0);
+  }
   if (
     str != null ||
     str != "" ||
     str.split(" ").length > 3 ||
     !commentSet.has(str)
   ) {
-    console.log(str);
-    console.log(cat);
+    //console.log(str);
+    //console.log(cat);
     var strArr = str.split("•");
     var today = new Date();
     var mm = today.getMonth() + 1;
@@ -441,6 +547,7 @@ function clean(str, e, cat, cause) {
         //console.log(current);
 
         startLength++;
+        countMap.set(e.formName, countMap.get(e.formName) + 1);
         let aLine = {
           formName: e.formName, // replace it with request parameter
           firstName: e.firstName,
@@ -464,9 +571,9 @@ function clean(str, e, cat, cause) {
           aLine.recommendedTriage = "No response needed";
         } else {
           for (var key of memStore.getKeys() /*wordBank.keys()*/) {
-            console.log("THIS IS KEY: " + key);
+            //console.log("THIS IS KEY: " + key);
             var words = memStore.getAllWords(key); //wordBank.get(key);
-            console.log(words);
+            //console.log(words);
             if (words.some(e => a.includes(e))) {
               aLine.recommendedTriage = key;
               break;
@@ -536,7 +643,10 @@ app.get("/allForms", (req, res) => {
           totalEntries: 0,
           type: ""
         };
-        if (new Date(form.dateUpdated) > date) {
+        if (
+          new Date(form.dateUpdated) > date ||
+          form.url == "comment-form-gbd-2016-cancer-paper"
+        ) {
           if (form.url.includes("capstone")) {
             form.type = "capstone";
             if (form.url.includes("page-2")) {
@@ -547,6 +657,7 @@ app.get("/allForms", (req, res) => {
         }
       }
       let forms = memStore.getAllForm();
+      console.log(forms.filter(f => f.type == ""));
       const promises = forms.map(updateCount);
       await Promise.all(promises);
       //await updateCount(forms);
@@ -649,10 +760,19 @@ app.listen(3000, () => console.log("Example app listening on port 3000!"));
 
 function write(auth) {
   var formName = "comment-form-gbd-2016-cancer-paper";
+  if (!startMap.get(currentForm)) {
+    startMap.set(currentForm, 2);
+  }
   let values = memStore.getAllComment(currentForm);
-  let count = startLength + 2;
-  let range = "B2:J" + count;
+  //let count = startLength + 2;
+  //let range = "B2:J" + count;
+  //let start = 2 + indexMap.get(currentForm);
+  let start = startMap.get(currentForm);
+  let end = start + countMap.get(currentForm);
+  let range = "B" + start + ":J" + end;
+  startMap.set(currentForm, end);
   //var values = [["1-1", "1-2", "1-3"], ["2-1", "2-2", "2-3"]];
+
   var body = {
     values: values
   };
@@ -707,6 +827,8 @@ function write(auth) {
       }
     }
   );
+  console.log("delete");
+  memStore.deleteAllComment(currentForm);
 }
 
 function createSheet(auth) {
