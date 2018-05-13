@@ -46,7 +46,6 @@ var startLength = 0;
 var startMap = new HashMap();
 var unexportedMap = new HashMap();
 var countMap = new HashMap();
-var headIndex = 0;
 var currentForm = "";
 var currentSheetID = "";
 
@@ -68,14 +67,6 @@ app.use(function(req, res, next) {
 app.use(bodyParser.json());
 
 app.get("/test", (req, res) => {
-  /*let q = new Date();
-  let m = q.getMonth() + 1 - 2;
-  if (m <= 0) {
-    m += 12;
-  }
-  let d = q.getDay();
-  let y = q.getFullYear();
-  let date = new Date(y, m, d);*/
   let arr = [{ name: "a", type: "b" }, { name: "b", type: "c" }];
   console.log(arr.filter(w => w.name == "a"));
   res.send(arr);
@@ -116,20 +107,10 @@ app.get("/topicForm/:formName/:sheetID", (req, res) => {
   let formName = req.params.formName;
   let sheetID = req.params.sheetID;
   currentForm = formName;
-  let formSize = memStore.getForm(formName);
-  /*if (!indexMap.get(formName)) {
-    indexMap.set(formName, 0);
-  }*/
-  indexMap.set(formName, 0);
-  if (!unexportedMap.get(formName)) {
-    unexportedMap.set(formName, formSize);
-    console.log("unexported: " + unexportedMap.get(formName));
-  } else {
-    unexportedMap.set(formName, formSize - unexportedMap.get(formName));
-  }
-  if (!sheetIDMap.get(formName)) {
-    sheetIDMap.set(formName, sheetID);
-  }
+  //sheetIDMap.set(formName, sheetID)
+  let formSize = memStore.getFormSize(formName);
+  
+  setMaps(formName, formSize, sheetID)
   var o = null;
   var url =
     "https://ihmeuw.wufoo.com/api/v3/forms/" +
@@ -268,8 +249,6 @@ function topicReq(call) {
             };
             processData(entry, "topic");
           }
-          //indexMap.set(formName, indexMap.get(formName) + ps);
-          //unexportedMap.set(formName, unexportedMap.get(formName) - ps);
           resolve(obj);
         } catch (e) {
           reject(e);
@@ -288,16 +267,71 @@ app.get("/form/:formName", (req, res) => {
 app.get("/capstoneForm/:formName/:sheetID", (req, res) => {
   let formName = req.params.formName;
   let sheetID = req.params.sheetID;
+  //sheetIDMap.set(formName, sheetID)
   currentForm = formName;
+  let formSize = memStore.getFormSize(formName)
+
+  /*indexMap.set(formName, 0)
+  if (!unexportedMap.get(formName)) {
+    unexportedMap.set(formName, formSize);
+    console.log("unexported: " + unexportedMap.get(formName));
+  } else {
+    unexportedMap.set(formName, formSize - unexportedMap.get(formName));
+  }
   if (!sheetIDMap.get(formName)) {
     sheetIDMap.set(formName, sheetID);
-  }
+  }*/
+  setMaps(formName, formSize, sheetID);
   var o = null;
   var url =
     "https://ihmeuw.wufoo.com/api/v3/forms/" +
     formName +
     "/entries.json?sort=EntryId&sortDirection=DESC";
-  request(
+  
+  var calls = []
+  while(unexportedMap.get(formName) > 0) {
+    var ps =
+    unexportedMap.get(formName) > 100 ? 100 : unexportedMap.get(formName);
+    var propertiesObject = {
+      pageStart: indexMap.get(formName),
+      pageSize: ps
+    };
+    console.log("pageSize: " + ps);
+    console.log("pageStart: " + indexMap.get(formName));
+
+    let call = {
+      formName: formName,
+      url: url,
+      propertiesObject: propertiesObject
+    };
+    console.log(call);
+    calls.push(call);
+
+    indexMap.set(formName, indexMap.get(formName) + ps);
+    unexportedMap.set(formName, unexportedMap.get(formName) - ps);
+  }
+
+  async function x() {
+    const promises = calls.map(capstoneReq);
+    await Promise.all(promises);
+
+    fs.readFile("client_secret.json", function processClientSecrets(
+      err,
+      content
+    ) {
+      if (err) {
+        console.log("Error loading client secret file: " + err);
+        return;
+      }
+      auth.authenticate(JSON.parse(content), write);
+    });
+
+    res.send("yes");
+  }
+  x();
+
+
+  /*request(
     {
       uri: url,
       method: "GET",
@@ -359,10 +393,6 @@ app.get("/capstoneForm/:formName/:sheetID", (req, res) => {
           dataSource: obj[index].Field59,
           narrativeStructure: obj[index].Field85,
           futureDirection: obj[index].Field61
-          /*tableAndFigure: obj[index].Field54,
-          methodAppendix: obj[index].Field50,
-          supplementaryAppendix: obj[index].Field119,
-          writeupAppendix: obj[index].Field120*/
         };
         //console.log(entry);
         processData(entry, "capstone");
@@ -383,23 +413,141 @@ app.get("/capstoneForm/:formName/:sheetID", (req, res) => {
 
       res.send("hi");
     }
-  );
+  );*/
 });
 
+function capstoneReq(call) {
+  return new Promise(function(resolve, reject) {
+    request(
+      {
+        uri: call.url,
+        qs: call.propertiesObject,
+        method: "GET",
+        auth: {
+          username: userName,
+          password: "footastic",
+          sendImmediately: false
+        }
+      },
+      function(error, response, body) {
+        if(error) return reject(error)
+        try {
+          var obj = JSON.parse(body).Entries;
+          for (var index in obj) {
+            var sets = {
+              127: new Set(),
+              227: new Set(),
+              327: new Set(),
+              427: new Set(),
+              527: new Set()
+            };
+    
+            for (var j = 127; j <= 527; j += 100) {
+              var categorySet = sets[j];
+              for (var i = j; i <= j + 15; i++) {
+                key = "Field" + i;
+                if (obj[index][key]) {
+                  categorySet.add(obj[index][key]); // add category
+                }
+              }
+            }
+            //console.log(sets);
+    
+            let entry = {
+              formName: call.formName,
+              firstName: obj[index].Field47,
+              lastName: obj[index].Field48,
+              email: obj[index].Field7,
+    
+              // numerical result multiple
+              numericalResultCat1: sets["127"],
+              numericalResult1: obj[index].Field105,
+              //hasNextNu1: obj[index].Field114,
+              numericalResultCat2: sets["227"],
+              numericalResult2: obj[index].Field116,
+              //hasNextNu2: obj[index].Field116,
+              numericalResultCat3: sets["327"],
+              numericalResult3: obj[index].Field111,
+    
+              descrOfMethod: obj[index].Field62,
+    
+              // methodological feeback multiple
+              methodological1: obj[index].Field87,
+              methodologicalCat1: sets["427"],
+              //hasNextMethod: obj[index].Field123,
+              methodological2: obj[index].Field50,
+              methodologicalCat2: sets["527"],
+    
+              dataSource: obj[index].Field59,
+              narrativeStructure: obj[index].Field85,
+              futureDirection: obj[index].Field61
+            };
+            //console.log(entry);
+            processData(entry, "capstone");
+          }
+          resolve(obj);
+        } catch (e) {
+          reject(e);
+        }
+      }
+
+    )
+  })
+
+}
+
+function setMaps(formName, formSize, sheetID) {
+  indexMap.set(formName, 0);
+  if (!unexportedMap.get(formName)) {
+    unexportedMap.set(formName, formSize);
+    console.log("unexported: " + unexportedMap.get(formName));
+  } else {
+    unexportedMap.set(formName, formSize - unexportedMap.get(formName));
+  }
+  if (!sheetIDMap.get(formName)) {
+    sheetIDMap.set(formName, sheetID);
+  }
+}
 // Capstone Paper
 app.get("/capstoneForm2/:formName/:sheetID", (req, res) => {
   let formName = req.params.formName;
   let sheetID = req.params.sheetID;
   currentForm = formName;
-  if (!sheetIDMap.get(formName)) {
+  let formSize = memStore.getFormSize(formName);
+  /*if (!sheetIDMap.get(formName)) {
     sheetIDMap.set(formName, sheetID);
-  }
+  }*/
+  setMaps(formName, formSize, sheetID)
   var o = null;
   var url =
     "https://ihmeuw.wufoo.com/api/v3/forms/" +
     formName +
     "/entries.json?sort=EntryId&sortDirection=DESC";
-  request(
+
+  var calls = []
+  while (unexportedMap.get(formName) > 0) {
+    var ps =
+      unexportedMap.get(formName) > 100 ? 100 : unexportedMap.get(formName);
+    var propertiesObject = {
+      pageStart: indexMap.get(formName),
+      pageSize: ps
+    };
+    console.log("pageSize: " + ps);
+    console.log("pageStart: " + indexMap.get(formName));
+
+    let call = {
+      formName: formName,
+      url: url,
+      propertiesObject: propertiesObject
+    };
+    console.log(call);
+    calls.push(call);
+
+    indexMap.set(formName, indexMap.get(formName) + ps);
+    unexportedMap.set(formName, unexportedMap.get(formName) - ps);
+  }
+
+  /*request(
     {
       uri: url,
       method: "GET",
@@ -476,8 +624,105 @@ app.get("/capstoneForm2/:formName/:sheetID", (req, res) => {
       });
       res.send("hi");
     }
-  );
+  );*/
+
+  async function x() {
+    const promises = calls.map(capstone2Req);
+    await Promise.all(promises);
+
+    fs.readFile("client_secret.json", function processClientSecrets(
+      err,
+      content
+    ) {
+      if (err) {
+        console.log("Error loading client secret file: " + err);
+        return;
+      }
+      auth.authenticate(JSON.parse(content), write);
+    });
+
+    res.send("yes");
+  }
+
+  x()
 });
+
+function capstone2Req(call) {
+  return new Promise(function(resolve, reject) {
+    request(
+      {
+        uri: call.url,
+        qs: call.propertiesObject,
+        method: "GET",
+        auth: {
+          username: userName,
+          password: "footastic",
+          sendImmediately: false
+        }
+      },
+      function(error, response, body) {
+        if(error) return reject(error)
+        try {
+          var obj = JSON.parse(body).Entries;
+          for (var index in obj) {
+            var sets = {
+              327: new Set(),
+              425: new Set(),
+              526: new Set()
+            };
+    
+            for (var ind in sets) {
+              var categorySet = sets[ind];
+              var j;
+              if (ind == 0) {
+                j = 327;
+              } else if (ind == 1) {
+                j = 425;
+              } else {
+                j = 526;
+              }
+              for (var i = j; i <= j + 15; i++) {
+                key = "Field" + i;
+                //console.log(key);
+                //console.log(obj[index][key]);
+                if (obj[index][key]) {
+                  categorySet.add(obj[index][key]); // add category
+                }
+              }
+            }
+            //console.log(sets);
+    
+            let entry = {
+              formName: call.formName,
+              firstName: obj[index].Field47,
+              lastName: obj[index].Field48,
+              email: obj[index].Field7,
+    
+              tableAndFigure: obj[index].Field54,
+              methodAppendix: obj[index].Field50,
+              supplementaryAppendix: obj[index].Field119,
+              writeupAppendix: obj[index].Field120,
+              hasViz1: obj[index].Field323,
+              viz1: obj[index].Field111,
+              vizCat1: sets["526"],
+              hasViz2: obj[index].Field525,
+              viz2: obj[index].Field122,
+              vizCat2: sets["324"],
+              hasViz3: obj[index].Field626,
+              viz3: obj[index].Field424,
+              vizCat3: sets["425"]
+            };
+            //console.log(entry);
+            processData(entry, "capstone2");
+          }
+          resolve(obj);
+        } catch (e) {
+          reject(e);
+        }
+      }
+    )
+  })
+}
 
 // clean each category
 function processData(e, type) {
@@ -524,8 +769,9 @@ call to save into db
 */
 
 function clean(str, e, cat, cause) {
-  if (!countMap.get(e.formName)) {
-    countMap.set(e.formName, 0);
+  let sID = sheetIDMap.get(e.formName)
+  if (!countMap.get(sID)) {
+    countMap.set(sID, 0);
   }
   if (
     str != null ||
@@ -548,7 +794,7 @@ function clean(str, e, cat, cause) {
         //console.log(current);
 
         startLength++;
-        countMap.set(e.formName, countMap.get(e.formName) + 1);
+        countMap.set(sID, countMap.get(sID) + 1);
         let aLine = {
           formName: e.formName, // replace it with request parameter
           firstName: e.firstName,
@@ -650,7 +896,8 @@ app.get("/allForms", (req, res) => {
         ) {
           if (form.url.includes("capstone")) {
             form.type = "capstone";
-            if (form.url.includes("page-2")) {
+            //if (form.url.includes("page-2") || form.url.includes("page2")|| form.url.includes("p-2") || form.url.includes("pg-2") || form.url.includes("pg2")) {
+            if(form.url.endsWith("2")) {
               form.type = "capstone2";
             }
           }
@@ -760,18 +1007,19 @@ app.post("/importForm/:sheetID", (req, res) => {
 app.listen(3000, () => console.log("Example app listening on port 3000!"));
 
 function write(auth) {
-  var formName = "comment-form-gbd-2016-cancer-paper";
-  if (!startMap.get(currentForm)) {
-    startMap.set(currentForm, 2);
+  let sID = sheetIDMap.get(currentForm)
+  if (!startMap.get(sID)) {
+    startMap.set(sID, 2);
   }
   let values = memStore.getAllComment(currentForm);
   //let count = startLength + 2;
   //let range = "B2:J" + count;
   //let start = 2 + indexMap.get(currentForm);
-  let start = startMap.get(currentForm);
-  let end = start + countMap.get(currentForm);
+  let start = startMap.get(sID);
+  let end = start + countMap.get(sID);
   let range = "B" + start + ":J" + end;
-  startMap.set(currentForm, end);
+  startMap.set(sID, end);
+  console.log(range)
   //var values = [["1-1", "1-2", "1-3"], ["2-1", "2-2", "2-3"]];
 
   var body = {
@@ -792,11 +1040,11 @@ function write(auth) {
   ];
   var headerBody = { values: headers };
   var sheets = google.sheets("v4");
-  if (headIndex == 0) {
+  if (start == 2) {
     sheets.spreadsheets.values.update(
       {
         auth: auth,
-        spreadsheetId: sheetIDMap.get(currentForm),
+        spreadsheetId: sID,
         range: "B1:J1",
         valueInputOption: "USER_ENTERED",
         resource: headerBody
@@ -814,7 +1062,7 @@ function write(auth) {
   sheets.spreadsheets.values.update(
     {
       auth: auth,
-      spreadsheetId: sheetIDMap.get(currentForm),
+      spreadsheetId: sID,
       range: range,
       valueInputOption: "USER_ENTERED",
       resource: body
@@ -871,7 +1119,8 @@ function populateCause(map) {
     "Neurological conditions": "Mari",
     "Sense organ disorders": "Mari",
     "Sexually transmitted infections": "Mari",
-    "Skin conditions": "Katya"
+    "Skin conditions": "Katya",
+    Other: ""
   };
 
   for (var key in originCause) {
@@ -920,42 +1169,4 @@ function populateWordBank(map) {
     memStore.insertWordBank(key, originWordBank[key]);
   }
 }
-// returns details on all the forms you have permission to access
 
-// returns a specific form
-
-/*
-request(
-    {
-        uri: baseUrl + "forms/zmi7o29077l3ga.json",
-        method: "GET",
-        auth: {
-            username: userName,
-            password: pass,
-            sendImmediately: false
-        }
-    },
-    function(error, response, body) {
-        console.log(body);
-    }
-);
-
-// returns the entries that have been submitted to a specific form
-
-request(
-    {
-        uri:
-            baseUrl +
-            "forms/zmi7o29077l3ga/entries.json?sort=EntryId&sortDirection=DESC",
-        method: "GET",
-        auth: {
-            username: userName,
-            password: pass,
-            sendImmediately: false
-        }
-    },
-    function(error, response, body) {
-        console.log(body);
-    }
-);
-*/

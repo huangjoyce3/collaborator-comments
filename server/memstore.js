@@ -9,7 +9,7 @@ class MemStore {
     this.insertComment = this.insertComment.bind(this);
     this.insertWordBank = this.insertWordBank.bind(this);
     this.getKeys = this.getKeys.bind(this);
-    this.getForm = this.getForm.bind(this);
+    this.getFormSize = this.getFormSize.bind(this);
   }
   insertComment(comment) {
     let collection = this.commentMap.get(comment.formName);
@@ -37,7 +37,7 @@ class MemStore {
   insertForm(form) {
     this.formArray.push(form);
   }
-  getForm(form) {
+  getFormSize(form) {
     /*console.log("memstore: " + this.formArray.filter(f => f.url == form));
     console.log("memstore: " + this.formArray.filter(f => f.url == form)[0]);
     console.log(
