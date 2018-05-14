@@ -11,7 +11,7 @@
             :show-filter=true
             >
             <table-column show="name" label="Name"></table-column>
-            <table-column show="unexportedEntries" label="Unexported Entries" data-type="numeric"></table-column>
+            <!-- <table-column show="unexportedEntries" label="Unexported Entries" data-type="numeric"></table-column> -->
             <table-column show="totalEntries" label="Total Entries" data-type="numeric"></table-column>
             <table-column show="dateCreate" label="Date Created" :filterable="false" data-type="date:MM/DD/YYYY"></table-column>
             <table-column label="" :sortable="false" :filterable="false">
@@ -44,11 +44,11 @@ export default {
                     tempForms[form].totalEntries = parseInt(tempForms[form].totalEntries);
                     tempForms[form].dateCreate = this.momentL(tempForms[form].dateCreate);
                     console.log(tempForms[form].url);
-                    if (localStorage.getItem(tempForms[form].url)){
-                        tempForms[form].unexportedEntries = tempForms[form].totalEntries - JSON.parse(localStorage.getItem(tempForms[form].url))[1];
-                    }else {
-                        tempForms[form].unexportedEntries = tempForms[form].totalEntries;
-                    }
+                    // if (localStorage.getItem(tempForms[form].url)){
+                    //     tempForms[form].unexportedEntries = tempForms[form].totalEntries - JSON.parse(localStorage.getItem(tempForms[form].url))[1];
+                    // }else {
+                    //     tempForms[form].unexportedEntries = tempForms[form].totalEntries;
+                    // }
                 }   
                 this.forms = tempForms;
                 localStorage.setItem('forms', JSON.stringify(this.forms));
@@ -62,11 +62,11 @@ export default {
         },
         async onClick(form){
             // Step 1: call createSheetAPI if no SheetID is stored
-            var formInfo = [];
+            // var formInfo = [];
             let sheetID = '';
             let createSheetAPI = 'http://localhost:3000/sheet/' + form.url;
             if(localStorage.getItem(form.url)){ // if sheetID of formURL exists
-                sheetID = JSON.parse(localStorage.getItem(form.url))[0];
+                sheetID = localStorage.getItem(form.url);
                 console.log('stored');
             } else{
                 try{
@@ -75,7 +75,7 @@ export default {
                     formInfo.push(sheetID);
                     console.log('1: ' + sheetID);
                 } catch(e){
-                    alert('Failed to create a new Google Sheets');
+                    // alert('Failed to create a new Google Sheets');
                     console.log(e);
                 }
             }
@@ -86,7 +86,8 @@ export default {
                 url = 'http://localhost:3000/topicForm/' + form.url + '/' + sheetID;
             } else if (form.type === 'capstone'){
                 url = 'http://localhost:3000/capstoneForm/' + form.url + '/' + sheetID;
-            } else if (form.type === 'capstone2'){                
+            } else if (form.type === 'capstone2'){   
+                // TODO: same sheetid for page 2             
                 url = 'http://localhost:3000/capstoneForm2/' + form.url + '/' + sheetID;   
             }
             
@@ -98,13 +99,13 @@ export default {
                 let currentIndex = form.vueTableComponentInternalRowId;
 
                 // save total entries
-                formInfo.push(this.forms[currentIndex].totalEntries);
+                // formInfo.push(this.forms[currentIndex].totalEntries);
 
                 // display unexported
                 // this.forms[currentIndex].unexportedEntries = 
                 //     this.forms[currentIndex].totalEntries - JSON.parse(localStorage.getItem(this.forms[currentIndex].url))[1];
-                console.log(JSON.parse(localStorage.getItem(form.url))[0]);
-                localStorage.setItem(form.url, JSON.stringify(formInfo));
+                // console.log(JSON.parse(localStorage.getItem(form.url))[0]);
+                localStorage.setItem(form.url, sheetID);
                 localStorage.setItem('forms', JSON.stringify(this.forms));
             }).catch((error) => {
                 alert('Error: Failed to export to Google Sheets');
