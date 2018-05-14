@@ -66,7 +66,7 @@ export default {
             let sheetID = '';
             let createSheetAPI = 'http://localhost:3000/sheet/' + form.url;
             if(localStorage.getItem(form.url)){ // if sheetID of formURL exists
-                sheetID = localStorage.getItem(form.url);
+                sheetID = JSON.parse(localStorage.getItem(form.url))[0];
                 console.log('stored');
             } else{
                 try{
@@ -101,8 +101,9 @@ export default {
                 formInfo.push(this.forms[currentIndex].totalEntries);
 
                 // display unexported
-                //this.forms[currentIndex].unexportedEntries = this.forms[currentIndex].totalEntries - localStorage.getItem(form.url)[1];
-                
+                // this.forms[currentIndex].unexportedEntries = 
+                //     this.forms[currentIndex].totalEntries - JSON.parse(localStorage.getItem(this.forms[currentIndex].url))[1];
+                console.log(JSON.parse(localStorage.getItem(form.url))[0]);
                 localStorage.setItem(form.url, JSON.stringify(formInfo));
                 localStorage.setItem('forms', JSON.stringify(this.forms));
             }).catch((error) => {
