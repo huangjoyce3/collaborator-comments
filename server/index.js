@@ -414,9 +414,9 @@ function setMaps(formName, formSize, sheetID) {
   } else {
     unexportedMap.set(formName, formSize - unexportedMap.get(formName));
   }
-  if (!sheetIDMap.get(formName)) {
-    sheetIDMap.set(formName, sheetID);
-  }
+  sheetIDMap.set(formName, sheetID);
+  
+  
 }
 // Capstone Paper
 app.get("/capstoneForm2/:formName/:sheetID", (req, res) => {
