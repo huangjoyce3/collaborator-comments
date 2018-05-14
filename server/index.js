@@ -942,7 +942,7 @@ function write(auth) {
       //"Email",
       "Category",
       "Comment",
-      "Date",
+      "Date Added",
       "Cause/Cause Group",
       "Assignee",
       "Recommended Triage",
@@ -1017,7 +1017,9 @@ function createSheet(auth) {
 function populateCause(map) {
   let originCause = {
     "Cardiovascular disorders & Neoplasms": "Tahiya",
+    "Cardiovascular diseases & Neoplasms": "Tahiya",
     "Congenital disorders": "Helen",
+    "Diabetes and kidney diseases": "Mari",
     "Diabetes & Kidney diseases": "Mari",
     "Digestive disorders": "Katya",
     "Enteric & Respiratory infections": "Brigette",
