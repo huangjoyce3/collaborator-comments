@@ -9,6 +9,7 @@ class MemStore {
     this.insertComment = this.insertComment.bind(this);
     this.insertWordBank = this.insertWordBank.bind(this);
     this.getKeys = this.getKeys.bind(this);
+    this.getFormSize = this.getFormSize.bind(this);
   }
   insertComment(comment) {
     let collection = this.commentMap.get(comment.formName);
@@ -35,6 +36,14 @@ class MemStore {
   }
   insertForm(form) {
     this.formArray.push(form);
+  }
+  getFormSize(form) {
+    /*console.log("memstore: " + this.formArray.filter(f => f.url == form));
+    console.log("memstore: " + this.formArray.filter(f => f.url == form)[0]);
+    console.log(
+      "memstore: " + this.formArray.filter(f => f.url == form)[0].totalEntries
+    );*/
+    return this.formArray.filter(f => f.url == form)[0].totalEntries;
   }
   getAllForm() {
     return this.formArray;
@@ -92,6 +101,11 @@ class MemStore {
   }
   getAllComment(form) {
     return this.commentMap.get(form);
+  }
+  deleteAllComment(form) {
+    if (this.commentMap.get(form)) {
+      this.commentMap.set(form, []);
+    }
   }
 }
 
