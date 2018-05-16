@@ -45,6 +45,7 @@ populateWordBank(wordBank);
 var startLength = 0;
 var startMap = new HashMap();
 var unexportedMap = new HashMap();
+var exportedMap = new HashMap();
 var countMap = new HashMap();
 var currentForm = "";
 var currentSheetID = "";
@@ -111,13 +112,18 @@ app.get("/topicForm/:formName/:sheetID", (req, res) => {
   let formSize = memStore.getFormSize(formName);
 
   setMaps(formName, formSize, sheetID)
-  var o = null;
+  if(formSize - exportedMap.get(formName) < 1) {
+    res.send("no update")
+    return;
+  }
+
   var url =
     "https://ihmeuw.wufoo.com/api/v3/forms/" +
     formName +
     "/entries.json?sort=EntryId&sortDirection=DESC";
   var calls = [];
-  while (unexportedMap.get(formName) > 0) {
+  calculateCalls(calls, formName, formSize, url)
+  /*while (unexportedMap.get(formName) > 0) {
     var ps =
       unexportedMap.get(formName) > 100 ? 100 : unexportedMap.get(formName);
     var propertiesObject = {
@@ -126,67 +132,22 @@ app.get("/topicForm/:formName/:sheetID", (req, res) => {
     };
     console.log("pageSize: " + ps);
     console.log("pageStart: " + indexMap.get(formName));
+    console.log("what")
 
     let call = {
       formName: formName,
       url: url,
       propertiesObject: propertiesObject
     };
+    
     console.log(call);
     calls.push(call);
 
     indexMap.set(formName, indexMap.get(formName) + ps);
     unexportedMap.set(formName, unexportedMap.get(formName) - ps);
+    
+  }*/
 
-    /*request(
-      {
-        uri: url,
-        qs: propertiesObject,
-        method: "GET",
-        auth: {
-          username: userName,
-          password: "footastic",
-          sendImmediately: false
-        }
-      },
-      function(error, response, body) {
-        var obj = JSON.parse(body).Entries;
-        console.log("THIS IS OBJ: " + obj);
-        for (var index in obj) {
-          let entry = {
-            formName: formName,
-            firstName: obj[index].Field47,
-            lastName: obj[index].Field48,
-            email: obj[index].Field7,
-            numericalResult: obj[index].Field52,
-            descrOfMethod: obj[index].Field62,
-            methodological: obj[index].Field87,
-            dataSource: obj[index].Field59,
-            narrativeStructure: obj[index].Field85,
-            futureDirection: obj[index].Field61,
-            tableAndFigure: obj[index].Field54,
-            methodAppendix: obj[index].Field50
-          };
-          processData(entry, "topic");
-        }
-        indexMap.set(formName, indexMap.get(formName) + ps);
-        unexportedMap.set(formName, unexportedMap.get(formName) - ps);
-
-        fs.readFile("client_secret.json", function processClientSecrets(
-          err,
-          content
-        ) {
-          if (err) {
-            console.log("Error loading client secret file: " + err);
-            return;
-          }
-          auth.authenticate(JSON.parse(content), write);
-        });
-
-        res.json(obj);
-      }
-    );*/
-  }
   async function x() {
     console.log("async");
     const promises = calls.map(topicReq);
@@ -272,15 +233,19 @@ app.get("/capstoneForm/:formName/:sheetID", (req, res) => {
   let formSize = memStore.getFormSize(formName)
 
   setMaps(formName, formSize, sheetID);
-  var o = null;
+
+  if(formSize - exportedMap.get(formName) < 1) {
+    res.send("no update")
+    return;
+  }
   var url =
     "https://ihmeuw.wufoo.com/api/v3/forms/" +
     formName +
     "/entries.json?sort=EntryId&sortDirection=DESC";
   
   var calls = []
-  calculateCalls();
-  while(unexportedMap.get(formName) > 0) {
+  calculateCalls(calls, formName, formSize, url);
+  /*while(unexportedMap.get(formName) > 0) {
     var ps =
     unexportedMap.get(formName) > 100 ? 100 : unexportedMap.get(formName);
     var propertiesObject = {
@@ -300,7 +265,30 @@ app.get("/capstoneForm/:formName/:sheetID", (req, res) => {
 
     indexMap.set(formName, indexMap.get(formName) + ps);
     unexportedMap.set(formName, unexportedMap.get(formName) - ps);
-  }
+  }*/
+
+  /*while(exportedMap.get(formName) < formSize) {
+    let remaining = formSize - exportedMap.get(formName);
+    var ps = remaining > 100 ? 100 : remaining;
+    var propertiesObject = {
+      pageStart: indexMap.get(formName),
+      pageSize: ps
+    }
+    console.log("pageSize: " + ps);
+    console.log("pageStart: " + indexMap.get(formName));
+
+    let call = {
+      formName: formName,
+      url: url,
+      propertiesObject: propertiesObject
+    };
+    console.log(call);
+    calls.push(call);
+
+    indexMap.set(formName, indexMap.get(formName) + ps);
+    exportedMap.set(formName, exportedMap.get(formName) + ps);
+  }*/
+
 
   async function x() {
     const promises = calls.map(capstoneReq);
@@ -322,8 +310,28 @@ app.get("/capstoneForm/:formName/:sheetID", (req, res) => {
   x();
 });
 
-function calculateCalls(calls) {
+function calculateCalls(calls, formName, formSize, url) {
+  while(exportedMap.get(formName) < formSize) {
+    let remaining = formSize - exportedMap.get(formName);
+    var ps = remaining > 100 ? 100 : remaining;
+    var propertiesObject = {
+      pageStart: indexMap.get(formName),
+      pageSize: ps
+    }
+    console.log("pageSize: " + ps);
+    console.log("pageStart: " + indexMap.get(formName));
 
+    let call = {
+      formName: formName,
+      url: url,
+      propertiesObject: propertiesObject
+    };
+    console.log(call);
+    calls.push(call);
+
+    indexMap.set(formName, indexMap.get(formName) + ps);
+    exportedMap.set(formName, exportedMap.get(formName) + ps);
+  }
 }
 
 function capstoneReq(call) {
@@ -372,10 +380,8 @@ function capstoneReq(call) {
               // numerical result multiple
               numericalResultCat1: sets["127"],
               numericalResult1: obj[index].Field105,
-              //hasNextNu1: obj[index].Field114,
               numericalResultCat2: sets["227"],
               numericalResult2: obj[index].Field116,
-              //hasNextNu2: obj[index].Field116,
               numericalResultCat3: sets["327"],
               numericalResult3: obj[index].Field111,
     
@@ -384,7 +390,6 @@ function capstoneReq(call) {
               // methodological feeback multiple
               methodological1: obj[index].Field87,
               methodologicalCat1: sets["427"],
-              //hasNextMethod: obj[index].Field123,
               methodological2: obj[index].Field50,
               methodologicalCat2: sets["527"],
     
@@ -415,8 +420,9 @@ function setMaps(formName, formSize, sheetID) {
     unexportedMap.set(formName, formSize - unexportedMap.get(formName));
   }
   sheetIDMap.set(formName, sheetID);
-  
-  
+  if(!exportedMap.get(formName)) {
+    exportedMap.set(formName, 0);
+  }
 }
 // Capstone Paper
 app.get("/capstoneForm2/:formName/:sheetID", (req, res) => {
@@ -424,18 +430,21 @@ app.get("/capstoneForm2/:formName/:sheetID", (req, res) => {
   let sheetID = req.params.sheetID;
   currentForm = formName;
   let formSize = memStore.getFormSize(formName);
-  /*if (!sheetIDMap.get(formName)) {
-    sheetIDMap.set(formName, sheetID);
-  }*/
   setMaps(formName, formSize, sheetID)
-  var o = null;
+
+  if(formSize - exportedMap.get(formName) < 1) {
+    res.send("no update")
+    return;
+  }
+
   var url =
     "https://ihmeuw.wufoo.com/api/v3/forms/" +
     formName +
     "/entries.json?sort=EntryId&sortDirection=DESC";
 
   var calls = []
-  while (unexportedMap.get(formName) > 0) {
+  calculateCalls(calls, formName, formSize, url)
+  /*while (unexportedMap.get(formName) > 0) {
     var ps =
       unexportedMap.get(formName) > 100 ? 100 : unexportedMap.get(formName);
     var propertiesObject = {
@@ -455,86 +464,7 @@ app.get("/capstoneForm2/:formName/:sheetID", (req, res) => {
 
     indexMap.set(formName, indexMap.get(formName) + ps);
     unexportedMap.set(formName, unexportedMap.get(formName) - ps);
-  }
-
-  /*request(
-    {
-      uri: url,
-      method: "GET",
-      auth: {
-        username: userName,
-        password: "footastic",
-        sendImmediately: false
-      }
-    },
-    function(error, response, body) {
-      var obj = JSON.parse(body).Entries;
-      for (var index in obj) {
-        var sets = {
-          327: new Set(),
-          425: new Set(),
-          526: new Set()
-        };
-
-        for (var ind in sets) {
-          var categorySet = sets[ind];
-          var j;
-          if (ind == 0) {
-            j = 327;
-          } else if (ind == 1) {
-            j = 425;
-          } else {
-            j = 526;
-          }
-          for (var i = j; i <= j + 15; i++) {
-            key = "Field" + i;
-            //console.log(key);
-            //console.log(obj[index][key]);
-            if (obj[index][key]) {
-              categorySet.add(obj[index][key]); // add category
-            }
-          }
-        }
-        //console.log(sets);
-
-        let entry = {
-          formName: formName,
-          firstName: obj[index].Field47,
-          lastName: obj[index].Field48,
-          email: obj[index].Field7,
-
-          tableAndFigure: obj[index].Field54,
-          methodAppendix: obj[index].Field50,
-          supplementaryAppendix: obj[index].Field119,
-          writeupAppendix: obj[index].Field120,
-          hasViz1: obj[index].Field323,
-          viz1: obj[index].Field111,
-          vizCat1: sets["526"],
-          hasViz2: obj[index].Field525,
-          viz2: obj[index].Field122,
-          vizCat2: sets["324"],
-          hasViz3: obj[index].Field626,
-          viz3: obj[index].Field424,
-          vizCat3: sets["425"]
-        };
-        //console.log(entry);
-        processData(entry, "capstone2");
-      }
-
-      // start writing
-      fs.readFile("client_secret.json", function processClientSecrets(
-        err,
-        content
-      ) {
-        if (err) {
-          console.log("Error loading client secret file: " + err);
-          return;
-        }
-        auth.authenticate(JSON.parse(content), write);
-      });
-      res.send("hi");
-    }
-  );*/
+  }*/
 
   async function x() {
     const promises = calls.map(capstone2Req);
@@ -722,8 +652,6 @@ function clean(str, e, cat, cause) {
           .toLowerCase()
           .replace(".", "")
           .split(" ");
-        //console.log("KEYS: " + memStore.getKeys());
-        //noRes.some(e => a.includes(e));
         if (a.length <= 4) {
           aLine.recommendedTriage = "No response needed";
         } else {
@@ -798,6 +726,7 @@ app.get("/allForms", (req, res) => {
           dateUpdated: obj[index].DateUpdated,
           url: obj[index].Url,
           totalEntries: 0,
+          unexportedEntries: 0,
           type: ""
         };
         if (
@@ -806,7 +735,6 @@ app.get("/allForms", (req, res) => {
         ) {
           if (form.url.includes("capstone")) {
             form.type = "capstone";
-            //if (form.url.includes("page-2") || form.url.includes("page2")|| form.url.includes("p-2") || form.url.includes("pg-2") || form.url.includes("pg2")) {
             if(form.url.endsWith("2")) {
               form.type = "capstone2";
             }
@@ -844,16 +772,16 @@ function updateCount(form) {
           // JSON.parse() can throw an exception if not valid JSON
           //console.log("in");
           form.totalEntries = JSON.parse(body).EntryCount;
-          console.log(form);
+          console.log("update: " + exportedMap.get(form.url))
+          form.unexportedEntries = !exportedMap.get(form.url) ? form.totalEntries : form.totalEntries - exportedMap.get(form.url)
+          //console.log("update count: " + form);
           resolve(JSON.parse(body).EntryCount);
         } catch (e) {
           reject(e);
         }
       }
     );
-  }).catch(error => {
-    return reject(error);
-  });
+  })
 }
 
 // create a new sheet
@@ -914,6 +842,17 @@ app.post("/importForm/:sheetID", (req, res) => {
   var sheetID = req.params.sheetID;
 });
 
+// get sheetID 
+app.get("/sheetID/:formName", (req, res) => {
+  var formName = req.params.sheetID
+  if(!sheetIDMap.get(formName)) {
+    return null
+  }
+  return sheetIDMap.get(formName)
+})
+
+// 
+
 app.listen(3000, () => console.log("Example app listening on port 3000!"));
 
 function write(auth) {
@@ -930,7 +869,6 @@ function write(auth) {
   let range = "A" + start + ":H" + end;
   startMap.set(sID, end);
   console.log(range)
-  //var values = [["1-1", "1-2", "1-3"], ["2-1", "2-2", "2-3"]];
 
   var body = {
     values: values
@@ -939,7 +877,6 @@ function write(auth) {
     [
       "First name",
       "Last name",
-      //"Email",
       "Category",
       "Comment",
       "Date Added",
@@ -989,6 +926,7 @@ function write(auth) {
   );
   console.log("delete");
   memStore.deleteAllComment(currentForm);
+  countMap.set(sID, 0)
 }
 
 function createSheet(auth) {

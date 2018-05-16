@@ -38,12 +38,10 @@ class MemStore {
     this.formArray.push(form);
   }
   getFormSize(form) {
-    /*console.log("memstore: " + this.formArray.filter(f => f.url == form));
-    console.log("memstore: " + this.formArray.filter(f => f.url == form)[0]);
-    console.log(
-      "memstore: " + this.formArray.filter(f => f.url == form)[0].totalEntries
-    );*/
     return this.formArray.filter(f => f.url == form)[0].totalEntries;
+  }
+  getNumberofUnexported(form) {
+    return this.formArray.filter(f => f.url == form)[0].unexportedEntries;
   }
   getAllForm() {
     return this.formArray;
