@@ -56,7 +56,7 @@ export default {
     name: 'Assign',
     data(){
         return{
-            assignments: JSON.parse(localStorage.getItem('assignments')),
+            assignments: [],
             editedRow: null,
             lastEditAssign: localStorage.getItem('lastEditAssign'),
             newItem: {
@@ -150,7 +150,7 @@ export default {
             this.lastEditAssign = val;
         }
     }
-}
+} 
 </script>
 
 <style scoped>
