@@ -745,7 +745,9 @@ app.get("/allForms", (req, res) => {
       let forms = memStore.getAllForm();
       console.log(forms.filter(f => f.type == ""));
       const promises = forms.map(updateCount);
-      await Promise.all(promises);
+      await Promise.all(promises).catch(function(error) {
+        console.log(error.message)
+      });
       //await updateCount(forms);
       console.log("done");
       res.json(memStore.getAllForm());
