@@ -104,6 +104,10 @@ app.get("/wordBank/:category", (req, res) => {
   res.send(memStore.getAllWords(cat));
 });
 
+app.get("/wholeWordBank", (req, res) => {
+  res.json(memStore.getWordBank())
+})
+
 app.get("/topicForm/:formName/:sheetID", (req, res) => {
   let formName = req.params.formName;
   let sheetID = req.params.sheetID;
