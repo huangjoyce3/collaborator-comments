@@ -25,13 +25,6 @@ class MemStore {
     return cause;
   }
   insertWordBank(cat, words) {
-    //let collection = this.wordBank.get(cat);
-    /*if (!collection) {
-      this.wordBank.set(cat, []);
-      collection = this.wordBank.get(cat);
-    }
-    collection.push(word);
-    return word;*/
     this.wordBank.set(cat, words);
   }
   insertForm(form) {
@@ -74,23 +67,14 @@ class MemStore {
     return obj;
   }
   deleteWord(cat) {
-    /*let collection = this.wordBank.get(cat);
-    if (collection) {
-      var index = collection.indexOf(word);
-      if (index > -1) {
-        collection.splice(index, 1);
-        return true;
-      }
-    }*/
-    if (this.wordBank.get(cat)) {
+    if (this.wordBank.has(cat)) {
       this.wordBank.delete(cat);
       return true;
     }
-
     return false;
   }
   deleteCauseGroup(cause) {
-    if (this.causeGroupMap.get(cause)) {
+    if (this.causeGroupMap.has(cause)) {
       this.causeGroupMap.delete(cause);
       return true;
     }
