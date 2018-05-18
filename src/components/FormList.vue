@@ -43,7 +43,7 @@ export default {
                 for(var form in tempForms){
                     tempForms[form].totalEntries = parseInt(tempForms[form].totalEntries);
                     tempForms[form].dateCreate = this.momentL(tempForms[form].dateCreate);
-                    console.log(tempForms[form].url);
+                    // console.log(tempForms[form].url);
                     // if (localStorage.getItem(tempForms[form].url)){
                     //     tempForms[form].unexportedEntries = tempForms[form].totalEntries - JSON.parse(localStorage.getItem(tempForms[form].url))[1];
                     // }else {
