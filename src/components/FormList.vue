@@ -11,9 +11,9 @@
             :show-filter=true
             >
             <table-column show="name" label="Name"></table-column>
-            <!-- <table-column show="unexportedEntries" label="Unexported Entries" data-type="numeric"></table-column> -->
+            <table-column show="unexportedEntries" label="Unexported Entries" data-type="numeric"></table-column>
             <table-column show="totalEntries" label="Total Entries" data-type="numeric"></table-column>
-            <table-column show="dateCreate" label="Date Created" :filterable="false" data-type="date:MM/DD/YYYY"></table-column>
+            <table-column show="dateUpdated" label="Date Modified" :filterable="false" data-type="date:MM/DD/YYYY"></table-column>
             <table-column label="" :sortable="false" :filterable="false">
                 <template slot-scope="row">
                     <div v-on:click="onClick(row)" id="export" class="button">Export</div>
@@ -140,6 +140,9 @@ export default {
         if (localStorage.getItem('lastUpdated')) {
             this.lastUpdated = localStorage.getItem('lastUpdated');
         }
+
+        // get form data on page refresh
+        this.refresh();
     },
     watch: {
         forms(val){
