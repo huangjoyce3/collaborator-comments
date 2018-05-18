@@ -127,30 +127,6 @@ app.get("/topicForm/:formName/:sheetID", (req, res) => {
     "/entries.json?sort=EntryId&sortDirection=DESC";
   var calls = [];
   calculateCalls(calls, formName, formSize, url)
-  /*while (unexportedMap.get(formName) > 0) {
-    var ps =
-      unexportedMap.get(formName) > 100 ? 100 : unexportedMap.get(formName);
-    var propertiesObject = {
-      pageStart: indexMap.get(formName),
-      pageSize: ps
-    };
-    console.log("pageSize: " + ps);
-    console.log("pageStart: " + indexMap.get(formName));
-    console.log("what")
-
-    let call = {
-      formName: formName,
-      url: url,
-      propertiesObject: propertiesObject
-    };
-    
-    console.log(call);
-    calls.push(call);
-
-    indexMap.set(formName, indexMap.get(formName) + ps);
-    unexportedMap.set(formName, unexportedMap.get(formName) - ps);
-    
-  }*/
 
   async function x() {
     console.log("async");
@@ -448,27 +424,6 @@ app.get("/capstoneForm2/:formName/:sheetID", (req, res) => {
 
   var calls = []
   calculateCalls(calls, formName, formSize, url)
-  /*while (unexportedMap.get(formName) > 0) {
-    var ps =
-      unexportedMap.get(formName) > 100 ? 100 : unexportedMap.get(formName);
-    var propertiesObject = {
-      pageStart: indexMap.get(formName),
-      pageSize: ps
-    };
-    console.log("pageSize: " + ps);
-    console.log("pageStart: " + indexMap.get(formName));
-
-    let call = {
-      formName: formName,
-      url: url,
-      propertiesObject: propertiesObject
-    };
-    console.log(call);
-    calls.push(call);
-
-    indexMap.set(formName, indexMap.get(formName) + ps);
-    unexportedMap.set(formName, unexportedMap.get(formName) - ps);
-  }*/
 
   async function x() {
     const promises = calls.map(capstone2Req);
@@ -790,7 +745,7 @@ function updateCount(form) {
   })
 }
 
-// create a new sheet
+// Create a new google sheet with given sheetName
 app.post("/sheet/:sheetName", (req, res) => {
   let sheetName = req.params.sheetName;
   currentForm = sheetName;
@@ -850,11 +805,13 @@ app.post("/importForm/:sheetID", (req, res) => {
 
 // get sheetID 
 app.get("/sheetID/:formName", (req, res) => {
-  var formName = req.params.sheetID
+  var formName = req.params.formName
+
   if(!sheetIDMap.get(formName)) {
-    return null
+    res.send("")
   }
-  return sheetIDMap.get(formName)
+  console.log(sheetIDMap.get(formName))
+   res.send(sheetIDMap.get(formName))
 })
 
 // 
@@ -935,6 +892,7 @@ function write(auth) {
   countMap.set(sID, 0)
 }
 
+/* Create a new google sheet and  */
 function createSheet(auth) {
   var sheets = google.sheets("v4");
   sheets.spreadsheets.create(
@@ -958,6 +916,7 @@ function createSheet(auth) {
   );
 }
 
+/* Populate cause group assignee map with base cause groups */
 function populateCause(map) {
   let originCause = {
     "Cardiovascular disorders & Neoplasms": "Tahiya",
@@ -982,10 +941,10 @@ function populateCause(map) {
 
   for (var key in originCause) {
     map.set(key, originCause[key]);
-    //console.log(map.get(key));
   }
 }
 
+/* Populate wordbank map with base categories */
 function populateWordBank(map) {
   let originWordBank = {
     "Tables And Figures": [
