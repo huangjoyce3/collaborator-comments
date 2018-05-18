@@ -81,7 +81,7 @@ export default {
         },
         saveData(row) {
             this.editedRow = null;
-            localStorage.setItem('assignments', JSON.stringify(this.assignments));
+            // localStorage.setItem('assignments', JSON.stringify(this.assignments));
             this.updateLastEdited();
             this.postAssignmentAPI(row.cause, row.assignee);
         },
@@ -89,9 +89,10 @@ export default {
             this.editedRow = value;
         },
         deleteData(index){
+            console.log('deleting: ' + this.assignments[index].cause);
             this.deleteAssignmentAPI(this.assignments[index].cause);
             this.assignments.splice(index, 1);
-            localStorage.setItem('assignments', JSON.stringify(this.assignments));
+            // localStorage.setItem('assignments', JSON.stringify(this.assignments));
             this.updateLastEdited();
         },
         addTableRow() { 
@@ -101,8 +102,8 @@ export default {
             
             let url = 'http://localhost:3000/causeGroup';
             axios.post(url,{
-                cause: this.newItem.cause.toLowerCase(),
-                assignee: this.newItem.assignee.toLowerCase()
+                cause: this.newItem.cause,
+                assignee: this.newItem.assignee
             }).then(function (response) {
                 console.log(response.request.response);
             })
@@ -116,8 +117,8 @@ export default {
         postAssignmentAPI(c, officer){
             let url = 'http://localhost:3000/causeGroup';
             axios.post(url,{
-                cause: c.toLowerCase(),
-                assignee: officer.toLowerCase()
+                cause: c,
+                assignee: officer
             }).then(function (response) {
                 console.log(response.request.response);
             })
@@ -128,7 +129,7 @@ export default {
         deleteAssignmentAPI(c){
             let url = 'http://localhost:3000/causeGroup';
             axios.delete(url,{
-                data: { cause: c.toLowerCase() }
+                data: { cause: c }
             }).then(function (response) {
                 console.log(response.request.response);
             })
