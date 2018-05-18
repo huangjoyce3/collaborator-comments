@@ -38,17 +38,11 @@ export default {
             axios.get(url).then((response) => {
                 var tempForms = response.data
 
-                // change totalEntries into a number
-                // format date
                 for(var form in tempForms){
+                    // change totalEntries into a number
                     tempForms[form].totalEntries = parseInt(tempForms[form].totalEntries);
-                    tempForms[form].dateCreate = this.momentL(tempForms[form].dateCreate);
-                    // console.log(tempForms[form].url);
-                    // if (localStorage.getItem(tempForms[form].url)){
-                    //     tempForms[form].unexportedEntries = tempForms[form].totalEntries - JSON.parse(localStorage.getItem(tempForms[form].url))[1];
-                    // }else {
-                    //     tempForms[form].unexportedEntries = tempForms[form].totalEntries;
-                    // }
+                    // format date
+                    tempForms[form].dateUpdated = this.momentL(tempForms[form].dateUpdated);
                 }   
                 this.forms = tempForms;
                 localStorage.setItem('forms', JSON.stringify(this.forms));
