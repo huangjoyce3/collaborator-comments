@@ -50,8 +50,13 @@ class MemStore {
     return this.causeGroupMap.get(cause);
   }
   getAllCauseGroup() {
-    console.log(this.causeGroupMap);
-    return this.causeGroupMap;
+    let obj = {}
+    this.causeGroupMap.forEach(function(value, key) {
+      console.log(key)
+      console.log(value)
+      obj[key] = value
+    })
+    return obj
   }
   getAllWords(cat) {
     return this.wordBank.get(cat);
@@ -60,7 +65,13 @@ class MemStore {
     return this.wordBank.keys();
   }
   getWordBank() {
-    return this.wordBank;
+    let obj = {}
+    this.wordBank.forEach(function(value, key) {
+      console.log(key)
+      console.log(value)
+      obj[key] = value
+    })
+    return obj;
   }
   deleteWord(cat) {
     /*let collection = this.wordBank.get(cat);
