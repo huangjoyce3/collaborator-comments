@@ -15,7 +15,7 @@
                 <th></th>
             </thead>
             <tbody>
-            <tr v-for="(row,index) in assignments" :class="{editing: row == editedRow}" v-cloak :key="row.id">
+            <tr v-for="(row, index) in assignments" :class="{editing: row == editedRow}" v-cloak :key="row.id">
                 <td>
                     <div class="view">
                         {{row.cause}}
@@ -66,15 +66,27 @@ export default {
         };
     },
     methods: {
+        getData(){
+            let url = "http://localhost:3000/causeGroup";
+            axios.get(url).then((response) => {
+                
+                for( var key in response.data ){
+                    this.assignments.push(
+                        {cause: key, assignee: response.data[key]}
+                    );
+                } 
+                console.log(this.assignments);
+            })
+            
+        },
         saveData(row) {
             this.editedRow = null;
             localStorage.setItem('assignments', JSON.stringify(this.assignments));
             this.updateLastEdited();
             this.postAssignmentAPI(row.cause, row.assignee);
         },
-        editData(row) {
-            this.editMode = true;
-            this.editedRow = row;
+        editData(value) {
+            this.editedRow = value;
         },
         deleteData(index){
             this.deleteAssignmentAPI(this.assignments[index].cause);
@@ -137,13 +149,10 @@ export default {
         }
     },
     mounted(){
-        if (localStorage.getItem('assignments')) {
-            this.assignments = JSON.parse(localStorage.getItem('assignments'));
-        }
-
         if (localStorage.getItem('lastEditAssign')) {
             this.lastEditAssign = localStorage.getItem('lastEditAssign');
         }
+        this.getData();
     },
     watch: {
         lastEditAssign(val){
