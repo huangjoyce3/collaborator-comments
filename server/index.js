@@ -1,16 +1,15 @@
 ("use strict");
 
 // account key + random password
-//var auth = base64("DNNA-7JKC-SN41-K6MU:footastic");
 //var auth = base64("5HVU-YCN1-83VZ-NH8Z:footastic");
 
-//var userName = "DNNA-7JKC-SN41-K6MU"; // change to local variable later
-var userName = "5HVU-YCN1-83VZ-NH8Z";
+var userName = "5HVU-YCN1-83VZ-NH8Z"; // change to local variable later
 var pass = "footastic"; // change to local variable later
+
 // send request to form
 var request = require("request");
 
-// google api
+// google api libraries
 var auth = require("./quickstart.js");
 var fs = require("fs");
 var google = require("googleapis");
@@ -23,26 +22,28 @@ var baseUrl = "https://ihmeuw.wufoo.com/api/v3/";
 var commentSet = new Set();
 var emailSet = new Set();
 
-// server stuff
+// server libraries
 const express = require("express");
 const app = express();
 const mongodb = require("mongodb");
 var bodyParser = require("body-parser");
 
+/* In memory store
+   - IHME IT can change to desired database service
+*/
 const MemStore = require("./memstore");
 
-// map
 var HashMap = require("hashmap");
 var indexMap = new HashMap();
-var map1 = new HashMap();
+var commentMap = new HashMap();
 var sheetIDMap = new HashMap();
-var map2 = new HashMap();
-populateCause(map2);
+var causeGroupMap = new HashMap();
 var wordBank = new HashMap();
-let memStore = new MemStore(map1, map2, wordBank);
+let memStore = new MemStore(commentMap, causeGroupMap, wordBank);
 populateWordBank(wordBank);
+populateCause(causeGroupMap);
 
-var startLength = 0;
+// indexing
 var startMap = new HashMap();
 var unexportedMap = new HashMap();
 var exportedMap = new HashMap();
@@ -50,7 +51,7 @@ var countMap = new HashMap();
 var currentForm = "";
 var currentSheetID = "";
 
-//app.use(express.json());
+
 app.use(function(req, res, next) {
   express.json();
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -393,12 +394,12 @@ function capstoneReq(call) {
 
 function setMaps(formName, formSize, sheetID) {
   indexMap.set(formName, 0);
-  if (!unexportedMap.get(formName)) {
+  /*if (!unexportedMap.get(formName)) {
     unexportedMap.set(formName, formSize);
     console.log("unexported: " + unexportedMap.get(formName));
   } else {
     unexportedMap.set(formName, formSize - unexportedMap.get(formName));
-  }
+  }*/
   sheetIDMap.set(formName, sheetID);
   if(!exportedMap.get(formName)) {
     exportedMap.set(formName, 0);
@@ -592,7 +593,6 @@ function clean(str, e, cat, cause) {
         commentSet.add(current);
         //console.log(current);
 
-        startLength++;
         countMap.set(sID, countMap.get(sID) + 1);
         let aLine = {
           formName: e.formName, // replace it with request parameter
@@ -808,10 +808,23 @@ app.get("/sheetID/:formName", (req, res) => {
   var formName = req.params.formName
 
   if(!sheetIDMap.get(formName)) {
-    res.send("")
+    currentForm = formName;
+    fs.readFile("client_secret.json", function processClientSecrets(
+      err,
+      content
+    ) {
+      if (err) {
+        console.log("Error loading client secret file: " + err);
+        return;
+      }
+      auth.authenticate(JSON.parse(content), createSheet);
+    });
+  
+    setTimeout(() => res.send(currentSheetID), 1200);
+  } else {
+   res.send(sheetIDMap.get(formName))
   }
   console.log(sheetIDMap.get(formName))
-   res.send(sheetIDMap.get(formName))
 })
 
 // 
@@ -824,7 +837,6 @@ function write(auth) {
     startMap.set(sID, 2);
   }
   let values = memStore.getAllComment(currentForm);
-  //let count = startLength + 2;
   //let range = "B2:J" + count;
   //let start = 2 + indexMap.get(currentForm);
   let start = startMap.get(sID);
@@ -940,7 +952,7 @@ function populateCause(map) {
   };
 
   for (var key in originCause) {
-    map.set(key, originCause[key]);
+    memStore.insertCauseGroup(key, originCause[key]);
   }
 }
 
