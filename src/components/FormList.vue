@@ -1,5 +1,6 @@
 <template>
     <div class="form-list">
+        <!-- TODO: LOADING UI -->
         <div class="flex">
             <p class="refresh-info">Last updated: {{ lastUpdated }} </p>
             <div class="refresh fa fa-refresh" id="icon" v-on:click="refresh"></div>
@@ -45,7 +46,6 @@ export default {
                     tempForms[form].dateUpdated = this.momentL(tempForms[form].dateUpdated);
                 }   
                 this.forms = tempForms;
-                localStorage.setItem('forms', JSON.stringify(this.forms));
             })
         },
         getEntries(formName){
@@ -54,24 +54,26 @@ export default {
                 this.entries = response.data.EntryCount
             })
         },
-        async onClick(form){
-            // Step 1: call createSheetAPI if no SheetID is stored
-            // var formInfo = [];
-            let sheetID = '';
-            let createSheetAPI = 'http://localhost:3000/sheet/' + form.url;
-            if(localStorage.getItem(form.url)){ // if sheetID of formURL exists
-                sheetID = localStorage.getItem(form.url);
-                console.log('stored');
-            } else{
-                try{
-                    const response = await axios.post(createSheetAPI);
-                    sheetID = response.data;
-                    formInfo.push(sheetID);
-                    console.log('1: ' + sheetID);
-                } catch(e){
-                    // alert('Failed to create a new Google Sheets');
-                    console.log(e);
+        getSheetIDAPI(formName){
+            return new Promise(function(resolve, reject) {
+                try {
+                    let url = "http://localhost:3000/sheetID/" + formName;
+                    axios.get(url).then((response) => {
+                        console.log("return: " + formName + ", " + response.data)
+                        resolve(response.data);
+                    })
+                } catch (e) {
+                    reject(e);
                 }
+            })
+        },
+        async onClick(form){
+            var sheetID = ''
+            try{
+                sheetID = await this.getSheetIDAPI(form.url);
+                console.log('1: ' + sheetID);
+            } catch(e) {
+                console.log(e);
             }
 
             // Calls cleaning algorithm based on form type
@@ -89,18 +91,6 @@ export default {
             axios.get(url).then((response) => {
                 window.open('https://docs.google.com/spreadsheets/d/'+sheetID, '_blank');
                 console.log('Success');
-                // Save exported entry count locally
-                let currentIndex = form.vueTableComponentInternalRowId;
-
-                // save total entries
-                // formInfo.push(this.forms[currentIndex].totalEntries);
-
-                // display unexported
-                // this.forms[currentIndex].unexportedEntries = 
-                //     this.forms[currentIndex].totalEntries - JSON.parse(localStorage.getItem(this.forms[currentIndex].url))[1];
-                // console.log(JSON.parse(localStorage.getItem(form.url))[0]);
-                localStorage.setItem(form.url, sheetID);
-                localStorage.setItem('forms', JSON.stringify(this.forms));
             }).catch((error) => {
                 alert('Error: Failed to export to Google Sheets');
                 console.log(error);
@@ -110,7 +100,6 @@ export default {
             this.getForms();
             localStorage.setItem('lastUpdated', this.momentLLL());
             this.lastUpdated = localStorage.getItem('lastUpdated');
-            // console.log(JSON.parse(localStorage.getItem('comment-form-alcohol-use-and-burden-paper'))[1]);
         },
         momentLLL(){
             return moment().format('LLL');
@@ -127,10 +116,6 @@ export default {
         };
     },
     mounted(){
-        if (localStorage.getItem('forms')) {
-            this.forms = JSON.parse(localStorage.getItem('forms'));
-        }
-
         if (localStorage.getItem('lastUpdated')) {
             this.lastUpdated = localStorage.getItem('lastUpdated');
         }
