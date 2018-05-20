@@ -116,7 +116,7 @@ app.get("/topicForm/:formName/:sheetID", (req, res) => {
   //sheetIDMap.set(formName, sheetID)
   let formSize = memStore.getFormSize(formName);
 
-  setMaps(formName, formSize, sheetID)
+  setMaps(formName, formSize, sheetID, false)
   if(formSize - exportedMap.get(formName) < 1) {
     res.send("no update")
     return;
@@ -129,25 +129,8 @@ app.get("/topicForm/:formName/:sheetID", (req, res) => {
   var calls = [];
   calculateCalls(calls, formName, formSize, url)
 
-  async function x() {
-    console.log("async");
-    const promises = calls.map(topicReq);
-    await Promise.all(promises);
-
-    fs.readFile("client_secret.json", function processClientSecrets(
-      err,
-      content
-    ) {
-      if (err) {
-        console.log("Error loading client secret file: " + err);
-        return;
-      }
-      auth.authenticate(JSON.parse(content), write);
-    });
-
-    res.send("yes");
-  }
-  x();
+  writeAll(calls, topicReq);
+  res.send("yes")
 
   // start writing
 });
@@ -213,7 +196,7 @@ app.get("/capstoneForm/:formName/:sheetID", (req, res) => {
   currentForm = formName;
   let formSize = memStore.getFormSize(formName)
 
-  setMaps(formName, formSize, sheetID);
+  setMaps(formName, formSize, sheetID, false);
 
   if(formSize - exportedMap.get(formName) < 1) {
     res.send("no update")
@@ -226,70 +209,27 @@ app.get("/capstoneForm/:formName/:sheetID", (req, res) => {
   
   var calls = []
   calculateCalls(calls, formName, formSize, url);
-  /*while(unexportedMap.get(formName) > 0) {
-    var ps =
-    unexportedMap.get(formName) > 100 ? 100 : unexportedMap.get(formName);
-    var propertiesObject = {
-      pageStart: indexMap.get(formName),
-      pageSize: ps
-    };
-    console.log("pageSize: " + ps);
-    console.log("pageStart: " + indexMap.get(formName));
 
-    let call = {
-      formName: formName,
-      url: url,
-      propertiesObject: propertiesObject
-    };
-    console.log(call);
-    calls.push(call);
-
-    indexMap.set(formName, indexMap.get(formName) + ps);
-    unexportedMap.set(formName, unexportedMap.get(formName) - ps);
-  }*/
-
-  /*while(exportedMap.get(formName) < formSize) {
-    let remaining = formSize - exportedMap.get(formName);
-    var ps = remaining > 100 ? 100 : remaining;
-    var propertiesObject = {
-      pageStart: indexMap.get(formName),
-      pageSize: ps
-    }
-    console.log("pageSize: " + ps);
-    console.log("pageStart: " + indexMap.get(formName));
-
-    let call = {
-      formName: formName,
-      url: url,
-      propertiesObject: propertiesObject
-    };
-    console.log(call);
-    calls.push(call);
-
-    indexMap.set(formName, indexMap.get(formName) + ps);
-    exportedMap.set(formName, exportedMap.get(formName) + ps);
-  }*/
-
-
-  async function x() {
-    const promises = calls.map(capstoneReq);
-    await Promise.all(promises);
-
-    fs.readFile("client_secret.json", function processClientSecrets(
-      err,
-      content
-    ) {
-      if (err) {
-        console.log("Error loading client secret file: " + err);
-        return;
-      }
-      auth.authenticate(JSON.parse(content), write);
-    });
-
-    res.send("yes");
-  }
-  x();
+  writeAll(calls, capstoneReq);
+  res.send("yes");
 });
+
+async function writeAll(calls, func) {
+  const promises = calls.map(func);
+  await Promise.all(promises)
+
+  fs.readFile("client_secret.json", function processClientSecrets(
+    err,
+    content
+  ) {
+    if (err) {
+      console.log("Error loading client secret file: " + err);
+      return;
+    }
+    auth.authenticate(JSON.parse(content), write);
+  });
+
+}
 
 function calculateCalls(calls, formName, formSize, url) {
   while(exportedMap.get(formName) < formSize) {
@@ -392,15 +332,16 @@ function capstoneReq(call) {
 
 }
 
-function setMaps(formName, formSize, sheetID) {
+function setMaps(formName, formSize, sheetID, isC2) {
   indexMap.set(formName, 0);
-  /*if (!unexportedMap.get(formName)) {
-    unexportedMap.set(formName, formSize);
-    console.log("unexported: " + unexportedMap.get(formName));
-  } else {
-    unexportedMap.set(formName, formSize - unexportedMap.get(formName));
-  }*/
-  sheetIDMap.set(formName, sheetID);
+  if(isC2) {
+    let C1Name = formName.split("capstone")[0] + "capstone"
+    sheetIDMap.set(C1Name, sheetID);
+  }
+  if(!sheetIDMap.get(formName)) {
+    sheetIDMap.set(formName, sheetID);
+  }
+  
   if(!exportedMap.get(formName)) {
     exportedMap.set(formName, 0);
   }
@@ -411,7 +352,7 @@ app.get("/capstoneForm2/:formName/:sheetID", (req, res) => {
   let sheetID = req.params.sheetID;
   currentForm = formName;
   let formSize = memStore.getFormSize(formName);
-  setMaps(formName, formSize, sheetID)
+  setMaps(formName, formSize, sheetID, true)
 
   if(formSize - exportedMap.get(formName) < 1) {
     res.send("no update")
@@ -425,26 +366,8 @@ app.get("/capstoneForm2/:formName/:sheetID", (req, res) => {
 
   var calls = []
   calculateCalls(calls, formName, formSize, url)
-
-  async function x() {
-    const promises = calls.map(capstone2Req);
-    await Promise.all(promises);
-
-    fs.readFile("client_secret.json", function processClientSecrets(
-      err,
-      content
-    ) {
-      if (err) {
-        console.log("Error loading client secret file: " + err);
-        return;
-      }
-      auth.authenticate(JSON.parse(content), write);
-    });
-
-    res.send("yes");
-  }
-
-  x()
+  writeAll(calls, capstone2Req);
+  res.send("yes")
 });
 
 function capstone2Req(call) {
@@ -745,24 +668,6 @@ function updateCount(form) {
   })
 }
 
-// Create a new google sheet with given sheetName
-app.post("/sheet/:sheetName", (req, res) => {
-  let sheetName = req.params.sheetName;
-  currentForm = sheetName;
-  fs.readFile("client_secret.json", function processClientSecrets(
-    err,
-    content
-  ) {
-    if (err) {
-      console.log("Error loading client secret file: " + err);
-      return;
-    }
-    auth.authenticate(JSON.parse(content), createSheet);
-  });
-
-  setTimeout(() => res.send(currentSheetID), 1200);
-});
-
 // get form entry count
 app.get("/count/:formName", (req, res) => {
   let formName = req.params.formName;
@@ -806,9 +711,15 @@ app.post("/importForm/:sheetID", (req, res) => {
 // get sheetID 
 app.get("/sheetID/:formName", (req, res) => {
   var formName = req.params.formName
+  if(formName.includes("capstone") && formName.includes("2")) {
+      formName = formName.split("capstone")[0] + "capstone"
+  }
+  console.log("formName" + formName)
 
   if(!sheetIDMap.get(formName)) {
     currentForm = formName;
+    console.log("get: " + sheetIDMap.get(formName))
+    
     fs.readFile("client_secret.json", function processClientSecrets(
       err,
       content
@@ -818,13 +729,13 @@ app.get("/sheetID/:formName", (req, res) => {
         return;
       }
       auth.authenticate(JSON.parse(content), createSheet);
-    });
+    })
   
-    setTimeout(() => res.send(currentSheetID), 1200);
-  } else {
+    setTimeout(() => res.send(currentSheetID), 1500);  
+} else {
    res.send(sheetIDMap.get(formName))
-  }
-  console.log(sheetIDMap.get(formName))
+}
+  
 })
 
 // 
@@ -907,6 +818,7 @@ function write(auth) {
 /* Create a new google sheet and  */
 function createSheet(auth) {
   var sheets = google.sheets("v4");
+  console.log("in here + " + currentForm)
   sheets.spreadsheets.create(
     {
       auth: auth,
@@ -923,6 +835,7 @@ function createSheet(auth) {
       }
       console.log("sucess!");
       console.log(response.spreadsheetId);
+      sheetIDMap.set(currentForm, response.spreadsheetId)
       currentSheetID = response.spreadsheetId;
     }
   );
