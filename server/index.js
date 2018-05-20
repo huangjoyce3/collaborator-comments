@@ -68,52 +68,53 @@ app.use(function(req, res, next) {
 
 app.use(bodyParser.json());
 
-app.get("/test", (req, res) => {
-  let arr = [{ name: "a", type: "b" }, { name: "b", type: "c" }];
-  console.log(arr.filter(w => w.name == "a"));
-  res.send(arr);
-});
-
+// adds a new cause group/assignee set
 app.post("/causeGroup", (req, res) => {
   let r = req.body;
   memStore.insertCauseGroup(r.cause, r.assignee);
   res.send(memStore.getAllCauseGroup());
 });
 
+// deletes a cause group/assignee set
 app.delete("/causeGroup", (req, res) => {
   let data = req.body;
   res.send(memStore.deleteCauseGroup(data.cause));
 });
 
+// returns all cause group/assignee sets
 app.get("/causeGroup", (req, res) => {
   res.json(memStore.getAllCauseGroup());
 });
 
+// adds a new category/words set 
 app.post("/wordBank", (req, res) => {
   let data = req.body;
   memStore.insertWordBank(data.category, data.word);
   res.json(memStore.getAllWords(data.category));
 });
 
+// delete a category/words set
 app.delete("/wordBank", (req, res) => {
   let data = req.body;
   res.json(memStore.deleteWord(data.category));
 });
 
+// returns all key words in the given category
 app.get("/wordBank/:category", (req, res) => {
   let cat = req.params.category;
   res.send(memStore.getAllWords(cat));
 });
 
+// returns all category/words sets
 app.get("/wholeWordBank", (req, res) => {
   res.json(memStore.getWordBank())
 })
 
+// cleans the given topic form and writes results to the sheet with the given sheetID
 app.get("/topicForm/:formName/:sheetID", (req, res) => {
   let formName = req.params.formName;
   let sheetID = req.params.sheetID;
   currentForm = formName;
-  //sheetIDMap.set(formName, sheetID)
   let formSize = memStore.getFormSize(formName);
 
   setMaps(formName, formSize, sheetID, false)
@@ -129,17 +130,17 @@ app.get("/topicForm/:formName/:sheetID", (req, res) => {
   var calls = [];
   calculateCalls(calls, formName, formSize, url)
 
-  writeAll(calls, topicReq);
-  res.send("yes")
-
   // start writing
+  writeAll(calls, topicReq);
+  res.send("done")
 });
 
+/* 
+   - calls wufoo api to get form raw data
+   - splits raw data into seperate entries
+*/
 function topicReq(call) {
   return new Promise(function(resolve, reject) {
-    console.log("topicReq");
-    console.log(call.url);
-    console.log(call.propertiesObject);
     request(
       {
         uri: call.url,
@@ -156,7 +157,6 @@ function topicReq(call) {
         if (error) return reject(error);
         try {
           var obj = JSON.parse(body).Entries;
-          console.log("THIS IS OBJ: " + obj);
           for (var index in obj) {
             let entry = {
               formName: call.formName,
@@ -183,16 +183,16 @@ function topicReq(call) {
   });
 }
 
+/*
 app.get("/form/:formName", (req, res) => {
   var formName = req.params.formName;
   res.json(memStore.getAllComment(formName));
-});
+});*/
 
-// Capstone Paper
+// cleans the given capstone form and writes results to the sheet with the given sheetID
 app.get("/capstoneForm/:formName/:sheetID", (req, res) => {
   let formName = req.params.formName;
   let sheetID = req.params.sheetID;
-  //sheetIDMap.set(formName, sheetID)
   currentForm = formName;
   let formSize = memStore.getFormSize(formName)
 
@@ -210,10 +210,12 @@ app.get("/capstoneForm/:formName/:sheetID", (req, res) => {
   var calls = []
   calculateCalls(calls, formName, formSize, url);
 
+  // start writing
   writeAll(calls, capstoneReq);
-  res.send("yes");
+  res.send("done");
 });
 
+// process all wufoo api calls and then write results to google sheet
 async function writeAll(calls, func) {
   const promises = calls.map(func);
   await Promise.all(promises)
@@ -255,6 +257,10 @@ function calculateCalls(calls, formName, formSize, url) {
   }
 }
 
+/* 
+   - calls wufoo api to get form raw data
+   - splits raw data into seperate entries
+*/
 function capstoneReq(call) {
   return new Promise(function(resolve, reject) {
     request(
@@ -332,6 +338,7 @@ function capstoneReq(call) {
 
 }
 
+// sets up indexing maps
 function setMaps(formName, formSize, sheetID, isC2) {
   indexMap.set(formName, 0);
   if(isC2) {
@@ -346,7 +353,8 @@ function setMaps(formName, formSize, sheetID, isC2) {
     exportedMap.set(formName, 0);
   }
 }
-// Capstone Paper
+
+// cleans the given capstone page 2 form and writes results to the sheet with the given sheetID
 app.get("/capstoneForm2/:formName/:sheetID", (req, res) => {
   let formName = req.params.formName;
   let sheetID = req.params.sheetID;
@@ -366,10 +374,16 @@ app.get("/capstoneForm2/:formName/:sheetID", (req, res) => {
 
   var calls = []
   calculateCalls(calls, formName, formSize, url)
+
+  // start writing
   writeAll(calls, capstone2Req);
   res.send("yes")
 });
 
+/* 
+   - calls wufoo api to get form raw data
+   - splits raw data into seperate entries
+*/
 function capstone2Req(call) {
   return new Promise(function(resolve, reject) {
     request(
@@ -406,14 +420,11 @@ function capstone2Req(call) {
               }
               for (var i = j; i <= j + 15; i++) {
                 key = "Field" + i;
-                //console.log(key);
-                //console.log(obj[index][key]);
                 if (obj[index][key]) {
                   categorySet.add(obj[index][key]); // add category
                 }
               }
             }
-            //console.log(sets);
     
             let entry = {
               formName: call.formName,
@@ -435,7 +446,6 @@ function capstone2Req(call) {
               viz3: obj[index].Field424,
               vizCat3: sets["425"]
             };
-            //console.log(entry);
             processData(entry, "capstone2");
           }
           resolve(obj);
@@ -447,10 +457,8 @@ function capstone2Req(call) {
   })
 }
 
-// clean each category
+// splits an entry into different category sections and cleans
 function processData(e, type) {
-  //console.log(e);
-
   // check if email is duplicated
   if (!emailSet.has(e.email)) {
     emailSet.add(e.email);
@@ -486,9 +494,11 @@ function processData(e, type) {
 }
 
 /* 
-ignore empty && unnecessary && duplicated comments
-split comment by •
-call to save into db
+    - ignores empty && unnecessary && duplicated comments
+    - splits comment by •
+    - looks for recommended triage category
+    - sets assignee
+    - calls to save to db
 */
 
 function clean(str, e, cat, cause) {
@@ -502,8 +512,6 @@ function clean(str, e, cat, cause) {
     str.split(" ").length > 3 ||
     !commentSet.has(str)
   ) {
-    //console.log(str);
-    //console.log(cat);
     var strArr = str.split("•");
     var today = new Date();
     var mm = today.getMonth() + 1;
@@ -512,13 +520,12 @@ function clean(str, e, cat, cause) {
     for (var index in strArr) {
       var current = strArr[index];
 
-      if (!commentSet.has(current) /*&& current.split(" ").length > 3*/) {
+      if (!commentSet.has(current)) {
         commentSet.add(current);
-        //console.log(current);
 
         countMap.set(sID, countMap.get(sID) + 1);
         let aLine = {
-          formName: e.formName, // replace it with request parameter
+          formName: e.formName, 
           firstName: e.firstName,
           lastName: e.lastName,
           email: e.email,
@@ -537,10 +544,8 @@ function clean(str, e, cat, cause) {
         if (a.length <= 4) {
           aLine.recommendedTriage = "No response needed";
         } else {
-          for (var key of memStore.getKeys() /*wordBank.keys()*/) {
-            //console.log("THIS IS KEY: " + key);
-            var words = memStore.getAllWords(key); //wordBank.get(key);
-            //console.log(words);
+          for (var key of memStore.getKeys() ) {
+            var words = memStore.getAllWords(key); 
             if (words.some(e => a.includes(e))) {
               aLine.recommendedTriage = key;
               break;
@@ -559,7 +564,6 @@ function clean(str, e, cat, cause) {
         let onlyVal = [
           e.firstName,
           e.lastName,
-          //e.email,
           cat,
           current,
           date,
@@ -568,16 +572,14 @@ function clean(str, e, cat, cause) {
           aLine.recommendedTriage
         ];
 
-        //console.log("aLine: " + aLine);
-        //memStore.insertComment(aLine);
         memStore.insertCommentValue(onlyVal, currentForm);
-        //console.log(memStore.getAllComment(currentForm));
       }
     }
   }
 }
 
-// get all forms
+
+// returns all forms updated within the last 2 months
 app.get("/allForms", (req, res) => {
   memStore.deleteAllForm();
   let q = new Date();
@@ -625,18 +627,16 @@ app.get("/allForms", (req, res) => {
         }
       }
       let forms = memStore.getAllForm();
-      console.log(forms.filter(f => f.type == ""));
       const promises = forms.map(updateCount);
       await Promise.all(promises).catch(function(error) {
         console.log(error.message)
       });
-      //await updateCount(forms);
-      console.log("done");
-      res.json(memStore.getAllForm());
+      res.json(forms);
     }
   );
 });
 
+// sets total entry count and unexported entry count of the given form
 function updateCount(form) {
   return new Promise(function(resolve, reject) {
     request(
@@ -650,15 +650,10 @@ function updateCount(form) {
         }
       },
       function(error, response, body) {
-        // in addition to parsing the value, deal with possible errors
         if (error) return reject(error);
         try {
-          // JSON.parse() can throw an exception if not valid JSON
-          //console.log("in");
           form.totalEntries = JSON.parse(body).EntryCount;
-          console.log("update: " + exportedMap.get(form.url))
           form.unexportedEntries = !exportedMap.get(form.url) ? form.totalEntries : form.totalEntries - exportedMap.get(form.url)
-          //console.log("update count: " + form);
           resolve(JSON.parse(body).EntryCount);
         } catch (e) {
           reject(e);
@@ -668,7 +663,7 @@ function updateCount(form) {
   })
 }
 
-// get form entry count
+// returns the total entry count of the given form
 app.get("/count/:formName", (req, res) => {
   let formName = req.params.formName;
   let url = baseUrl + "forms/" + formName + "/entries/count.json";
@@ -688,27 +683,8 @@ app.get("/count/:formName", (req, res) => {
   );
 });
 
-// this is a test api
-app.get("/func", (req, res) => {
-  fs.readFile("client_secret.json", function processClientSecrets(
-    err,
-    content
-  ) {
-    if (err) {
-      console.log("Error loading client secret file: " + err);
-      return;
-    }
-    auth.authenticate(JSON.parse(content), write);
-  });
-  res.send(typeof auth.authenticate);
-});
 
-// write to google sheet
-app.post("/importForm/:sheetID", (req, res) => {
-  var sheetID = req.params.sheetID;
-});
-
-// get sheetID 
+// returns the sheetID of the given form, if the given form doesn't have a google sheet yet, creates a new google sheet
 app.get("/sheetID/:formName", (req, res) => {
   var formName = req.params.formName
   if(formName.includes("capstone") && formName.includes("2")) {
@@ -735,21 +711,17 @@ app.get("/sheetID/:formName", (req, res) => {
 } else {
    res.send(sheetIDMap.get(formName))
 }
-  
 })
-
-// 
 
 app.listen(3000, () => console.log("Example app listening on port 3000!"));
 
+// writes to google sheet
 function write(auth) {
   let sID = sheetIDMap.get(currentForm)
   if (!startMap.get(sID)) {
     startMap.set(sID, 2);
   }
   let values = memStore.getAllComment(currentForm);
-  //let range = "B2:J" + count;
-  //let start = 2 + indexMap.get(currentForm);
   let start = startMap.get(sID);
   let end = start + countMap.get(sID);
   let range = "A" + start + ":H" + end;
@@ -810,12 +782,11 @@ function write(auth) {
       }
     }
   );
-  console.log("delete");
   memStore.deleteAllComment(currentForm);
   countMap.set(sID, 0)
 }
 
-/* Create a new google sheet and  */
+// creates a new google sheet
 function createSheet(auth) {
   var sheets = google.sheets("v4");
   console.log("in here + " + currentForm)
@@ -841,7 +812,7 @@ function createSheet(auth) {
   );
 }
 
-/* Populate cause group assignee map with base cause groups */
+// populates cause group assignee map with base cause groups 
 function populateCause(map) {
   let originCause = {
     "Cardiovascular disorders & Neoplasms": "Tahiya",
@@ -869,7 +840,7 @@ function populateCause(map) {
   }
 }
 
-/* Populate wordbank map with base categories */
+// populates wordbank map with base categories 
 function populateWordBank(map) {
   let originWordBank = {
     "Tables And Figures": [
