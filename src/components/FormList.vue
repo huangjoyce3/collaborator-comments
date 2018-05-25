@@ -59,7 +59,7 @@ export default {
                 try {
                     let url = "http://localhost:3000/sheetID/" + formName;
                     axios.get(url).then((response) => {
-                        console.log("return: " + formName + ", " + response.data)
+                        console.log("return: " + url + ", " + response.data)
                         resolve(response.data);
                     })
                 } catch (e) {
@@ -67,6 +67,7 @@ export default {
                 }
             })
         },
+        // TODO: handle no update
         async onClick(form){
             var sheetID = ''
             try{

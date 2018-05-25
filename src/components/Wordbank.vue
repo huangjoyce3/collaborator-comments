@@ -1,6 +1,6 @@
 <template>
     <div class="wordbank">
-        <h1>Smart Triage Word Bank</h1>
+        <h1>Word Bank</h1>
         <form @submit.prevent="addTableRow()">
             <input class="notransition" placeholder="category" type="text" id="category" v-model="newItem.category" required />
             <input class="notransition" placeholder="word1, word2, etc" type="text" id="word" v-model="newItem.word" required />
