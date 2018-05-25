@@ -764,6 +764,20 @@ function write(auth) {
         }
       }
     );
+    //'values':slackHeaders, 'range': "A1:C1"
+    let slackHeaders = ["Name", "Slack User Name", "Channel"]
+    let request = {spreadsheetId: sID, auth: auth,
+      resource: {requests: [
+        {'addSheet':{'properties':{'title': 'Slack'}}}
+      ],
+    }}
+    sheets.spreadsheets.batchUpdate(request, function(err, response) {
+      if (err) {
+        console.error(err);
+        return;
+      }
+        console.log(JSON.stringify(response, null, 2));
+    });
   }
   sheets.spreadsheets.values.update(
     {
