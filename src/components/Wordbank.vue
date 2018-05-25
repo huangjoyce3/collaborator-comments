@@ -73,7 +73,6 @@ export default {
                         {category: key, word: response.data[key].toString().replace(/,/g, ', ')}
                     );
                 } 
-                console.log(this.assignments);
             })
         },
         saveData(row) {

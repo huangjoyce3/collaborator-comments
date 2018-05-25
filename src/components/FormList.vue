@@ -7,8 +7,8 @@
         </div>
         <table-component
             :data="forms"
-            sort-by="totalEntries"
-            sort-order="asc"
+            sort-by="unexportedEntries"
+            sort-order="desc"
             :show-filter=true
             >
             <table-column show="name" label="Name"></table-column>
