@@ -64,6 +64,18 @@ export default {
         };
     },
     methods: {
+        getData(){
+            let url = 'http://localhost:3000/wholeWordBank';
+            axios.get(url).then((response) => {
+                
+                for( var key in response.data ){
+                    this.wordbank.push(
+                        {category: key, word: response.data[key].toString()}
+                    );
+                } 
+                console.log(this.assignments);
+            })
+        },
         saveData(row) {
             this.editedRow = null;
             localStorage.setItem('wordbank', JSON.stringify(this.wordbank));
@@ -127,13 +139,11 @@ export default {
         },
     },
     mounted(){
-        if (localStorage.getItem('assignments')) {
-            this.wordbank = JSON.parse(localStorage.getItem('wordbank'));
-        }
-
         if (localStorage.getItem('lastEditWordbank')) {
             this.lastEditWordbank = localStorage.getItem('lastEditWordbank');
         }
+
+        this.getData();
     },
     watch: {
         lastEditWordbank(val){
