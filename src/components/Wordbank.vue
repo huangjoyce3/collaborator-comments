@@ -70,7 +70,7 @@ export default {
                 
                 for( var key in response.data ){
                     this.wordbank.push(
-                        {category: key, word: response.data[key].toString()}
+                        {category: key, word: response.data[key].toString().replace(/,/g, ', ')}
                     );
                 } 
                 console.log(this.assignments);
@@ -94,7 +94,7 @@ export default {
         postWordbankAPI(category, word){
             let url = 'http://localhost:3000/wordBank';
             axios.post(url,{
-                category: category.toLowerCase(),
+                category: category,
                 word: word.toLowerCase()
             }).then(function (response) {
                 console.log(response.request.response);
@@ -107,7 +107,7 @@ export default {
             let url = 'http://localhost:3000/wordBank';
             axios.delete(url,{
                 data: { 
-                    category: c.toLowerCase(),  
+                    category: c,  
                     word: w.toLowerCase()
                 }
             }).then(function (response) {
