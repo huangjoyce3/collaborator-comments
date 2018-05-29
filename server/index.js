@@ -2,7 +2,7 @@
 
 // account key + random password
 //var auth = base64("5HVU-YCN1-83VZ-NH8Z:footastic");
-
+const PORT = process.env.PORT
 var userName = "5HVU-YCN1-83VZ-NH8Z"; // change to local variable later
 var pass = "footastic"; // change to local variable later
 
@@ -713,7 +713,7 @@ app.get("/sheetID/:formName", (req, res) => {
 }
 })
 
-app.listen(3000, () => console.log("Example app listening on port 3000!"));
+app.listen(PORT, () => console.log("Example app listening on port " + PORT + "!"));
 
 // writes to google sheet
 function write(auth) {

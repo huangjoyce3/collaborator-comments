@@ -4,7 +4,8 @@
     "description": "This directory contains the source code for your messaging microservice written in Node.js",
     "main": "index.js",
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "start": "node index.js"
     },
     "keywords": [],
     "author": "",
@@ -19,5 +20,9 @@
         "mongodb": "^2.2.33",
         "morgan": "^1.9.0",
         "request": "^2.83.0"
+    },
+    "engines": {
+        "node": "8.9.1",
+        "npm": "5.5.1"
     }
 }
