@@ -33,9 +33,9 @@ For the backend, we decided to use Node.js because we need to integrate with oth
 
 ## Contact Information
 
-Joyce Huang, Developer, jhuang3@uw.edu
-Christy Lu, Developer, hyl9@uw.edu
-Aisha Toulegenova, UX Designer, aisha1@uw.edu
+Joyce Huang, Developer, jhuang3@uw.edu  
+Christy Lu, Developer, hyl9@uw.edu  
+Aisha Toulegenova, UX Designer, aisha1@uw.edu  
 
 ## Link to working product
 https://youtu.be/HH-BNZeIVas
