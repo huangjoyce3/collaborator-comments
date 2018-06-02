@@ -1,0 +1,47 @@
+.tableBody{
+    text-align: left;
+}
+
+.tableClass{
+    width: 90%;
+    margin: auto;
+}
+
+caption{
+   font-style: italic;
+   color: #bdbdbd;
+   margin: 10px 0px;
+}
+table{
+    border-collapse: separate;
+    border-spacing: 50px 0;
+}
+td:first-child {
+    text-align: left;
+}
+
+td{
+    padding: 10px 0;
+}
+
+input{
+    outline: none;
+    border: solid 2px #e0e0e0;
+    border-radius: 10px;
+    font-family: 'Avenir', Helvetica, Arial, sans-serif;
+}
+
+input[type=text] {
+    width: 100px;
+    -webkit-transition: width 0.4s ease-in-out;
+    transition: width 0.4s ease-in-out;
+    font-size: 15px;
+    padding: 7px;
+}
+
+/* When the input field gets focus, change its width to 100% */
+input[type=text]:focus {
+    width: 50%;
+    border-color: linear-gradient(to right,rgba(205, 250, 164, 0.753), #AEE7DD);
+
+}

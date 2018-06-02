@@ -1,6 +1,7 @@
 <template>
   <div id="app">
-    <!-- <img src="./assets/logo.png"> -->
+    <img src="./assets/ihme-logo.png">
+    <p id="name">IHME Collaborator</p>
     <router-view/>
   </div>
 </template>
@@ -18,6 +19,22 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
+  margin-top: 0px;
+}
+
+.header-wrapper{
+  display: flex;
+}
+img{
+  float: left;
+  margin: 0px 10px 0px 40px;
+}
+#name{
+  margin-top: 40px;
+  padding-top: 5px;
+  margin-left: 50px;
+  font-size: 30px;
+  font-weight: 500;
+  display: flex;
 }
 </style>

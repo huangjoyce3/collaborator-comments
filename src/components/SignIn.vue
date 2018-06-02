@@ -1,13 +1,16 @@
 <template>
     <div class="sign-in">
-        <h2>Log into IHME Collaborator Comments</h2>
+        <h2>Sign in to your account</h2>
         <form>
             <!-- <img src="https://png.icons8.com/windows/100/000000/guest-male.png">             -->
-            <input type="text" name="username" placeholder="username" id="username"><br>
-            <input type="text" name="password" placeholder="password" id="password"><br>
-            <button class="button">Login in</button>
+            <input type="text" name="username" placeholder="email" id="username"><br>
+            <input type="password" name="password" placeholder="password" id="password"><br>
+            <router-link :to="{name: 'home'}">
+                <button class="button">Sign in</button>
+            </router-link>
+            
         </form>
-        <div class="other">  
+        <div class="other">
             <p id="create">Create and account</p>
             <p id="recover">Recover account</p>
         </div>
@@ -15,17 +18,23 @@
 </template>
 <script>
 export default {
-    name: 'SignIn'
+  name: 'SignIn'
 }
 </script>
 
 <style scoped>
-input[type=text] {
+h2{
+    color: rgb(95, 95, 95);
+    font-weight: 400;
+}
+input {
     border: none;
     border-bottom: 1px solid #dddddd;
     outline: none;
     text-align: center;
     font-size: 110%;
+    width: 300px;
+    color: rgb(143, 201, 145);
 }
 #username{
     padding-bottom: 10px;
@@ -44,10 +53,14 @@ input[type=text] {
     border-radius: 20px;
     font-size: 100%;
     outline: none;
+    color: #8DBE6C;
+    border-color: #8DC26F;
 }
 .button:hover {
-    background-color: rgb(143, 201, 145); /* Green */
+    /* background-color: rgb(143, 201, 145); Green */
     color: white;
+    border-color: #8DC26F;
+    background: linear-gradient(to right,#8DC26F, #76b852);
 }
 img {
     height: 30px;
@@ -73,4 +86,3 @@ img {
     padding-left: 50px;
 }
 </style>
-

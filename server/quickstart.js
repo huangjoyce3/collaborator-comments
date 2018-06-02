@@ -23,6 +23,8 @@ fs.readFile("client_secret.json", function processClientSecrets(err, content) {
   console.log(c);
   //authorize(JSON.parse(content), listMajors);
   //authorize(JSON.parse(content), write);
+
+  //authorize(JSON.parse(content), createSheet);
 });
 
 /**
@@ -44,7 +46,7 @@ function authorize(credentials, callback) {
     if (err) {
       getNewToken(oauth2Client, callback);
     } else {
-      //console.log(token);
+      console.log(token);
       oauth2Client.credentials = JSON.parse(token);
       callback(oauth2Client);
     }
@@ -133,7 +135,28 @@ function listMajors(auth) {
   );
 }
 
-function write(auth) {
+function createSheet(auth) {
+  var sheets = google.sheets("v4");
+  sheets.spreadsheets.create(
+    {
+      auth: auth,
+      resource: {
+        properties: {
+          title: "Test Create"
+        }
+      }
+    },
+    function(err, response) {
+      if (err) {
+        console.log("The API returned an error: " + err);
+        return;
+      }
+      console.log("sucess!");
+      console.log(response.spreadsheetId);
+    }
+  );
+}
+/*function write(auth) {
   var id = "1mKw1_QfofAOhJt-gud-5Trphct9hYtZHleit7l1eITU";
   var values = [["1-1", "1-2", "1-3"], ["2-1", "2-2", "2-3"]];
   var body = {
@@ -157,7 +180,7 @@ function write(auth) {
       }
     }
   );
-}
+}*/
 
 module.exports = {
   authenticate: authorize
