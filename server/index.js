@@ -2,7 +2,7 @@
 
 // account key + random password
 //var auth = base64("5HVU-YCN1-83VZ-NH8Z:footastic");
-
+const PORT = process.env.PORT | 3000
 var userName = "5HVU-YCN1-83VZ-NH8Z"; // change to local variable later
 var pass = "footastic"; // change to local variable later
 
@@ -47,7 +47,7 @@ populateCause(causeGroupMap);
 var startMap = new HashMap();
 var unexportedMap = new HashMap();
 var exportedMap = new HashMap();
-var countMap = new HashMap();
+//var countMap = new HashMap();
 var currentForm = "";
 var currentSheetID = "";
 
@@ -448,6 +448,7 @@ function capstone2Req(call) {
               vizCat3: sets["425"]
             };
             processData(entry, "capstone2");
+            //console.log(entry)
           }
           resolve(obj);
         } catch (e) {
@@ -461,8 +462,8 @@ function capstone2Req(call) {
 // splits an entry into different category sections and cleans
 function processData(e, type) {
   // check if email is duplicated
-  if (!emailSet.has(e.email)) {
-    emailSet.add(e.email);
+  /*if (!emailSet.has(e.email)) {
+    emailSet.add(e.email);*/
 
     if (type != "capstone2") {
       clean(e.descrOfMethod, e, "descrOfMethod", "");
@@ -491,7 +492,7 @@ function processData(e, type) {
       clean(e.methodological, e, "methodological", "");
       clean(e.methodAppendix, e, "appendix", "");
     }
-  }
+  //}
 }
 
 /* 
@@ -503,10 +504,7 @@ function processData(e, type) {
 */
 
 function clean(str, e, cat, cause) {
-  let sID = sheetIDMap.get(e.formName)
-  if (!countMap.get(sID)) {
-    countMap.set(sID, 0);
-  }
+
   if (
     str != null ||
     str != "" ||
@@ -524,7 +522,6 @@ function clean(str, e, cat, cause) {
       if (!commentSet.has(current)) {
         commentSet.add(current);
 
-        countMap.set(sID, countMap.get(sID) + 1);
         let aLine = {
           formName: e.formName, 
           firstName: e.firstName,
@@ -691,7 +688,6 @@ app.get("/sheetID/:formName", (req, res) => {
   if(formName.includes("capstone") && formName.includes("2")) {
       formName = formName.split("capstone")[0] + "capstone"
   }
-  console.log("formName" + formName)
 
   if(!sheetIDMap.get(formName)) {
     currentForm = formName;
@@ -714,20 +710,20 @@ app.get("/sheetID/:formName", (req, res) => {
 }
 })
 
-app.listen(3000, () => console.log("Example app listening on port 3000!"));
+app.listen(PORT, () => console.log("Example app listening on port " + PORT + "!"));
 
 // writes to google sheet
 function write(auth) {
   let sID = sheetIDMap.get(currentForm)
+
   if (!startMap.get(sID)) {
     startMap.set(sID, 2);
   }
   let values = memStore.getAllComment(currentForm);
   let start = startMap.get(sID);
-  let end = start + countMap.get(sID);
+  let end = start + values.length;
   let range = "A" + start + ":H" + end;
   startMap.set(sID, end);
-  console.log(range)
 
   var body = {
     values: values
@@ -798,7 +794,6 @@ function write(auth) {
     }
   );
   memStore.deleteAllComment(currentForm);
-  countMap.set(sID, 0)
 }
 
 // creates a new google sheet
