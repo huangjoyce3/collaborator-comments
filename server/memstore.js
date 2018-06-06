@@ -25,13 +25,6 @@ class MemStore {
     return cause;
   }
   insertWordBank(cat, words) {
-    //let collection = this.wordBank.get(cat);
-    /*if (!collection) {
-      this.wordBank.set(cat, []);
-      collection = this.wordBank.get(cat);
-    }
-    collection.push(word);
-    return word;*/
     this.wordBank.set(cat, words);
   }
   insertForm(form) {
@@ -50,8 +43,13 @@ class MemStore {
     return this.causeGroupMap.get(cause);
   }
   getAllCauseGroup() {
-    console.log(this.causeGroupMap);
-    return this.causeGroupMap;
+    let obj = {}
+    this.causeGroupMap.forEach(function(value, key) {
+      console.log(key)
+      console.log(value)
+      obj[key] = value
+    })
+    return obj
   }
   getAllWords(cat) {
     return this.wordBank.get(cat);
@@ -60,26 +58,23 @@ class MemStore {
     return this.wordBank.keys();
   }
   getWordBank() {
-    return this.wordBank;
+    let obj = {}
+    this.wordBank.forEach(function(value, key) {
+      console.log(key)
+      console.log(value)
+      obj[key] = value
+    })
+    return obj;
   }
   deleteWord(cat) {
-    /*let collection = this.wordBank.get(cat);
-    if (collection) {
-      var index = collection.indexOf(word);
-      if (index > -1) {
-        collection.splice(index, 1);
-        return true;
-      }
-    }*/
-    if (this.wordBank.get(cat)) {
+    if (this.wordBank.has(cat)) {
       this.wordBank.delete(cat);
       return true;
     }
-
     return false;
   }
   deleteCauseGroup(cause) {
-    if (this.causeGroupMap.get(cause)) {
+    if (this.causeGroupMap.has(cause)) {
       this.causeGroupMap.delete(cause);
       return true;
     }

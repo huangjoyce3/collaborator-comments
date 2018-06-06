@@ -1,6 +1,6 @@
 <template>
     <div class="wordbank">
-        <h1>Smart Triage Word Bank</h1>
+        <h1>Word Bank</h1>
         <form @submit.prevent="addTableRow()">
             <input class="notransition" placeholder="category" type="text" id="category" v-model="newItem.category" required />
             <input class="notransition" placeholder="word1, word2, etc" type="text" id="word" v-model="newItem.word" required />
@@ -64,6 +64,17 @@ export default {
         };
     },
     methods: {
+        getData(){
+            let url = 'http://localhost:3000/wholeWordBank';
+            axios.get(url).then((response) => {
+                
+                for( var key in response.data ){
+                    this.wordbank.push(
+                        {category: key, word: response.data[key].toString().replace(/,/g, ', ')}
+                    );
+                } 
+            })
+        },
         saveData(row) {
             this.editedRow = null;
             localStorage.setItem('wordbank', JSON.stringify(this.wordbank));
@@ -82,7 +93,7 @@ export default {
         postWordbankAPI(category, word){
             let url = 'http://localhost:3000/wordBank';
             axios.post(url,{
-                category: category.toLowerCase(),
+                category: category,
                 word: word.toLowerCase()
             }).then(function (response) {
                 console.log(response.request.response);
@@ -95,7 +106,7 @@ export default {
             let url = 'http://localhost:3000/wordBank';
             axios.delete(url,{
                 data: { 
-                    category: c.toLowerCase(),  
+                    category: c,  
                     word: w.toLowerCase()
                 }
             }).then(function (response) {
@@ -127,13 +138,11 @@ export default {
         },
     },
     mounted(){
-        if (localStorage.getItem('assignments')) {
-            this.wordbank = JSON.parse(localStorage.getItem('wordbank'));
-        }
-
         if (localStorage.getItem('lastEditWordbank')) {
             this.lastEditWordbank = localStorage.getItem('lastEditWordbank');
         }
+
+        this.getData();
     },
     watch: {
         lastEditWordbank(val){
